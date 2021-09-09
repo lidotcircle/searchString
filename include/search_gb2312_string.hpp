@@ -5,15 +5,17 @@
 #include <type_traits>
 #include <iterator>
 #include <tuple>
+#include <iostream>
 
 
 /** GB2312 string
- *  1. ascii string (without control characters)
+ *  1. ascii string (without control characters but include TAB(0x09) LF(0x0A) CR(0x0D))
  *  2. first byte in 0xA1-0xF7 and second byte in 0xA1-0xFE
  */
 
-#define _IS_V_ASCII (c) (c >= 0x20 && c <  0x7f)
-#define _IS_V_FIRST (c) (c >= 0xA1 && c <= 0xF7)
+#define _IS_V_ASCII(c)  ((c >= 0x20 && c <  0x7f) \
+        || c == 0x09 || c == 0x0A || c == 0x0D)
+#define _IS_V_FIRST(c)  (c >= 0xA1 && c <= 0xF7)
 #define _IS_V_SECOND(c) (c >= 0x20 && c <= 0xFE)
 
 enum GB2312MatchState {
@@ -41,18 +43,19 @@ void clean_candiates(std::vector<std::tuple<GB2312MatchState, size_t, size_t>>& 
 }
 
 template<
-    typename ForwIter, 
-    typename = std::enable_if_t<
-        std::is_same_v<typename std::iterator_traits<ForwIter>::iterator_category,
-            std::forward_iterator_tag>, void>,
-    typename = std::enable_if_t<
-        std::is_integral_v<typename std::iterator_traits<ForwIter>::value_type>, void>,
-    typename = std::enable_if_t<
-        sizeof(typename std::iterator_traits<ForwIter>::value_type) == 8, void>
+    typename InIter,
+    typename = typename std::enable_if<
+        std::is_convertible<typename std::iterator_traits<InIter>::iterator_category,
+            std::input_iterator_tag>::value, void>::type,
+    typename = typename std::enable_if<
+        std::is_integral<
+            typename std::iterator_traits<InIter>::value_type>::value, void>::type,
+    typename = typename std::enable_if<
+        sizeof(typename std::iterator_traits<InIter>::value_type) == 1, void>::type
     >
 std::vector<std::pair<size_t, size_t>> searchGB2312(
-    ForwIter begin, 
-    ForwIter end, 
+    InIter begin, 
+    InIter end, 
     size_t min_length, 
     size_t base)
 {
@@ -64,18 +67,21 @@ std::vector<std::pair<size_t, size_t>> searchGB2312(
     // char is in range of 0xa1-0xf7, no one in bstate
     bool newC2 = true;
 
-    for(size_t n=0;begin != end; begin++, n++) {
+    for(size_t n=0; begin != end; begin++, n++) {
         unsigned char c = *begin;
 
         if(!_IS_V_ASCII(c) && !_IS_V_FIRST(c) && !_IS_V_SECOND(c)) {
-            clean_candiates(candidates, result, min_length);
+            clean_candiates(candidates, result, min_length, base);
+            candidates.clear();
             continue;
         }
 
         newC1 = _IS_V_ASCII(c);
         newC2 = _IS_V_FIRST(c);
-        typename decltype(candidates) cc;
-        for(auto& candiate: candiates) {
+        decltype(candidates) cc;
+        GB2312MatchState s;
+        size_t b, e;
+        for(auto& candidate: candidates) {
             std::tie(s, b, e) = candidate;
 
             if(_IS_V_ASCII(c)) {
@@ -87,11 +93,17 @@ std::vector<std::pair<size_t, size_t>> searchGB2312(
                         result.push_back(std::make_pair(base + b, base + e - 1));
                     }
                 }
-            } else if (_IS_V_FIRST) {
+            } else if (_IS_V_FIRST(c)) {
                 auto ns = s == astate ? bstate : astate;
                 cc.push_back(std::make_tuple(ns, b, e + 1));
                 if (ns == bstate) {
                     newC2 = false;
+                }
+            } else {
+                if (s == bstate) {
+                    cc.push_back(std::make_tuple(astate, b, e + 1));
+                } else {
+                    result.push_back(std::make_pair(base + b, base + e));
                 }
             }
         }
@@ -103,7 +115,7 @@ std::vector<std::pair<size_t, size_t>> searchGB2312(
         }
     }
 
-    clean_candiates(candidates, result, min_length);
+    clean_candiates(candidates, result, min_length, base);
     return result;
 }
 
