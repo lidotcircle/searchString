@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <iterator>
 #include <tuple>
+#include <string>
+#include <queue>
 #include <iostream>
 
 
@@ -22,6 +24,52 @@ enum GB2312MatchState {
     astate,    // complete gb2312 string
     bstate,    // still require additional byte (0xA1 - 0xFE)
 };
+
+template<
+    typename InIter,
+    typename = typename std::enable_if<
+        std::is_convertible<typename std::iterator_traits<InIter>::iterator_category,
+            std::input_iterator_tag>::value, void>::type,
+    typename = typename std::enable_if<
+        std::is_integral<
+            typename std::iterator_traits<InIter>::value_type>::value, void>::type,
+    typename = typename std::enable_if<
+        sizeof(typename std::iterator_traits<InIter>::value_type) == 1, void>::type
+    >
+class GB2312StringInputIter {
+    public:
+        typedef size_t                        difference_type;
+        typedef std::pair<size_t,std::string> value_type;
+        typedef value_type&                   reference;
+        typedef value_type*                   pointer;
+        typedef std::input_iterator_tag       iterator_catogory;
+
+    private:
+        std::queue<std::pair<size_t,std::string>> out;
+        union {
+            InIter i;
+            char a[sizeof(InIter)];
+        } iter_begin, iter_end;
+        bool is_iter;
+        size_t n;
+
+    public:
+        GB2312StringInputIter(InIter begin, InIter end);
+        GB2312StringInputIter(const GB2312StringInputIter& iter);
+        GB2312StringInputIter();
+
+        GB2312StringInputIter& operator++();
+        GB2312StringInputIter& operator++(int);
+        GB2312StringInputIter& operator=(const GB2312StringInputIter&);
+        GB2312StringInputIter& operator=(GB2312StringInputIter&&);
+        reference operator*() {
+            return this->out.front;
+        }
+        pointer   operator->() {
+            return &this->operator*();
+        }
+};
+
 
 void clean_candiates(std::vector<std::tuple<GB2312MatchState, size_t, size_t>>& candiates,
                      std::vector<std::pair<size_t, size_t>>& result,
