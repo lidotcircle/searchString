@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "search_gb2312_string.hpp"
+#include <tuple>
+#include "search_string_gb2312.hpp"
 using namespace std;
 
 
@@ -19,9 +20,11 @@ int main(int argc, char** argv) {
     std::ifstream inputFile(filename);
     std::istreambuf_iterator<char> inputBegin(inputFile), inputEnd;
 
-    auto pairs = searchGB2312(inputBegin, inputEnd, 6, 0);
-    for(auto& p: pairs) {
-        cout << p.first << " " << p.second << endl;
+    auto sbegin = gb2312Begin(inputBegin, inputEnd, true, 6);
+    auto send = sbegin.end();
+
+    for(;sbegin != send;sbegin++) {
+        cout << std::get<2>(*sbegin) << endl;
     }
 
     return 0;
