@@ -20,11 +20,11 @@ int main(int argc, char** argv) {
     std::ifstream inputFile(filename);
     std::istreambuf_iterator<char> inputBegin(inputFile), inputEnd;
 
-    auto sbegin = gb2312Begin(inputBegin, inputEnd, true, 6);
+    auto sbegin = gb2312Begin(inputBegin, inputEnd, true, true, 10);
     auto send = sbegin.end();
 
     for(;sbegin != send;sbegin++) {
-        cout << std::get<2>(*sbegin) << endl;
+        cout << std::get<0>(*sbegin) << ": " << std::get<2>(*sbegin) << endl;
     }
 
     return 0;

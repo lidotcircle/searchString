@@ -34,7 +34,7 @@ class SearchStringInputIter {
         typedef std::vector<std::tuple<candidate_state,size_t,size_t,std::string>> candidate_array_t;
 
     private:
-        typedef std::remove_reference<InIter> input_iter;
+        using input_iter = typename std::remove_reference<InIter>::type;
 
         union _IUnion {
             struct {
@@ -85,7 +85,7 @@ class SearchStringInputIter {
                 }
             }
 
-            input_iter& get() const {
+            input_iter& get() {
                 if(!this->m.is_iter) {
                     throw std::runtime_error("access inactive member in union");
                 }
@@ -100,7 +100,7 @@ class SearchStringInputIter {
         output_array_t    out;
         candidate_array_t candidates;
 
-        size_t     n;
+        size_t     cur_pos;
         bool       is_proxy;
         value_type proxy_value;
         bool       _generate_string;
@@ -113,22 +113,22 @@ class SearchStringInputIter {
             while(this->out.empty()
                     && this->iter_begin.get() != this->iter_end.get()) 
             {
-                ++this->iter_begin.get();
                 unsigned char c = *this->iter_begin.get();
-                this->out = this->feed_char(this->n, c, this->candidates);
-                n++;
+                this->out = this->feed_char(this->cur_pos, c, this->candidates);
+                ++this->iter_begin.get();
+                this->cur_pos++;
             }
 
             if(this->iter_begin.get() == this->iter_end.get() 
                     && !this->candidates.empty()) 
             {
-                for(auto& cn: this->feed_char(this->n, '\0', this->candidates)) {
+                for(auto& cn: this->feed_char(this->cur_pos, '\0', this->candidates)) {
                     this->out.push_back(std::move(cn));
                 }
             }
         }
 
-        bool is_end() const {
+        bool is_end() {
             if(!this->iter_begin) {
                 return true;
             }
@@ -147,9 +147,11 @@ class SearchStringInputIter {
 
 
     protected:
-        virtual output_array_t feed_char(size_t pos, unsigned char c, candidate_array_t& _candidates);
+        virtual output_array_t feed_char(size_t pos, unsigned char c, candidate_array_t& _candidates) {
+            throw std::runtime_error("call unimplemented virtual function");
+        }
         bool generate_string() {return this->_generate_string;}
-        size_t min_string_length() {return this->min_string_length();}
+        size_t min_string_length() {return this->_min_string_length;}
 
 
     public:
@@ -159,7 +161,8 @@ class SearchStringInputIter {
                 ): 
             iter_begin(begin), iter_end(end),
             is_proxy(false), proxy_value(),
-            _generate_string(generate_string), _min_string_length(min_len) {}
+            _generate_string(generate_string), _min_string_length(min_len),
+            cur_pos(0) {}
         SearchStringInputIter(): is_proxy(false) {}
 
         SearchStringInputIter end() {return SearchStringInputIter();}
@@ -192,7 +195,7 @@ class SearchStringInputIter {
             }
 
             this->feed_output();
-            if(!this->out.empty()) {
+            if(this->out.empty()) {
                 throw std::runtime_error("access end of iterator");
             }
 
@@ -205,7 +208,9 @@ class SearchStringInputIter {
         bool operator==(const SearchStringInputIter& o) const {
             if(&o == this) return true;
 
-            return this->is_end() && o.is_end();
+            SearchStringInputIter* _this = const_cast<SearchStringInputIter*>(this);
+            SearchStringInputIter& _o    = const_cast<SearchStringInputIter&>(o);
+            return _this->is_end() && _o.is_end();
         }
         bool operator!=(const SearchStringInputIter& o) const {
             return !this->operator==(o);
