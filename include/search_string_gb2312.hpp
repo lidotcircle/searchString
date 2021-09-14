@@ -52,9 +52,7 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
                 }
             }
 
-            if(e - b >= this->min_string_length()) {
-                output.push_back(std::make_tuple(b, e, std::move(str)));
-            }
+            output.push_back(std::make_tuple(b, e, std::move(str)));
         }
     }
 
@@ -87,11 +85,9 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
                     new_candidates.push_back(std::make_tuple(astate, b, e + 1, str));
                     newC1 = false;
                 } else {
-                    if (e - b >= this->min_string_length() + 1) {
-                        if (this->generate_string())
-                            str.pop_back();
-                        ans.push_back(std::make_tuple(b, e - 1, str));
-                    }
+                    if (this->generate_string())
+                        str.pop_back();
+                    ans.push_back(std::make_tuple(b, e - 1, str));
                 }
             } else if (_IS_V_FIRST(c)) {
                 auto ns = s == astate ? bstate : astate;
@@ -106,7 +102,7 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
                     if(this->generate_string())
                         str.push_back(c);
                     new_candidates.push_back(std::make_tuple(astate, b, e + 1, str));
-                } else if (e - b >= this->min_string_length()) {
+                } else {
                     ans.push_back(std::make_tuple(b, e, str));
                 }
             }
@@ -126,9 +122,8 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
     public:
     SearchStringGB2312InputIter(
             IterT beginIter, IterT endIter, 
-            bool str_contain_crlf, bool generate_string,
-            size_t min_len):
-        SearchStringInputIter<IterT>(beginIter, endIter, generate_string, min_len),
+            bool str_contain_crlf, bool generate_string):
+        SearchStringInputIter<IterT>(beginIter, endIter, generate_string),
         contain_crlf(str_contain_crlf) {}
 
     SearchStringGB2312InputIter() = default;
@@ -137,12 +132,11 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
 template<typename T>
 SearchStringGB2312InputIter<T> gb2312Begin(
         T inputIterBegin, T inputIterEnd,
-        bool str_contain_crlf, bool generate_string,
-        size_t min_len) 
+        bool str_contain_crlf, bool generate_string) 
 {
     return SearchStringGB2312InputIter<T>(
             inputIterBegin, inputIterEnd, 
-            str_contain_crlf, generate_string, min_len);
+            str_contain_crlf, generate_string);
 }
 template<typename T>
 SearchStringGB2312InputIter<T> gb2312End(T inputIter, T inputIterEnd) {return SearchStringGB2312InputIter<T>();}

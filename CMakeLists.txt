@@ -1,14 +1,16 @@
 cmake_minimum_required(VERSION 3.4)
 project(searchString VERSION 0.1.0)
 
+include("cmake/CPM.cmake")
+include("cmake/searchString.cmake")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 
 set(searchStringLib_SOURCES "")
 file(GLOB_RECURSE searchStringLib_SOURCES   CONFIGURE_DEPENDS ./lib/**.cpp)
 file(GLOB_RECURSE searchStringLib_SOURCES_C CONFIGURE_DEPENDS ./lib/**.c)
 list(APPEND searchStringLib_SOURCES ${searchStringLib_SOURCES_C})
 add_library(searchStringLib STATIC ${searchStringLib_SOURCES})
+target_link_libraries(searchStringLib PUBLIC SentenceValidationLib)
 set_property(TARGET searchStringLib PROPERTY CXX_STANDARD 14)
 target_include_directories(searchStringLib PUBLIC include)
 

@@ -7,6 +7,10 @@
 #include <type_traits>
 #include <iterator>
 #include <exception>
+#include <memory>
+
+#include "string_validator.h"
+#include "string_filter.h"
 
 
 template<
@@ -104,7 +108,8 @@ class SearchStringInputIter {
         bool       is_proxy;
         value_type proxy_value;
         bool       _generate_string;
-        size_t     _min_string_length;
+        std::vector<std::shared_ptr<StringValidator>> validators;
+        std::vector<std::shared_ptr<StringFilter>>    filters;
 
         SearchStringInputIter(const value_type& o):
             is_proxy(true), proxy_value(o) {}
@@ -114,7 +119,16 @@ class SearchStringInputIter {
                     && this->iter_begin.get() != this->iter_end.get()) 
             {
                 unsigned char c = *this->iter_begin.get();
-                this->out = this->feed_char(this->cur_pos, c, this->candidates);
+                for(auto& cn: this->feed_char(this->cur_pos, c, this->candidates)) {
+                    const std::string& m = std::get<2>(cn);
+
+                    if(!this->validate(m)) {
+                        continue;
+                    }
+                    std::get<2>(cn) = this->filter(m);
+
+                    this->out.push_back(std::move(cn));
+                }
                 ++this->iter_begin.get();
                 this->cur_pos++;
             }
@@ -123,6 +137,13 @@ class SearchStringInputIter {
                     && !this->candidates.empty()) 
             {
                 for(auto& cn: this->feed_char(this->cur_pos, '\0', this->candidates)) {
+                    const std::string& m = std::get<2>(cn);
+
+                    if(!this->validate(m)) {
+                        continue;
+                    }
+                    std::get<2>(cn) = this->filter(m);
+
                     this->out.push_back(std::move(cn));
                 }
             }
@@ -145,23 +166,40 @@ class SearchStringInputIter {
             }
         }
 
+        bool validate(const std::string& str) {
+            for(auto& validator: this->validators) {
+                if(!validator->validate(str)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        std::string filter(const std::string& str) {
+            std::string ans = str;
+            for(auto& filter: this->filters) {
+                ans = filter->filter(ans);
+            }
+
+            return ans;
+        }
 
     protected:
         virtual output_array_t feed_char(size_t pos, unsigned char c, candidate_array_t& _candidates) {
             throw std::runtime_error("call unimplemented virtual function");
         }
         bool generate_string() {return this->_generate_string;}
-        size_t min_string_length() {return this->_min_string_length;}
 
 
     public:
         SearchStringInputIter(
                 InIter begin, InIter end, 
-                bool generate_string = true, size_t min_len = 0
+                bool generate_string = true
                 ): 
             iter_begin(begin), iter_end(end),
             is_proxy(false), proxy_value(),
-            _generate_string(generate_string), _min_string_length(min_len),
+            _generate_string(generate_string),
             cur_pos(0) {}
         SearchStringInputIter(): is_proxy(false) {}
 
@@ -214,6 +252,13 @@ class SearchStringInputIter {
         }
         bool operator!=(const SearchStringInputIter& o) const {
             return !this->operator==(o);
+        }
+
+        void add_validator(std::shared_ptr<StringValidator> validator) {
+            this->validators.push_back(validator);
+        }
+        void add_filter(std::shared_ptr<StringFilter> filter) {
+            this->filters.push_back(filter);
         }
 };
 
