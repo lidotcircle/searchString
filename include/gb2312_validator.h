@@ -7,7 +7,11 @@
 
 class GB2312Validator: public StringValidator {
     private:
+        using sample_type = SentenceSVM<uint16_t>::sample_type;
         SentenceSVM<uint16_t> svm;
+
+        void add_samples(const std::string& file, std::vector<sample_type>& samples);
+
 
     public:
         GB2312Validator() = default;
@@ -15,12 +19,11 @@ class GB2312Validator: public StringValidator {
         bool save(unsigned char* buf, size_t bufsize, size_t& write);
         bool load(unsigned char* buf, size_t bufsize, size_t& read);
 
-        void feed_file(const std::string& filename);
+        bool feed_file(const std::string& filename);
         void feed(const std::string& gb2312sentence);
         void feed(const std::vector<uint16_t>& sentence);
 
         void svm_train_files(const std::vector<std::string>& valid, const std::vector<std::string>& invalid);
-        void svm_train(const std::vector<std::pair<std::vector<uint16_t>,bool>>& samples);
 
         virtual bool validate(const std::string& str) override;
         virtual ~GB2312Validator() override;
