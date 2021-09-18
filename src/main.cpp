@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
     auto sbegin = gb2312Begin(inputBegin, inputEnd, true, true);
     auto send = sbegin.end();
-    sbegin.add_validator(std::make_shared<MiniumLength>(7));
+    sbegin.add_validator(std::make_shared<MiniumLength>(4));
     sbegin.add_validator(std::make_shared<GB2312Validator>());
 
     for(;sbegin != send;sbegin++) {

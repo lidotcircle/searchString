@@ -119,6 +119,7 @@ void GB2312Validator::svm_train_files(const std::vector<std::string>& valid, con
 }
 
 bool GB2312Validator::validate(const std::string& str) {
+    return true;
     auto nu = str2u16(str, true);
     if (nu.empty())
         return false;
