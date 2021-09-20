@@ -9,7 +9,7 @@
 #include <exception>
 #include <memory>
 
-#include "string_validator.h"
+#include "string_mapper.h"
 #include "string_filter.h"
 
 
@@ -108,8 +108,8 @@ class SearchStringInputIter {
         bool       is_proxy;
         value_type proxy_value;
         bool       _generate_string;
-        std::vector<std::shared_ptr<StringValidator>> validators;
-        std::vector<std::shared_ptr<StringFilter>>    filters;
+        std::vector<std::shared_ptr<StringMapper>> mappers;
+        std::vector<std::shared_ptr<StringFilter>> filters;
 
         SearchStringInputIter(const value_type& o):
             is_proxy(true), proxy_value(o) {}
@@ -122,10 +122,10 @@ class SearchStringInputIter {
                 for(auto& cn: this->feed_char(this->cur_pos, c, this->candidates)) {
                     const std::string& m = std::get<2>(cn);
 
-                    if(!this->validate(m)) {
+                    if(!this->filter(m)) {
                         continue;
                     }
-                    std::get<2>(cn) = this->filter(m);
+                    std::get<2>(cn) = this->map(m);
 
                     this->out.push_back(std::move(cn));
                 }
@@ -139,10 +139,10 @@ class SearchStringInputIter {
                 for(auto& cn: this->feed_char(this->cur_pos, '\0', this->candidates)) {
                     const std::string& m = std::get<2>(cn);
 
-                    if(!this->validate(m)) {
+                    if(!this->filter(m)) {
                         continue;
                     }
-                    std::get<2>(cn) = this->filter(m);
+                    std::get<2>(cn) = this->map(m);
 
                     this->out.push_back(std::move(cn));
                 }
@@ -166,9 +166,9 @@ class SearchStringInputIter {
             }
         }
 
-        bool validate(const std::string& str) {
-            for(auto& validator: this->validators) {
-                if(!validator->validate(str)) {
+        bool filter(const std::string& str) {
+            for(auto& filter: this->filters) {
+                if(!filter->filter(str)) {
                     return false;
                 }
             }
@@ -176,10 +176,10 @@ class SearchStringInputIter {
             return true;
         }
 
-        std::string filter(const std::string& str) {
+        std::string map(const std::string& str) {
             std::string ans = str;
-            for(auto& filter: this->filters) {
-                ans = filter->filter(ans);
+            for(auto& mapper: this->mappers) {
+                ans = mapper->map(ans);
             }
 
             return ans;
@@ -254,8 +254,8 @@ class SearchStringInputIter {
             return !this->operator==(o);
         }
 
-        void add_validator(std::shared_ptr<StringValidator> validator) {
-            this->validators.push_back(validator);
+        void add_mapper(std::shared_ptr<StringMapper> mapper) {
+            this->mappers.push_back(mapper);
         }
         void add_filter(std::shared_ptr<StringFilter> filter) {
             this->filters.push_back(filter);
