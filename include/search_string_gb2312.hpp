@@ -2,11 +2,8 @@
 #define _SEARCH_STRING_GB2312_
 
 #include <vector>
-#include <type_traits>
-#include <iterator>
 #include <tuple>
 #include <string>
-#include <queue>
 #include "search_string.hpp"
 
 
@@ -28,20 +25,22 @@ enum GB2312MatchState {
 
 template<typename IterT>
 class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
-    using output_array_t = typename SearchStringInputIter<IterT>::output_array_t;
-    using candidate_array_t = typename SearchStringInputIter<IterT>::candidate_array_t;
+    using candidate_array_t = std::vector<std::tuple<GB2312MatchState, size_t, size_t, std::string>>;
+    using output_array_t    = typename SearchStringInputIter<IterT>::output_array_t;
+
     bool contain_crlf;
+    candidate_array_t candidates;
 
     bool is_ascii(unsigned char c) {
         return contain_crlf ? _IS_V_ASCII_CRLF(c) : _IS_V_ASCII_NOCRLF(c);
     }
 
-    void clean_candiates(candidate_array_t& candidates, output_array_t& output)
+    void clean_candiates(output_array_t& output)
     {
         GB2312MatchState s;
         size_t b, e;
         std::string str;
-        for(auto& candidate: candidates) {
+        for(auto& candidate: this->candidates) {
             std::tie((int&)s, b, e, str) = candidate;
 
             if(s == bstate) {
@@ -56,17 +55,15 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
         }
     }
 
-    virtual output_array_t feed_char(
-            size_t pos, 
-            unsigned char c, 
-            candidate_array_t& candidates) override
+    virtual output_array_t feed_char(unsigned char c) override
     {
         output_array_t    ans;
         candidate_array_t new_candidates;
+        auto pos = this->currentPosition();
 
         if(!is_ascii(c) && !_IS_V_FIRST(c) && !_IS_V_SECOND(c)) {
-            clean_candiates(candidates, ans);
-            candidates.clear();
+            clean_candiates(ans);
+            this->candidates.clear();
             return ans;
         }
 
@@ -75,7 +72,7 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
         GB2312MatchState s;
         size_t b, e;
         std::string str;
-        for(auto& candidate: candidates) {
+        for (auto& candidate: this->candidates) {
             std::tie((int&)s, b, e, str) = candidate;
 
             if(is_ascii(c)) {
@@ -107,14 +104,14 @@ class SearchStringGB2312InputIter: public SearchStringInputIter<IterT> {
                 }
             }
         }
-        candidates = std::move(new_candidates);
+        this->candidates = std::move(new_candidates);
 
         if(newC1 || newC2) {
             auto ns = is_ascii(c) ? astate : bstate;
             std::string str;
             if(this->generate_string())
                 str.push_back(c);
-            candidates.push_back(std::make_tuple(ns, pos, pos + 1, str));
+            this->candidates.push_back(std::make_tuple(ns, pos, pos + 1, str));
         }
         return ans;
     }
