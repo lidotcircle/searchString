@@ -2,6 +2,8 @@
 #include "traindata.h"
 #include "utils.h"
 #include <gtest/gtest.h>
+#include <algorithm>
+#include <tuple>
 
 
 TEST(SearchStringGB2312, WholeSentence) {
@@ -12,12 +14,12 @@ TEST(SearchStringGB2312, WholeSentence) {
         auto gend = gbegin.end();
 
         ASSERT_NE(gbegin, gend);
-        auto s1 = *gbegin;
-        auto str1 = std::get<2>(s1);
-        EXPECT_TRUE(false) << str1;
-        EXPECT_EQ(str1, str);
-        EXPECT_EQ(str.size(), std::get<1>(s1) - std::get<0>(s1));
-        gbegin++;
-        ASSERT_TRUE(gbegin == gend) << str2hexstr(str);
+
+        std::vector<std::string> strs;
+        for(;gbegin != gend;gbegin++) strs.push_back(std::get<2>(*gbegin));
+        EXPECT_GT(strs.size(), 0);
+        std::sort(strs.begin(), strs.end(), [](std::string f1, std::string f2) {return f1.size() > f2.size();});
+
+        EXPECT_EQ(strs[0], str);
     }
 }

@@ -16,7 +16,7 @@
         || c == 0x09 || c == 0x0A || c == 0x0D)
 #define _IS_V_ASCII_NOCRLF(c)  ((c >= 0x20 && c <  0x7f) || c == 0x09)
 #define _IS_V_FIRST(c)  (c >= 0xA1 && c <= 0xF7)
-#define _IS_V_SECOND(c) (c >= 0x20 && c <= 0xFE)
+#define _IS_V_SECOND(c) (c >= 0xA1 && c <= 0xFE)
 
 enum GB2312MatchState {
     astate = 1,    // complete gb2312 string
