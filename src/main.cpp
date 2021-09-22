@@ -81,26 +81,14 @@ int main(int argc, char** argv) {
     int status = 0;
     for (auto& filename: input_files) {
         std::ifstream inputFile(filename);
-        inputFile.seekg(0, std::ios::end);
-        size_t filesize = inputFile.tellg();
-        inputFile.seekg(0, std::ios::beg);
-        char* buf = new char[filesize + 1];
-        inputFile.read(buf, filesize);
-        buf[filesize] = 0;
-        cout << buf << endl;
-        return 1;
 
-/*
         if(!inputFile.is_open()) {
             cout << "fail to open file" << endl;
             status = 1;
             continue;
         }
-        */
         cout << "Search " << filename << ":" << endl;
-        // std::istreambuf_iterator<char> inputBegin(inputFile), inputEnd;
-        auto inputBegin = buf;
-        auto inputEnd = buf + filesize;
+        istream_iterator<char> inputBegin(inputFile), inputEnd;
 
         auto sbegin = gb2312Begin(inputBegin, inputEnd, true, true);
         auto send = sbegin.end();
@@ -111,8 +99,6 @@ int main(int argc, char** argv) {
         for(;sbegin != send;sbegin++) {
             cout << std::get<0>(*sbegin) << ": " << std::get<2>(*sbegin) << endl;
         }
-
-        delete[] buf;
     }
 
     return status;

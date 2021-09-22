@@ -1,6 +1,10 @@
 #ifndef _OPTIONAL_HPP_
 #define _OPTIONAL_HPP_
 
+#include <exception>
+#include <stdexcept>
+
+
 template<typename T>
 union Optional
 {

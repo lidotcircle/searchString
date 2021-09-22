@@ -4,7 +4,7 @@
 #include <iterator>
 #include <iostream>
 #include <memory>
-#include <optional>
+
 
 class istream_iterator {
     public:
@@ -15,7 +15,28 @@ class istream_iterator {
     typedef std::input_iterator_tag iterator_catogory;
 
     private:
-    optional<std::istream&> stream;
-}
+    std::istream* stream;
+    char proxy_value;
+    bool is_proxy;
+    char*  buffer;
+    size_t buflen;
+    size_t curpos;
+    istream_iterator(char value);
+    void feed_buffer();
+
+    public:
+    istream_iterator();
+    istream_iterator(std::istream& stream);
+
+    bool operator==(const istream_iterator&) const;
+    bool operator!=(const istream_iterator&) const;
+
+    value_type operator*() const;
+
+    istream_iterator  operator++(int);
+    istream_iterator& operator++();
+
+    ~istream_iterator();
+};
 
 #endif // _ISTREAM_ITERATOR_H_
