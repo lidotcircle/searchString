@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 
     int status = 0;
     for (auto& filename: input_files) {
-        std::ifstream inputFile(filename);
+        std::ifstream inputFile(filename, std::ios::binary);
 
         if(!inputFile.is_open()) {
             cout << "fail to open file" << endl;
