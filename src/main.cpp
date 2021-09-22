@@ -82,7 +82,12 @@ int main(int argc, char** argv) {
             cout << "can't open model file '" << model << "' to read" << endl;
             return 1;
         }
-        iss >> *gb;
+        try {
+            iss >> *gb;
+        } catch (std::exception e) {
+            cout << "can't load model '" << model << "'" << endl;
+            return 1;
+        }
     }
 
     int status = 0;
