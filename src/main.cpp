@@ -12,7 +12,7 @@ using namespace std;
 
 
 static int train(string valid_dir, string invalid_dir, string outfile) {
-    std::ofstream off(outfile);
+    std::ofstream off(outfile, std::ios::binary);
     if(!off.is_open()) {
         std::cout << "can't open file " << outfile << endl;
         return 1;
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 
     auto gb = std::make_shared<GB2312Filter>();
     if (!model.empty()) {
-        std::ifstream iss(model);
+        std::ifstream iss(model, std::ios::binary);
         if (!iss.is_open()) {
             cout << "can't open model file '" << model << "' to read" << endl;
             return 1;
