@@ -48,7 +48,14 @@ int main(int argc, char** argv) {
         ("h,help",   "print help");
     options.parse_positional("inputs");
     options.positional_help("<files>");
-    auto result = options.parse(argc, argv);
+    cxxopts::ParseResult result;
+    try {
+        result = options.parse(argc, argv);
+    } catch (std::exception e) {
+        cout << "bad arguments" << endl;
+        cout << options.help() << endl;
+        return 1;
+    }
 
     if (result.count("help")) {
         cout << options.help() << endl;
