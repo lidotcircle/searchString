@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
 
         if (train_dirs.size() != 2) {
             cout << options.help() << endl;
+            return 1;
         }
 
         return train(train_dirs[0], train_dirs[1], train_output);
@@ -88,6 +89,11 @@ int main(int argc, char** argv) {
             cout << "can't load model '" << model << "'" << endl;
             return 1;
         }
+    }
+
+    if (input_files.empty()) {
+        cout << options.help() << endl;
+        return 1;
     }
 
     int status = 0;
