@@ -1,4 +1,4 @@
-#include "string_mapper.h"
+#include "smap/string_mapper.h"
 
 
 StringMapper::~StringMapper() {}

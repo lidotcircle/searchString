@@ -18,6 +18,7 @@ add_library(StringFinderLib STATIC ${StringFinderLib_SOURCES})
 target_link_libraries(StringFinderLib PUBLIC dlib)
 set_property(TARGET StringFinderLib PROPERTY CXX_STANDARD 17)
 target_include_directories(StringFinderLib PUBLIC include)
+target_include_directories(StringFinderLib PUBLIC thirdparty/aho_corasick/src/aho_corasick)
 
 
 set(StringFinder strfd)

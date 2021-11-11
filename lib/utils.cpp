@@ -48,7 +48,7 @@ std::string hexstr2str(const std::string& hexstr) {
         if (HexReverseMapping.find(c1) == HexReverseMapping.end()
          || HexReverseMapping.find(c2) == HexReverseMapping.end())
         {
-            throw std::runtime_error("unexpect char " + c1 + c2);
+            throw std::runtime_error("unexpect char " + std::string(c1, 1) + std::string(c2, 1));
         }
         char c = HexReverseMapping.find(c1)->second;
         c <<= 4;

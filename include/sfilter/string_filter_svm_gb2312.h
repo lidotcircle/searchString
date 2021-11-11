@@ -6,6 +6,7 @@
 #include <iostream>
 #include "string_filter.h"
 
+
 class GB2312Filter;
 std::ostream& operator<<(std::ostream& o, const GB2312Filter& filter);
 std::istream& operator>>(std::istream& i, GB2312Filter& filter);
@@ -41,7 +42,7 @@ class GB2312Filter: public StringFilter {
         void svm_train_directories_recursively(const std::string& valid, const std::string& invalid);
         void svm_train_directories_recursively(const std::vector<std::string>& valid, const std::vector<std::string>& invalid);
 
-        virtual bool filter(const std::string& str) override;
+        virtual int filter(const std::string& str) const override;
         virtual ~GB2312Filter() override;
 };
 

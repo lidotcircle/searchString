@@ -1,4 +1,4 @@
-#include <string_filter.h>
+#include "sfilter/string_filter.h"
 
 
 StringFilter::~StringFilter() {}
@@ -6,9 +6,9 @@ StringFilter::~StringFilter() {}
 
 MiniumLength::MiniumLength(size_t s): min(s){}
 
-bool MiniumLength::filter(const std::string& str)
+int MiniumLength::filter(const std::string& str)
 {
-    return str.size() >= this->min;
+    return str.size() >= this->min ? 0 : -1;
 }
 
 MiniumLength::~MiniumLength() {
