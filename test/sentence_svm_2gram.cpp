@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "sentence_svm_2gram.hpp"
+#include "search_string.h"
 #include <vector>
 #include <iostream>
 using namespace std;

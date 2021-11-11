@@ -7,7 +7,7 @@
 class StringMapper {
     public:
         virtual std::string map(const std::string&) = 0;
-        virtual ~StringMapper() = 0;
+        virtual ~StringMapper();
 };
 
 

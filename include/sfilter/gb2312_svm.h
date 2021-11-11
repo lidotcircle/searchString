@@ -1,31 +1,31 @@
-#ifndef _GB2312_FILTER_H_
-#define _GB2312_FILTER_H_
+#ifndef _STRING_SFILTER_GB2312_SVM_FILTER_H_
+#define _STRING_SFILTER_GB2312_SVM_FILTER_H_
 
 #include <vector>
-#include <sentence_svm_2gram.hpp>
 #include <iostream>
+#include "../svm/sentence_svm_2gram.hpp"
 #include "string_filter.h"
 
 
-class GB2312Filter;
-std::ostream& operator<<(std::ostream& o, const GB2312Filter& filter);
-std::istream& operator>>(std::istream& i, GB2312Filter& filter);
+class GB2312SVMFilter;
+std::ostream& operator<<(std::ostream& o, const GB2312SVMFilter& filter);
+std::istream& operator>>(std::istream& i, GB2312SVMFilter& filter);
 
-class GB2312Filter: public StringFilter {
+class GB2312SVMFilter: public StringFilter {
     private:
         using sample_type = SentenceSVM<uint16_t>::sample_type;
         SentenceSVM<uint16_t> svm;
 
         friend 
-            std::ostream& operator<<(std::ostream& o, const GB2312Filter& filter);
+            std::ostream& operator<<(std::ostream& o, const GB2312SVMFilter& filter);
         friend 
-            std::istream& operator>>(std::istream& i, GB2312Filter& filter);
+            std::istream& operator>>(std::istream& i, GB2312SVMFilter& filter);
 
         void add_samples(const std::string& file, std::vector<sample_type>& samples);
 
 
     public:
-        GB2312Filter() = default;
+        GB2312SVMFilter() = default;
 
         bool save(char* buf, size_t bufsize, size_t& write);
         bool load(char* buf, size_t bufsize, size_t& read);
@@ -43,8 +43,7 @@ class GB2312Filter: public StringFilter {
         void svm_train_directories_recursively(const std::vector<std::string>& valid, const std::vector<std::string>& invalid);
 
         virtual int filter(const std::string& str) const override;
-        virtual ~GB2312Filter() override;
+        virtual ~GB2312SVMFilter() override;
 };
 
-#endif // _GB2312_FILTER_H_
-
+#endif // _STRING_SFILTER_GB2312_SVM_FILTER_H_

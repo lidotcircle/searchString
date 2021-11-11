@@ -1,5 +1,5 @@
-#ifndef _STRING_FILTER_MIN_LENGTH_H_
-#define _STRING_FILTER_MIN_LENGTH_H_
+#ifndef _STRING_SFILTER_MIN_LENGTH_H_
+#define _STRING_SFILTER_MIN_LENGTH_H_
 
 #include "string_filter.h"
 
@@ -14,4 +14,4 @@ class MiniumLength: public StringFilter {
         ~MiniumLength() = default;
 };
 
-#endif // _STRING_FILTER_MIN_LENGTH_H_
+#endif // _STRING_SFILTER_MIN_LENGTH_H_

@@ -1,4 +1,4 @@
-#include "gb2312_filter.h"
+#include "sfilter/gb2312_svm.h"
 #include "utils.h"
 #include <iostream>
 #include <fstream>
@@ -33,15 +33,15 @@ static std::vector<std::vector<uint16_t>> str2u16(const std::string& str, bool i
     return ans;
 }
 
-bool GB2312Filter::load(char* buf, size_t bufsize, size_t& read) {
+bool GB2312SVMFilter::load(char* buf, size_t bufsize, size_t& read) {
     return this->svm.load(buf, bufsize, read);
 }
 
-bool GB2312Filter::save(char* buf, size_t bufsize, size_t& writed) {
+bool GB2312SVMFilter::save(char* buf, size_t bufsize, size_t& writed) {
     return this->svm.save(buf, bufsize, writed);
 }
 
-bool GB2312Filter::feed_file(const std::string& filename) {
+bool GB2312SVMFilter::feed_file(const std::string& filename) {
     std::ifstream ifile(filename);
     if(!ifile.is_open())
         return false;
@@ -65,7 +65,7 @@ bool GB2312Filter::feed_file(const std::string& filename) {
     return true;
 }
 
-bool GB2312Filter::feed_files(const std::vector<std::string>& filenames) {
+bool GB2312SVMFilter::feed_files(const std::vector<std::string>& filenames) {
     bool result = true;
     for(auto& f: filenames) {
         if(!this->feed_file(f))
@@ -75,7 +75,7 @@ bool GB2312Filter::feed_files(const std::vector<std::string>& filenames) {
     return result;
 }
 
-bool GB2312Filter::feed_directories_recursively(const std::vector<std::string>& dirs) {
+bool GB2312SVMFilter::feed_directories_recursively(const std::vector<std::string>& dirs) {
     bool result = true;
     for(auto& f: dirs) {
         if(!this->feed_directories_recursively(f))
@@ -85,7 +85,7 @@ bool GB2312Filter::feed_directories_recursively(const std::vector<std::string>& 
     return result;
 }
 
-bool GB2312Filter::feed_directories_recursively(const std::string& dir) {
+bool GB2312SVMFilter::feed_directories_recursively(const std::string& dir) {
     bool result = true;
     for(auto& f: ls_files_recursively(dir)) {
         if(!this->feed_file(f))
@@ -95,16 +95,16 @@ bool GB2312Filter::feed_directories_recursively(const std::string& dir) {
     return result;
 }
 
-void GB2312Filter::feed(const std::string& gb2312sentence) {
+void GB2312SVMFilter::feed(const std::string& gb2312sentence) {
     for(auto& s: str2u16(gb2312sentence, false))
         this->feed(s);
 }
 
-void GB2312Filter::feed(const std::vector<uint16_t>& sentence) {
+void GB2312SVMFilter::feed(const std::vector<uint16_t>& sentence) {
     this->svm.feed_sentence(sentence.begin(), sentence.end());
 }
 
-void GB2312Filter::add_samples(const std::string& f, std::vector<sample_type>& samples)
+void GB2312SVMFilter::add_samples(const std::string& f, std::vector<sample_type>& samples)
 {
     std::ifstream ifile(f);
     if(!ifile.is_open()) {
@@ -135,7 +135,7 @@ void GB2312Filter::add_samples(const std::string& f, std::vector<sample_type>& s
     }
 }
 
-void GB2312Filter::svm_train(const std::vector<std::string>& valid_sentence, const std::vector<std::string>& invalid_sentence) {
+void GB2312SVMFilter::svm_train(const std::vector<std::string>& valid_sentence, const std::vector<std::string>& invalid_sentence) {
     std::vector<sample_type> samples;
     std::vector<double> labels;
     for(auto& s: valid_sentence) {
@@ -156,7 +156,7 @@ void GB2312Filter::svm_train(const std::vector<std::string>& valid_sentence, con
     this->svm.train_with_features(samples, labels);
 }
 
-void GB2312Filter::svm_train_files(const std::vector<std::string>& valid, const std::vector<std::string>& invalid) {
+void GB2312SVMFilter::svm_train_files(const std::vector<std::string>& valid, const std::vector<std::string>& invalid) {
     std::vector<sample_type> samples;
     std::vector<double> labels;
     for(auto& f: valid)
@@ -171,7 +171,7 @@ void GB2312Filter::svm_train_files(const std::vector<std::string>& valid, const 
     this->svm.train_with_features(samples, labels);
 }
 
-void GB2312Filter::svm_train_directories_recursively(const std::vector<std::string>& valid, const std::vector<std::string>& invalid) {
+void GB2312SVMFilter::svm_train_directories_recursively(const std::vector<std::string>& valid, const std::vector<std::string>& invalid) {
     std::vector<std::string> _valid;
     std::vector<std::string> _invalid;
 
@@ -188,31 +188,33 @@ void GB2312Filter::svm_train_directories_recursively(const std::vector<std::stri
     this->svm_train_files(_valid, _invalid);
 }
 
-void GB2312Filter::svm_train_directories_recursively(const std::string& valid, const std::string& invalid) {
+void GB2312SVMFilter::svm_train_directories_recursively(const std::string& valid, const std::string& invalid) {
     this->svm_train_files(
             ls_files_recursively(valid), 
             ls_files_recursively(invalid)
             );
 }
 
-bool GB2312Filter::filter(const std::string& str) {
+int GB2312SVMFilter::filter(const std::string& str) const {
     auto nu = str2u16(str, true);
     if (nu.empty())
-        return false;
+        return -1;
 
     auto& nunu = nu[0];
-    return this->svm.predict(nunu.begin(), nunu.end()) > 0;
+    auto _this = const_cast<GB2312SVMFilter*>(this);
+    auto n = _this->svm.predict(nunu.begin(), nunu.end());
+    return n > 0 ? 1 : -1;
 }
 
-GB2312Filter::~GB2312Filter() {
+GB2312SVMFilter::~GB2312SVMFilter() {
 }
 
-std::ostream& operator<<(std::ostream& o, const GB2312Filter& filter) {
+std::ostream& operator<<(std::ostream& o, const GB2312SVMFilter& filter) {
     o << filter.svm;
     return o;
 }
 
-std::istream& operator>>(std::istream& i, GB2312Filter& filter) {
+std::istream& operator>>(std::istream& i, GB2312SVMFilter& filter) {
     i >> filter.svm;
     return i;
 }

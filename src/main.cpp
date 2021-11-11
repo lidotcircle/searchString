@@ -4,10 +4,8 @@
 #include <string>
 #include <tuple>
 #include <map>
-#include "search_string_gb2312.hpp"
-#include "string_filter.h"
-#include "gb2312_filter.h"
 #include <cxxopts.hpp>
+#include "search_string.h"
 using namespace std;
 
 
@@ -18,7 +16,7 @@ static int train(string valid_dir, string invalid_dir, string outfile) {
         return 1;
     }
 
-    auto gb = std::make_shared<GB2312Filter>();
+    auto gb = std::make_shared<GB2312SVMFilter>();
     gb->svm_train_directories_recursively(valid_dir, invalid_dir);
 
     off << *gb;
@@ -76,7 +74,7 @@ int main(int argc, char** argv) {
         return train(train_dirs[0], train_dirs[1], train_output);
     }
 
-    auto gb = std::make_shared<GB2312Filter>();
+    auto gb = std::make_shared<GB2312SVMFilter>();
     if (!model.empty()) {
         std::ifstream iss(model, std::ios::binary);
         if (!iss.is_open()) {
@@ -108,14 +106,13 @@ int main(int argc, char** argv) {
         cout << "Search " << filename << ":" << endl;
         istream_iterator<char> inputBegin(inputFile), inputEnd;
 
-        auto sbegin = gb2312Begin(inputBegin, inputEnd, true, true);
-        auto send = sbegin.end();
-        sbegin.add_filter(std::make_shared<MiniumLength>(min_length));
+        auto getter = make_string_getter<StringFinderGB2312>(inputBegin, inputEnd);
+        getter.add_filter(std::make_shared<MiniumLength>(min_length));
         if (!disable_svm)
-            sbegin.add_filter(gb);
+            getter.add_filter(gb);
 
-        for(;sbegin != send;sbegin++) {
-            cout << std::get<0>(*sbegin) << ": " << std::get<2>(*sbegin) << endl;
+        for(auto& ss: getter) {
+            cout << std::ios::hex << ss.first << ": " << ss.second << endl;
         }
     }
 

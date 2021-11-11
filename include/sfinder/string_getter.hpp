@@ -1,8 +1,12 @@
+#ifndef _STRING_GETTER_H_
+#define _STRING_GETTER_H_
+
 #include "string_finder.h"
 #include "../utils.hpp"
 #include "../optional.hpp"
 #include <type_traits>
 #include <exception>
+#include <assert.h>
 
 
 template<typename Iter,typename Finder>
@@ -25,12 +29,12 @@ private:
         typedef std::input_iterator_tag iterator_catogory;
 
     private:
-        StringGetter& getter;
+        StringGetter* pgetter;
         bool is_end;
         bool is_proxy;
         Optional<std::pair<size_t,std::string>> proxy_output;
         StringGetterIter(value_type val);
-        bool at_end();
+        bool at_end() const;
 
     public:
         StringGetterIter() = delete;
@@ -82,7 +86,7 @@ bool StringGetter<It,Ft>::empty() const {
         return false;
 
     auto ncthis = const_cast<StringGetter*>(this);
-    ncthis->get_at_least_one_util_end();
+    ncthis->get_at_least_one_until_end();
     return this->outputs.empty();
 }
 
@@ -125,57 +129,57 @@ typename StringGetter<It,Ft>::StringGetterIter StringGetter<It,Ft>::end() {
 
 template<typename It, typename Ft>
 StringGetter<It,Ft>::StringGetterIter::StringGetterIter(std::pair<size_t,std::string> val):
-    is_end(false), is_proxy(true), proxy_output(std::move(val))
+    pgetter(nullptr), is_end(false), is_proxy(true), proxy_output(std::move(val))
 {
 }
 
 template<typename It, typename Ft>
-bool StringGetter<It,Ft>::StringGetterIter::at_end()
+bool StringGetter<It,Ft>::StringGetterIter::at_end() const
 {
-    return this->is_end || this->getter.empty();
+    return this->is_end || this->pgetter->empty();
 }
 
 template<typename It, typename Ft>
 StringGetter<It,Ft>::StringGetterIter::StringGetterIter(StringGetter& getter, bool end):
-    getter(getter), is_end(end), is_proxy(false)
+    pgetter(&getter), is_end(end), is_proxy(false)
 {
-    if (!end) getter.get_at_least_one_util_end();
+    if (!end) pgetter->get_at_least_one_until_end();
 }
 
 template<typename It, typename Ft>
 typename StringGetter<It,Ft>::StringGetterIter& StringGetter<It,Ft>::StringGetterIter::operator++() {
     assert(!this->is_proxy && "increasing a proxy iterator");
     assert(!this->is_end && "increasing a definitely empty iterator");
-    if (this->getter.empty())
+    if (this->pgetter->empty())
         throw std::runtime_error("increasing iterator in the end");
 
-    this->getter.pop();
+    this->pgetter->pop();
     return *this;
 }
 
 template<typename It, typename Ft>
 typename StringGetter<It,Ft>::StringGetterIter StringGetter<It,Ft>::StringGetterIter::operator++(int) {
-    auto val = std::move(this->getter.top());
+    auto val = std::move(this->pgetter->top());
 
-    this->getter.pop();
+    this->pgetter->pop();
     return StringGetterIter(val);
 }
 
 template<typename It, typename Ft>
 typename StringGetter<It,Ft>::StringGetterIter::reference StringGetter<It,Ft>::StringGetterIter::operator*() {
-    return this->getter.top();
+    return this->pgetter->top();
 }
 
 template<typename It, typename Ft>
 typename StringGetter<It,Ft>::StringGetterIter::pointer StringGetter<It,Ft>::StringGetterIter::operator->() {
-    return &this->getter.top();
+    return &this->pgetter->top();
 }
  
 template<typename It, typename Ft>
 bool StringGetter<It,Ft>::StringGetterIter::operator==(const StringGetterIter& oth) const {
     if (this == &oth) return true;
 
-    if (&this->getter != &oth.getter) return false;
+    if (this->pgetter != oth.pgetter) return false;
     return this->at_end() && oth.at_end();
 }
  
@@ -197,3 +201,4 @@ StringGetter<It,Ft> make_string_getter(It begin, It end)
 extern template class StringGetter<char*, StringFinderASCII>;
 extern template class StringGetter<char*, StringFinderGB2312>;
 
+#endif // _STRING_GETTER_H_

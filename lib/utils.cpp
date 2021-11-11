@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <exception>
 #include <map>
+using namespace std;
 
 namespace fs = std::filesystem;
 
@@ -54,6 +55,25 @@ std::string hexstr2str(const std::string& hexstr) {
         c <<= 4;
         c += HexReverseMapping.find(c2)->second;
         ans.push_back(c);
+    }
+
+    return ans;
+}
+
+vector<uint16_t> gb2312str2twobytes(const std::string& str)
+{
+    std::vector<uint16_t> ans;
+    uint16_t p = 0;
+    for(auto c: str) {
+        if (p != 0) {
+            // expect a valid gb2312 string
+            ans.push_back((p << 8) + c);
+            p = 0;
+        } else if ((c & 0x80) == 0) {
+            ans.push_back(c);
+        } else {
+            p = c;
+        }
     }
 
     return ans;

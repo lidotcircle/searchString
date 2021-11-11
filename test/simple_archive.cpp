@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <map>
-#include "simple_archive.hpp"
+#include "search_string.h"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
-#ifndef _STRING_DECODER_H_
-#define _STRING_DECODER_H_
+#ifndef _STRING_FINDER_H_
+#define _STRING_FINDER_H_
 
 #include <vector>
 #include <string>
@@ -30,4 +30,4 @@ public:
     std::vector<std::pair<size_t,std::string>>& fetch();
 };
 
-#endif // _STRING_DECODER_H_
+#endif // _STRING_FINDER_H_

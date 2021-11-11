@@ -12,7 +12,7 @@ class StringFilter {
          *         > 0 accept
          */
         virtual int filter(const std::string& str) const = 0;
-        virtual ~StringFilter() = 0;
+        virtual ~StringFilter();
 };
 
 #endif // _STRING_FILTER_H_

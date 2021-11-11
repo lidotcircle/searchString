@@ -1,5 +1,5 @@
-#ifndef _STRING_FILTER_GB2312_FREQUENCY_H_
-#define _STRING_FILTER_GB2312_FREQUENCY_H_
+#ifndef _STRING_SFILTER_GB2312_FREQUENCY_H_
+#define _STRING_SFILTER_GB2312_FREQUENCY_H_
 
 #include "string_filter.h"
 
@@ -19,4 +19,4 @@ class GB2312Frequency: public StringFilter {
 #include <set>
 extern const std::set<uint16_t> gb2312_table;
 
-#endif // _STRING_FILTER_GB2312_FREQUENCY_H_
+#endif // _STRING_SFILTER_GB2312_FREQUENCY_H_

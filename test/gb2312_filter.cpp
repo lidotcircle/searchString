@@ -2,14 +2,14 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include "gb2312_filter.h"
+#include "search_string.h"
 #include "traindata.h"
 
 
 class GB2312FilterTest: public ::testing::Test {
     protected:
-        GB2312Filter filter;
-        GB2312Filter filter2;
+        GB2312SVMFilter filter;
+        GB2312SVMFilter filter2;
 
         void SetUp() override {
             filter.svm_train(traindata_valid, traindata_invalid);

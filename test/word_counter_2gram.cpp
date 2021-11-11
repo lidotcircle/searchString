@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <vector>
-#include "word_counter_2gram.hpp"
+#include "search_string.h"
 
 TEST(WordCounter2Gram, SaveLoad) {
     WordCounter2Gram<int> counter, c2;

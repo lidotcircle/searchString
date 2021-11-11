@@ -1,4 +1,4 @@
-#include "search_string_ascii.hpp"
+#include "search_string.h"
 #include "utils.h"
 #include <gtest/gtest.h>
 #include <tuple>
@@ -25,14 +25,14 @@ TEST(SearchStringAscii, WholeSentence) {
     for (auto &str : sentences)
     {
         auto buf = str.c_str();
-        auto gbegin = asciiBegin(buf, buf + str.size(), true, true);
-        auto gend = gbegin.end();
+        auto n = make_string_getter<StringFinderASCII>(buf, buf + str.size());
+        auto gbegin = n.begin(); 
+        auto gend = n.end();
 
         ASSERT_NE(gbegin, gend);
         auto s1 = *gbegin;
-        auto str1 = std::get<2>(s1);
+        auto str1 = s1.second;
         EXPECT_EQ(str1, str);
-        EXPECT_EQ(str.size(), std::get<1>(s1) - std::get<0>(s1));
         gbegin++;
         ASSERT_TRUE(gbegin == gend) << str;
     }
