@@ -3,6 +3,7 @@
 #include "sfilter/gb2312_svm.h"
 #include "sfilter/min_length.h"
 #include <exception>
+#include <stdexcept>
 using namespace std;
 
 

@@ -1,5 +1,6 @@
 #include "smap/mapper_factory.h"
 #include <exception>
+#include <stdexcept>
 using namespace std;
 
 

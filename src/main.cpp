@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -140,7 +141,7 @@ int main(int argc, char** argv) {
             getter.add_mapper(m);
 
         for(auto& ss: getter) {
-            cout << "0x" << std::ios::hex << ss.first << ": " << ss.second << endl;
+            cout << "0x" << std::hex << ss.first << ": " << ss.second << endl;
         }
     }
 
