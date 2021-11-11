@@ -26,8 +26,8 @@ TEST(SearchStringAscii, WholeSentence) {
     {
         auto buf = str.c_str();
         auto n = make_string_getter<StringFinderASCII>(buf, buf + str.size());
-        auto gbegin = n.begin(); 
-        auto gend = n.end();
+        auto gbegin = n->begin(); 
+        auto gend = n->end();
 
         ASSERT_NE(gbegin, gend);
         auto s1 = *gbegin;

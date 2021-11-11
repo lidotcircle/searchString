@@ -219,11 +219,11 @@ int main(int argc, char** argv) {
 
         auto getter = FinderFactory::create(encoding, "", inputBegin, inputEnd);
         for (auto f : filters_)
-            getter.add_filter(f);
+            getter->add_filter(f);
         for (auto m : mappers_)
-            getter.add_mapper(m);
+            getter->add_mapper(m);
 
-        for(auto& ss: getter) {
+        for(auto& ss: *getter.get()) {
             if (print_prefix)
                 cout << "0x" << std::hex << ss.first << ": ";
 

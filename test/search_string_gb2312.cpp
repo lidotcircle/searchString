@@ -11,8 +11,8 @@ TEST(SearchStringGB2312, WholeSentence) {
     {
         auto buf = str.c_str();
         auto cc = make_string_getter<StringFinderGB2312>(buf, buf + str.size());
-        auto gbegin = cc.begin();
-        auto gend = cc.end();
+        auto gbegin = cc->begin();
+        auto gend = cc->end();
 
         ASSERT_NE(gbegin, gend);
 
