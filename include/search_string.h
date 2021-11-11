@@ -9,7 +9,9 @@
 #include "sfilter/gb2312_frequency.h"
 #include "sfilter/gb2312_svm.h"
 #include "sfilter/min_length.h"
+#include "sfilter/filter_factory.h"
 
 #include "smap/string_mapper.h"
+#include "smap/mapper_factory.h"
 
 #endif // _STRING_STRING_H_

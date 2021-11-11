@@ -41,6 +41,7 @@ vector<pair<size_t,string>>& StringFinder::fetch() {
         }
     }
 
+    pre.clear();
     return this->results;
 }
 

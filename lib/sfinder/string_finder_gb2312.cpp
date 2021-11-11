@@ -67,6 +67,9 @@ void StringFinderGB2312::feed_char(unsigned char c) {
 void StringFinderGB2312::feed_end() {
     assert(!this->is_end);
     this->is_end = true;
+
+    this->clear_complete();
+    this->clear_half();
 }
 
 std::vector<std::pair<size_t,std::string>>& StringFinderGB2312::pre_fetch() {

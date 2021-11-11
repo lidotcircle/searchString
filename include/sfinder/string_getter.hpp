@@ -17,6 +17,7 @@ private:
     std::vector<std::pair<size_t,std::string>> outputs;
     std::shared_ptr<StringFinder> finder;
     Iter char_begin, char_end;
+    bool has_feed_end;
     void get_at_least_one_until_end();
 
     class StringGetterIter
@@ -73,8 +74,9 @@ void StringGetter<It,Ft>::get_at_least_one_until_end() {
         for(auto& vx: all) this->outputs.push_back(std::move(vx));
     }
 
-    if (this->char_begin==this->char_end) {
+    if (this->char_begin == this->char_end && !this->has_feed_end) {
         this->finder->feed_end();
+        this->has_feed_end = true;
         auto all = std::move(this->finder->fetch());
         for(auto& vx: all) this->outputs.push_back(std::move(vx));
     }
@@ -97,6 +99,7 @@ std::pair<size_t,std::string>& StringGetter<It,Ft>::top() {
 
 template<typename It, typename Ft>
 void StringGetter<It,Ft>::pop() {
+    assert(this->outputs.size() > 0);
     this->outputs.erase(this->outputs.begin());
     this->get_at_least_one_until_end();
 }
@@ -105,7 +108,8 @@ template<typename It, typename Ft>
 StringGetter<It,Ft>::StringGetter(It begin, It end):
     finder(new Ft(), std::default_delete<Ft>()),
     char_begin(std::forward<It>(begin)),
-    char_end(std::forward<It>(end)) {}
+    char_end(std::forward<It>(end)),
+    has_feed_end(false) {}
 
 template<typename It, typename Ft>
 void StringGetter<It,Ft>::add_filter(std::shared_ptr<StringFilter> filter) {

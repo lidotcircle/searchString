@@ -1,3 +1,6 @@
 [submodule "thirdparty/aho_corasick"]
 	path = thirdparty/aho_corasick
 	url = https://github.com/cjgdev/aho_corasick
+[submodule "thirdparty/cxxopts"]
+	path = thirdparty/cxxopts
+	url = https://github.com/jarro2783/cxxopts

@@ -24,28 +24,32 @@ static int train(string valid_dir, string invalid_dir, string outfile) {
 }
 
 int main(int argc, char** argv) {
-    vector<string> train_dirs;
+    string encoding;
+
     string train_output;
+    vector<string> train_dirs;
+
     string model;
+    vector<string> filters;
+    vector<string> mappers;
     vector<string> input_files;
-    size_t min_length;
-    bool disable_svm;
 
     cxxopts::Options options("StringFinder",
-            "train a model to find string in binary files. "
-            "currently support gb2312");
-    options.add_options()
-        ("t,train",  "specify directories to train a model", cxxopts::value<vector<string>>(train_dirs), "<dir,dir>")
-        ("o,output", "model output path",                    cxxopts::value<string>(train_output), "<file>")
+            "extract string from a binary file, "
+            "support various encoding schema eg. ascii, gb2312");
 
-        ("m,model",   "model to search string",               cxxopts::value<string>(model), "<file>")
-        ("min-length",  "minium string length in bytes",     cxxopts::value<size_t>(min_length)->default_value("4"))
-        ("disable-svm",  "not using svm to classify strings",     cxxopts::value<bool>(disable_svm)->default_value("false"))
-        ("i,inputs", "input files",                          cxxopts::value<vector<string>>(input_files))
-
-        ("h,help",   "print help");
-    options.parse_positional("inputs");
+    options.add_options("extract", {
+        { "f,filter",   "string filters, applied in specified order", cxxopts::value<vector<string>>(filters), "<filters>" },
+        { "m,mapper",   "string mappers, applied in specified order", cxxopts::value<vector<string>>(mappers), "<mappers>" },
+        { "i,input",    "input file", cxxopts::value<vector<string>>(input_files) },
+    });
+    options.parse_positional("input");
     options.positional_help("<files>");
+
+    options.add_options()
+        ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
+        ("h,help",   "print help");
+
     cxxopts::ParseResult result;
     try {
         result = options.parse(argc, argv);
@@ -60,6 +64,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    /* TODO
     if (!train_dirs.empty()) {
         if (train_output.empty()) {
             cout << options.help() << endl;
@@ -88,10 +93,32 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
+    */
 
     if (input_files.empty()) {
         cout << options.help() << endl;
         return 1;
+    }
+
+    std::vector<std::shared_ptr<StringFilter>> filters_;
+    std::vector<std::shared_ptr<StringMapper>> mappers_;
+    for (auto& f : filters) {
+        auto filter = FilterFactory::create(encoding, f);
+
+        if (!filter) {
+            cerr << "can't create filter '" << f << "'" << endl;
+            return 1;
+        }
+        filters_.push_back(filter);
+    }
+    for (auto& m: mappers) {
+        auto map = MapperFactory::create(encoding, m);
+
+        if (!map) {
+            cerr << "can't create mapper '" << m << "'" << endl;
+            return 1;
+        }
+        mappers_.push_back(map);
     }
 
     int status = 0;
@@ -107,12 +134,13 @@ int main(int argc, char** argv) {
         istream_iterator<char> inputBegin(inputFile), inputEnd;
 
         auto getter = make_string_getter<StringFinderGB2312>(inputBegin, inputEnd);
-        getter.add_filter(std::make_shared<MiniumLength>(min_length));
-        if (!disable_svm)
-            getter.add_filter(gb);
+        for (auto f : filters_)
+            getter.add_filter(f);
+        for (auto m : mappers_)
+            getter.add_mapper(m);
 
         for(auto& ss: getter) {
-            cout << std::ios::hex << ss.first << ": " << ss.second << endl;
+            cout << "0x" << std::ios::hex << ss.first << ": " << ss.second << endl;
         }
     }
 
