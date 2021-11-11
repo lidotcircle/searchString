@@ -2,6 +2,7 @@
 #define _STRING_SFILTER_GB2312_FREQUENCY_H_
 
 #include "string_filter.h"
+#include "utils.hpp"
 
 
 class GB2312Frequency: public StringFilter {
@@ -16,7 +17,6 @@ class GB2312Frequency: public StringFilter {
 };
 
 
-#include <set>
-extern const std::set<uint16_t> gb2312_table;
+extern const simple_bitset<0xFFFF> gb2312_bitset;;
 
 #endif // _STRING_SFILTER_GB2312_FREQUENCY_H_

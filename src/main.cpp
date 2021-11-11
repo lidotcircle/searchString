@@ -215,7 +215,7 @@ int main(int argc, char** argv) {
             continue;
         }
         cout << "Search " << filename << ":" << endl;
-        istream_iterator<char> inputBegin(inputFile), inputEnd;
+        std::istreambuf_iterator<char> inputBegin(inputFile), inputEnd;
 
         auto getter = FinderFactory::create(encoding, "", inputBegin, inputEnd);
         for (auto f : filters_)

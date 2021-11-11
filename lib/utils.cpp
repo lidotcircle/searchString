@@ -78,3 +78,19 @@ vector<uint16_t> gb2312str2twobytes(const std::string& str)
 
     return ans;
 }
+
+std::string twobytes2gb2312str(const std::vector<uint16_t>& twobytes) {
+    std::string ans;
+
+    for(auto c: twobytes) {
+        if (c < 0x80) {
+            ans.push_back(c);
+        } else {
+            ans.push_back(c >> 8);
+            ans.push_back(c & 0xFF);
+        }
+    }
+
+    return ans;
+}
+

@@ -9,12 +9,11 @@
 
 #define _IS_V_ASCII_CRLF(c)  ((c >= 0x20 && c <  0x7f) \
         || c == 0x09 || c == 0x0A || c == 0x0D)
-#define _IS_V_ASCII_NOCRLF(c)  ((c >= 0x20 && c <  0x7f) || c == 0x09)
 #define _IS_V_FIRST(c)  (c >= 0xA1 && c <= 0xF7)
 #define _IS_V_SECOND(c) (c >= 0xA1 && c <= 0xFE)
 #define is_gb2312_multi(c) (_IS_V_FIRST(c) || _IS_V_SECOND(c))
-#define is_ascii(c)        (_IS_V_ASCII_NOCRLF(c))
-#define is_valid_gb2312(c) (is_gb2312_multi(c) || _IS_V_ASCII_NOCRLF(c))
+#define is_ascii(c)        (_IS_V_ASCII_CRLF(c))
+#define is_valid_gb2312(c) (is_gb2312_multi(c) || _IS_V_ASCII_CRLF(c))
 
 StringFinderGB2312::StringFinderGB2312(): pos(0), is_end(false) {}
 

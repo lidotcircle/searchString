@@ -13,9 +13,9 @@ namespace FinderFactory {
 template<typename Iter>
 auto create(const std::string& encoding, const std::string& param, Iter begin, Iter end) {
     if (encoding == "ascii") {
-        return make_string_getter<StringFinderASCII>(begin, end);
+        return make_string_getter<StringFinderGB2312>(begin, end);
     } else if (encoding == "gb2312") {
-        return make_string_getter<StringFinderASCII>(begin, end);
+        return make_string_getter<StringFinderGB2312>(begin, end);
     } else {
         throw std::runtime_error("encoding not supported");
     }

@@ -1,13 +1,47 @@
 #include "smap/mapper_factory.h"
+#include "smap/string_truncate.h"
+#include "smap/gb2312_longest_valid_substr.h"
+#include "smap/string_split_line.h"
 #include <exception>
 #include <stdexcept>
 using namespace std;
 
 
+std::shared_ptr<StringMapper> create_truncate(const std::string& max_len) {
+    size_t pos = 0;
+    int len = std::stoi(max_len, &pos);
+    if (pos != max_len.size() || len <= 0)
+        throw std::runtime_error("please specify a correct positive integer");
+
+    return shared_ptr<StringMapper>(new TruncateMapper(len));
+}
+
+std::shared_ptr<StringMapper> create_split(const std::string&) {
+    return shared_ptr<StringMapper>(new SplitLineMapper());
+}
+
+std::shared_ptr<StringMapper> create_gb2312_longest_valid(const std::string&) {
+    return shared_ptr<StringMapper>(new GB2312LongestValidSubstr());
+}
+
 namespace MapperFactory {
 
-static map<string,map<string,string>> s_mappers = {};
-static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs = {};
+static map<string,map<string,string>> s_mappers;
+static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs = {
+    { "ascii", 
+        {
+            { "trun", make_pair("maximum length by truncating string", create_truncate) },
+            { "splt", make_pair("split line by cr lf",                 create_split) },
+        }
+    },
+    { "gb2312",
+        {
+            { "trun", make_pair("maximum length by truncating string", create_truncate) },
+            { "splt", make_pair("split line by cr lf",                 create_split) },
+            { "mval", make_pair("longest valid substr",                create_gb2312_longest_valid) },
+        }
+    }
+};
 
 std::shared_ptr<StringMapper>
 create(const std::string& encoding, const std::string &mapper_expr) {

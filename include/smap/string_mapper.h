@@ -2,11 +2,12 @@
 #define _STRING_MAPPER_H_
 
 #include <string>
+#include <vector>
 
 
 class StringMapper {
     public:
-        virtual std::string map(const std::string&) = 0;
+        virtual std::vector<std::pair<size_t,std::string>> map(const std::string&) const = 0;
         virtual ~StringMapper();
 };
 

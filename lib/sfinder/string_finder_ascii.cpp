@@ -3,8 +3,7 @@
 
 #define _IS_V_ASCII_CRLF(c)  ((c >= 0x20 && c <  0x7f) \
         || c == 0x09 || c == 0x0A || c == 0x0D)
-#define _IS_V_ASCII_NOCRLF(c)  ((c >= 0x20 && c <  0x7f) || c == 0x09)
-#define is_ascii _IS_V_ASCII_NOCRLF
+#define is_ascii _IS_V_ASCII_CRLF
 
 
 StringFinderASCII::StringFinderASCII(): pos(0), candidate_begin(0), is_end(false) {}

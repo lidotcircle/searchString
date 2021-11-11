@@ -22,12 +22,24 @@ bool StringFinder::filter(const string& str) {
     return true;
 }
 
-string StringFinder::map(const string& str) {
-    auto ans = str;
-    for (auto mapper : this->mappers)
-        ans = mapper->map(ans);
+vector<pair<size_t,string>> StringFinder::map(const string& str) {
+    vector<pair<size_t,string>> result, interm;
+    result.push_back(make_pair(0, str));
 
-    return ans;
+    for (auto mapper : this->mappers) {
+        std::swap(result, interm);
+
+        for (auto& pair : interm) {
+            auto mapped = mapper->map(pair.second);
+
+            for (auto& m : mapped) {
+                m.first += pair.first;
+                result.push_back(std::move(m));
+            }
+        }
+    }
+
+    return result;
 }
 
 vector<pair<size_t,string>>& StringFinder::fetch() {
@@ -37,7 +49,11 @@ vector<pair<size_t,string>>& StringFinder::fetch() {
     for(auto& p : pre) {
         if (this->filter(p.second)) {
             auto ans = this->map(p.second);
-            this->results.push_back(make_pair(p.first, ans));
+            auto base = p.first;
+            for(auto& q: ans) {
+                q.first += base;
+                this->results.push_back(std::move(q));
+            }
         }
     }
 

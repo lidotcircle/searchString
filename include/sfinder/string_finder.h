@@ -16,7 +16,7 @@ private:
     std::vector<std::pair<size_t,std::string>> results;
 
     bool filter(const std::string &str);
-    std::string map(const std::string &str);
+    std::vector<std::pair<size_t,std::string>> map(const std::string &str);
 
 protected:
     virtual std::vector<std::pair<size_t,std::string>>& pre_fetch() = 0;

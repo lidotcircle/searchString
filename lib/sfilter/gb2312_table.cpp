@@ -1,7 +1,8 @@
 #include "sfilter/gb2312_frequency.h"
+#include "utils.hpp"
 
 
-const std::set<uint16_t> gb2312_table = {
+static constexpr uint16_t gb2312_table_v[] = {
     0x00,   0x01,   0x02,   0x03,   0x04,   0x05,   0x06,   0x07,   0x08,
     0x09,   0x0a,   0x0b,   0x0c,   0x0d,   0x0e,   0x0f,   0x10,   0x11,
     0x12,   0x13,   0x14,   0x15,   0x16,   0x17,   0x18,   0x19,   0x1a,
@@ -845,3 +846,14 @@ const std::set<uint16_t> gb2312_table = {
     0xa3f6, 0xa3f7, 0xa3f8, 0xa3f9, 0xa3fa, 0xa3fb, 0xa3fc, 0xa3fd, 0xa1ab,
     0xa1e9, 0xa1ea, 0xa3fe, 0xa3a4,
 };
+
+static constexpr simple_bitset<0xFFFF> get_gb2312_bitset() {
+    simple_bitset<0xFFFF> bs;
+    for (size_t i = 0; sizeof(gb2312_table_v) / sizeof(gb2312_table_v[0]) > i; i++)
+        bs.set(gb2312_table_v[i]);
+
+    return bs;
+}
+
+constexpr const simple_bitset<0xFFFF> gb2312_bitset = get_gb2312_bitset();
+

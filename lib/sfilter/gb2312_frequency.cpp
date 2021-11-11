@@ -12,7 +12,7 @@ int GB2312Frequency::filter(const std::string& str) const
     uint32_t n = 0, m = code.size();
 
     for (auto c: code)
-        if (gb2312_table.find(c) != gb2312_table.end())
+        if (gb2312_bitset.test(c))
             ++n;
 
     if (n * 100 < m * threshold)
