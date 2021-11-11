@@ -6,7 +6,7 @@ using namespace std;
 
 namespace MapperFactory {
 
-static map<string,set<string>> s_mappers = {};
+static map<string,map<string,string>> s_mappers = {};
 static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs = {};
 
 std::shared_ptr<StringMapper>
@@ -30,8 +30,26 @@ create(const std::string& encoding, const std::string &mapper_expr) {
     return entry.second(mapper_params);
 }
 
-const std::map<std::string,std::set<std::string>>&
-get_supported_mappers() { return s_mappers; }
+static int vn = 0, vm = 1;
+const map<string,map<string,string>>&
+get_supported_mappers() {
+    if (vn == vm)
+        return s_mappers;
+
+    s_mappers.clear();
+    for (auto& e : s_mapper_funcs) {
+        auto& encoding = e.first;
+        auto& es = e.second;
+        for (auto& ee : es) {
+            auto& mapper = ee.first;
+            auto& entry = ee.second;
+            auto& desc = entry.first;
+            s_mappers[encoding][mapper] = desc;
+        }
+    }
+    vn = vm;
+    return s_mappers;
+}
 
 void
 register_mapper(const std::string& encoding,
@@ -39,8 +57,6 @@ register_mapper(const std::string& encoding,
                 const std::string& description,
                 create_mapper_func_t factory)
 {
-    s_mappers[encoding].insert(mapper_type);
-
     if (s_mapper_funcs.find(encoding) == s_mapper_funcs.end())
         s_mapper_funcs[encoding] = map<string,pair<string,create_mapper_func_t>>();
 
@@ -49,6 +65,7 @@ register_mapper(const std::string& encoding,
         throw runtime_error(mapper_type + " is already registered");
 
     es[mapper_type] = make_pair(description, factory);
+    vm += 1;
 }
 
 }

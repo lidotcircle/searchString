@@ -16,7 +16,7 @@ typedef std::shared_ptr<StringFilter> (*create_filter_func_t)(const std::string&
 std::shared_ptr<StringFilter>
 create(const std::string& encoding, const std::string &filter_expr);
 
-const std::map<std::string,std::set<std::string>>&
+const std::map<std::string,std::map<std::string,std::string>>&
 get_supported_filters();
 
 void

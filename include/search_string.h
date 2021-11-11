@@ -4,6 +4,7 @@
 #include "sfinder/string_getter.hpp"
 #include "sfinder/string_finder_ascii.h"
 #include "sfinder/string_finder_gb2312.h"
+#include "sfinder/getter_factory.hpp"
 
 #include "sfilter/string_filter.h"
 #include "sfilter/gb2312_frequency.h"

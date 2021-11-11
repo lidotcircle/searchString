@@ -10,6 +10,80 @@
 using namespace std;
 
 
+static void print_filters_and_mappers(const std::string& encoding)
+{
+    auto filter_info = FilterFactory::get_supported_filters();
+    if (encoding != "all" && filter_info.find(encoding) == filter_info.end()) {
+        std::cout << "No filters for " << encoding << std::endl;
+    } else {
+        if (encoding == "all") {
+            for (auto& efilter : filter_info) {
+                std::cout << "Filters for " << efilter.first << ":" << std::endl;
+
+                size_t max = 0;
+                for (auto& filter : efilter.second)
+                    max = std::max(max, filter.first.size());
+
+                for (auto& filter : efilter.second) {
+                    std::cout << "  "  << filter.first 
+                              << string(max - filter.first.size() + 2, ' ')
+                              << filter.second << std::endl;
+                }
+                std::cout << std::endl;
+            }
+        } else {
+            auto& efilter = filter_info.at(encoding);
+
+            size_t max = 0;
+            for (auto& filter : efilter)
+                max = std::max(max, filter.first.size());
+
+            for (auto& filter : efilter) {
+                std::cout << "  "  << filter.first 
+                    << string(max - filter.first.size() + 2, ' ')
+                    << filter.second << std::endl;
+            }
+            std::cout << std::endl;
+
+        }
+    }
+
+    auto mapper_info = MapperFactory::get_supported_mappers();
+    if (encoding != "all" && mapper_info.find(encoding) == mapper_info.end()) {
+        std::cout << "No mappers for " << encoding << std::endl;
+    } else {
+        if (encoding == "all") {
+            for (auto& emapper : mapper_info) {
+                std::cout << "mappers for " << emapper.first << ":" << std::endl;
+
+                size_t max = 0;
+                for (auto& mapper : emapper.second)
+                    max = std::max(max, mapper.first.size());
+
+                for (auto& mapper : emapper.second) {
+                    std::cout << "  "  << mapper.first 
+                              << string(max - mapper.first.size() + 2, ' ')
+                              << mapper.second << std::endl;
+                }
+                std::cout << std::endl;
+            }
+        } else {
+            auto& emapper = mapper_info.at(encoding);
+
+            size_t max = 0;
+            for (auto& mapper : emapper)
+                max = std::max(max, mapper.first.size());
+
+            for (auto& mapper : emapper) {
+                std::cout << "  "  << mapper.first 
+                    << string(max - mapper.first.size() + 2, ' ')
+                    << mapper.second << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    }
+}
+
 static int train(string valid_dir, string invalid_dir, string outfile) {
     std::ofstream off(outfile, std::ios::binary);
     if(!off.is_open()) {
@@ -26,9 +100,11 @@ static int train(string valid_dir, string invalid_dir, string outfile) {
 
 int main(int argc, char** argv) {
     string encoding;
+    string list;
 
     string train_output;
     vector<string> train_dirs;
+    bool print_prefix = false;
 
     string model;
     vector<string> filters;
@@ -42,6 +118,7 @@ int main(int argc, char** argv) {
     options.add_options("extract", {
         { "f,filter",   "string filters, applied in specified order", cxxopts::value<vector<string>>(filters), "<filters>" },
         { "m,mapper",   "string mappers, applied in specified order", cxxopts::value<vector<string>>(mappers), "<mappers>" },
+        { "n,num",      "print offset",                               cxxopts::value<bool>(print_prefix) },
         { "i,input",    "input file", cxxopts::value<vector<string>>(input_files) },
     });
     options.parse_positional("input");
@@ -49,7 +126,8 @@ int main(int argc, char** argv) {
 
     options.add_options()
         ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
-        ("h,help",   "print help");
+        ("list",       "list filters and mappers", cxxopts::value<string>(list), "[encoding | all]")
+        ("h,help",     "print help");
 
     cxxopts::ParseResult result;
     try {
@@ -62,6 +140,11 @@ int main(int argc, char** argv) {
 
     if (result.count("help")) {
         cout << options.help() << endl;
+        return 0;
+    }
+
+    if (result.count("list")) {
+        print_filters_and_mappers(list);
         return 0;
     }
 
@@ -134,14 +217,17 @@ int main(int argc, char** argv) {
         cout << "Search " << filename << ":" << endl;
         istream_iterator<char> inputBegin(inputFile), inputEnd;
 
-        auto getter = make_string_getter<StringFinderGB2312>(inputBegin, inputEnd);
+        auto getter = FinderFactory::create(encoding, "", inputBegin, inputEnd);
         for (auto f : filters_)
             getter.add_filter(f);
         for (auto m : mappers_)
             getter.add_mapper(m);
 
         for(auto& ss: getter) {
-            cout << "0x" << std::hex << ss.first << ": " << ss.second << endl;
+            if (print_prefix)
+                cout << "0x" << std::hex << ss.first << ": ";
+
+            cout << ss.second << endl;
         }
     }
 

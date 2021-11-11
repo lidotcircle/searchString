@@ -16,7 +16,7 @@ typedef std::shared_ptr<StringMapper> (*create_mapper_func_t)(const std::string&
 std::shared_ptr<StringMapper>
 create(const std::string& encoding, const std::string &mapper_expr);
 
-const std::map<std::string,std::set<std::string>>&
+const std::map<std::string,std::map<std::string,std::string>>&
 get_supported_mappers();
 
 void
