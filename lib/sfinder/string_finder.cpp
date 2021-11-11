@@ -37,6 +37,7 @@ vector<pair<size_t,string>> StringFinder::map(const string& str) {
                 result.push_back(std::move(m));
             }
         }
+        interm.clear();
     }
 
     return result;
