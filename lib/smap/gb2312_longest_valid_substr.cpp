@@ -7,7 +7,7 @@ vector<pair<size_t,string>> GB2312LongestValidSubstr::map(const std::string& str
 {
     auto twobytes = gb2312str2twobytes(str);
     auto npos = std::string::npos;
-    size_t max_len = npos;
+    size_t max_len = 0;
     size_t max_start = npos;
     size_t cur_start = npos;
 
@@ -36,7 +36,7 @@ vector<pair<size_t,string>> GB2312LongestValidSubstr::map(const std::string& str
         }
     }
 
-    if (max_len == npos)
+    if (max_start == npos)
         return vector<pair<size_t,string>>();
 
     vector<uint16_t> bex(twobytes.begin(), twobytes.begin() + max_start);
