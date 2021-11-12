@@ -14,4 +14,7 @@ std::string twobytes2gb2312str(const std::vector<uint16_t>& twobytes);
 
 std::istream& safe_getline(std::istream& is, std::string& t);
 
+std::string base64_encode(const char* src, size_t src_len);
+std::vector<char> base64_decode(const std::string& base64_str);
+
 #endif // _UTILS_H_

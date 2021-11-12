@@ -1,6 +1,7 @@
 #include "smap/mapper_factory.h"
 #include "smap/string_truncate.h"
 #include "smap/string_split_line.h"
+#include "smap/base64.h"
 #include <exception>
 #include <stdexcept>
 using namespace std;
@@ -19,6 +20,15 @@ std::shared_ptr<StringMapper> create_split(const std::string&) {
     return shared_ptr<StringMapper>(new SplitLineMapper());
 }
 
+std::shared_ptr<StringMapper> create_base64(const std::string& k) {
+    bool decode = false;
+    if (k == "decode")
+        decode = true;
+    else if (!k.empty())
+        throw std::runtime_error("please specify a correct mode");
+    return shared_ptr<StringMapper>(new Base64Mapper(decode));
+}
+
 
 namespace MapperFactory {
 
@@ -28,12 +38,14 @@ static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs 
         {
             { "trun", make_pair("maximum length by truncating string", create_truncate) },
             { "splt", make_pair("split line by cr lf",                 create_split) },
+            { "base64", make_pair("base64 encoder or decoder, [:decode]", create_base64) },
         }
     },
     { "gb2312",
         {
             { "trun", make_pair("maximum length by truncating string", create_truncate) },
             { "splt", make_pair("split line by cr lf",                 create_split) },
+            { "base64", make_pair("base64 encoder or decoder, [:decode]", create_base64) },
         }
     }
 };
