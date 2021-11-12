@@ -137,12 +137,21 @@ int main(int argc, char** argv) {
         cout << "Search " << filename << ":" << endl;
         std::istreambuf_iterator<char> inputBegin(inputFile), inputEnd;
 
-        auto getter = GetterFactory::create_by_exprs(encoding, transforms, inputBegin, inputEnd);
-        for(auto& ss: *getter.get()) {
-            if (print_prefix)
-                cout << "0x" << std::hex << ss.first << ": ";
+        try
+        {
+            auto getter = GetterFactory::create_by_exprs(encoding, transforms, inputBegin, inputEnd);
+            for (auto &ss : *getter.get())
+            {
+                if (print_prefix)
+                    cout << "0x" << std::hex << ss.first << ": ";
 
-            cout << ss.second << endl;
+                cout << ss.second << endl;
+            }
+        }
+        catch (std::runtime_error &e)
+        {
+            cout << e.what() << endl;
+            status = 1;
         }
     }
 

@@ -855,5 +855,5 @@ static constexpr simple_bitset<0xFFFF> get_gb2312_bitset() {
     return bs;
 }
 
-constexpr const simple_bitset<0xFFFF> gb2312_bitset = get_gb2312_bitset();
+const simple_bitset<0xFFFF> gb2312_bitset = get_gb2312_bitset();
 
