@@ -1,10 +1,11 @@
 #ifndef _STRING_STRING_H_
 #define _STRING_STRING_H_
 
-#include "sfinder/string_getter.hpp"
 #include "sfinder/string_finder_ascii.h"
 #include "sfinder/string_finder_gb2312.h"
-#include "sfinder/getter_factory.hpp"
+
+#include "sgetter/string_getter_by_finder.hpp"
+#include "sgetter/getter_factory.hpp"
 
 #include "sfilter/string_filter.h"
 #include "sfilter/gb2312_frequency.h"

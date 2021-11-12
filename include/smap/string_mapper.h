@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 
 class StringMapper {
@@ -11,6 +12,11 @@ class StringMapper {
         virtual ~StringMapper();
 };
 
+
+std::vector<std::pair<size_t,std::string>>
+apply_mappers(
+        const std::vector<std::shared_ptr<StringMapper>>& mappers,
+        const std::string&);
 
 #endif // _STRING_MAPPER_H_
 

@@ -1,4 +1,5 @@
 #include "sfinder/string_finder.h"
+#include "sfilter/string_filter.h"
 #include <assert.h>
 using namespace std;
 
@@ -12,35 +13,11 @@ void StringFinder::add_mapper(std::shared_ptr<StringMapper> mapper) {
 }
 
 bool StringFinder::filter(const string& str) {
-    for (auto filter : this->filters) {
-        auto result = filter->filter(str);
-        if (result < 0)
-            return false;
-        if (result > 0)
-            return true;
-    }
-    return true;
+    return apply_filters(this->filters, str);
 }
 
 vector<pair<size_t,string>> StringFinder::map(const string& str) {
-    vector<pair<size_t,string>> result, interm;
-    result.push_back(make_pair(0, str));
-
-    for (auto mapper : this->mappers) {
-        std::swap(result, interm);
-
-        for (auto& pair : interm) {
-            auto mapped = mapper->map(pair.second);
-
-            for (auto& m : mapped) {
-                m.first += pair.first;
-                result.push_back(std::move(m));
-            }
-        }
-        interm.clear();
-    }
-
-    return result;
+    return apply_mappers(this->mappers, str);
 }
 
 vector<pair<size_t,string>>& StringFinder::fetch() {

@@ -1,67 +1,19 @@
-#ifndef _STRING_GETTER_H_
-#define _STRING_GETTER_H_
+#ifndef _STRING_SGETTER_GETTER_BY_FINDER_HPP_
+#define _STRING_SGETTER_GETTER_BY_FINDER_HPP_
 
-#include "string_finder.h"
 #include "../utils.hpp"
-#include "../optional.hpp"
+#include "../sfinder/string_finder.h"
+#include "string_getter_base.h"
 #include <type_traits>
-#include <exception>
 #include <assert.h>
 
-class StringGetterIter;
-
-class StringGetterBase {
-protected:
-    friend class StringGetterIter;
-    virtual bool empty() const = 0;
-    virtual std::pair<size_t,std::string>& top() = 0;
-    virtual void pop() = 0;
-    virtual void get_at_least_one_until_end() = 0;
-
-public:
-    virtual void add_filter(std::shared_ptr<StringFilter> filter) = 0;
-    virtual void add_mapper(std::shared_ptr<StringMapper> mapper) = 0;
-
-    StringGetterIter begin();
-    StringGetterIter end();
-
-    virtual ~StringGetterBase();
-};
-
-class StringGetterIter
-{
-public:
-    typedef size_t difference_type;
-    typedef std::pair<size_t,std::string> value_type;
-    typedef value_type &reference;
-    typedef value_type *pointer;
-    typedef std::input_iterator_tag iterator_catogory;
-
-private:
-    StringGetterBase* pgetter;
-    bool is_end;
-    bool is_proxy;
-    Optional<std::pair<size_t,std::string>> proxy_output;
-    StringGetterIter(value_type val);
-    bool at_end() const;
-
-public:
-    StringGetterIter() = delete;
-    StringGetterIter(StringGetterBase* pgetter, bool end);
-    StringGetterIter& operator++();
-    StringGetterIter  operator++(int);
-    reference         operator*();
-    pointer           operator->();
-    bool operator==(const StringGetterIter&) const;
-    bool operator!=(const StringGetterIter&) const;
-};
 
 template<typename Iter,typename Finder>
 class StringGetter: public StringGetterBase {
 private:
     static_assert(is_char_input_iterator_v<Iter>, "require a char input interator");
     static_assert(std::is_base_of<StringFinder,Finder>::value, "rquire a class which derive StringFinder");
-    std::shared_ptr<StringFinder> finder;
+    std::unique_ptr<StringFinder> finder;
     std::vector<std::pair<size_t,std::string>> outputs;
     Iter char_begin, char_end;
     bool has_feed_end;
@@ -141,13 +93,7 @@ void StringGetter<It,Ft>::add_mapper(std::shared_ptr<StringMapper> mapper) {
 template<typename Ft, typename It>
 auto make_string_getter(It begin, It end) 
 {
-    return std::shared_ptr<StringGetterBase>(new StringGetter<It,Ft>(begin, end));
+    return std::unique_ptr<StringGetterBase>(new StringGetter<It,Ft>(begin, end));
 }
 
-
-#include "string_finder_ascii.h"
-#include "string_finder_gb2312.h"
-extern template class StringGetter<char*, StringFinderASCII>;
-extern template class StringGetter<char*, StringFinderGB2312>;
-
-#endif // _STRING_GETTER_H_
+#endif // _STRING_SGETTER_GETTER_BY_FINDER_HPP_

@@ -1,18 +1,7 @@
-#include "sfinder/string_getter.hpp"
-
-template class StringGetter<char*, StringFinderASCII>;
-template class StringGetter<char*, StringFinderGB2312>;
-
-
-StringGetterIter StringGetterBase::begin() {
-    return StringGetterIter(this, false);
-}
-
-StringGetterIter StringGetterBase::end() {
-    return StringGetterIter(this, true);
-}
-
-StringGetterBase::~StringGetterBase() { }
+#include "sgetter/string_getter_iter.h"
+#include "sgetter/string_getter_base.h"
+#include <assert.h>
+using namespace std;
 
 
 StringGetterIter::StringGetterIter(std::pair<size_t,std::string> val):

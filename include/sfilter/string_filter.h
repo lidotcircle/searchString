@@ -2,6 +2,8 @@
 #define _STRING_FILTER_H_
 
 #include <string>
+#include <memory>
+#include <vector>
 
 
 class StringFilter {
@@ -14,5 +16,11 @@ class StringFilter {
         virtual int filter(const std::string& str) const = 0;
         virtual ~StringFilter();
 };
+
+
+bool
+apply_filters(
+        const std::vector<std::shared_ptr<StringFilter>>& filters,
+        const std::string& str);
 
 #endif // _STRING_FILTER_H_
