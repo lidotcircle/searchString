@@ -2,6 +2,7 @@
 #define _STRING_FINDER_GB2312_H_
 
 #include "string_finder.h"
+#include "utils.hpp"
 
 
 class StringFinderGB2312: public StringFinder {
@@ -23,6 +24,9 @@ public:
 
     virtual void feed_char(unsigned char c) override;
     virtual void feed_end() override;
+
+    static bool is_gb2312_twobyte(unsigned char first, unsigned char second);
 };
+
 
 #endif // _STRING_FINDER_GB2312_H_

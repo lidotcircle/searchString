@@ -8,7 +8,6 @@
 #include "sgetter/getter_factory.hpp"
 
 #include "sfilter/string_filter.h"
-#include "sfilter/gb2312_frequency.h"
 #include "sfilter/gb2312_svm.h"
 #include "sfilter/min_length.h"
 #include "sfilter/filter_factory.h"

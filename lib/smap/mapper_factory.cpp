@@ -1,6 +1,5 @@
 #include "smap/mapper_factory.h"
 #include "smap/string_truncate.h"
-#include "smap/gb2312_longest_valid_substr.h"
 #include "smap/string_split_line.h"
 #include <exception>
 #include <stdexcept>
@@ -20,9 +19,6 @@ std::shared_ptr<StringMapper> create_split(const std::string&) {
     return shared_ptr<StringMapper>(new SplitLineMapper());
 }
 
-std::shared_ptr<StringMapper> create_gb2312_longest_valid(const std::string&) {
-    return shared_ptr<StringMapper>(new GB2312LongestValidSubstr());
-}
 
 namespace MapperFactory {
 
@@ -38,7 +34,6 @@ static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs 
         {
             { "trun", make_pair("maximum length by truncating string", create_truncate) },
             { "splt", make_pair("split line by cr lf",                 create_split) },
-            { "mval", make_pair("longest valid substr",                create_gb2312_longest_valid) },
         }
     }
 };

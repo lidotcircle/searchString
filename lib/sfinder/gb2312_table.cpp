@@ -1,4 +1,4 @@
-#include "sfilter/gb2312_frequency.h"
+#include "sfinder/string_finder_gb2312.h"
 #include "utils.hpp"
 
 
@@ -855,5 +855,30 @@ static constexpr simple_bitset<0xFFFF> get_gb2312_bitset() {
     return bs;
 }
 
-const simple_bitset<0xFFFF> gb2312_bitset = get_gb2312_bitset();
+static constexpr simple_bitset<0xFFFF> gb2312_bitset = get_gb2312_bitset();
+
+union TwoByteUint16  {
+    uint16_t i;
+    char c[2];
+    constexpr TwoByteUint16(): i(0x0001) {}
+};
+const static bool is_little_endian = TwoByteUint16().c[0] == 0x01;;
+
+static uint16_t twobytes2entry(unsigned char first, unsigned char second) {
+    TwoByteUint16 ev;
+    if (is_little_endian) {
+        ev.c[0] = second;
+        ev.c[1] = first;
+    } else {
+        ev.c[0] = first;
+        ev.c[1] = second;
+    }
+
+    return ev.i;
+}
+
+/** static */
+bool StringFinderGB2312::is_gb2312_twobyte(unsigned char first, unsigned char second) {
+    return gb2312_bitset.test(twobytes2entry(first, second));
+}
 

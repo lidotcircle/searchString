@@ -1,5 +1,4 @@
 #include "sfilter/filter_factory.h"
-#include "sfilter/gb2312_frequency.h"
 #include "sfilter/gb2312_svm.h"
 #include "sfilter/min_length.h"
 #include "sfilter/inclusive.h"
@@ -18,19 +17,6 @@ static shared_ptr<StringFilter> create_min_filter(const string& minlen)
         throw std::runtime_error("please specify a correct positive integer");
 
     return shared_ptr<StringFilter>(new MiniumLength(len));
-}
-
-static shared_ptr<StringFilter> create_gb_freq_filter(const string& threshold) 
-{
-    int thre = 50;
-    if (!threshold.empty()) {
-        size_t pos = 0;
-        thre = std::stoi(threshold, &pos);
-        if (pos != threshold.size() || (thre < 0 && thre > 100))
-            throw std::runtime_error("please specify a integer between 1 to 100");
-    }
-
-    return shared_ptr<StringFilter>(new GB2312Frequency(thre));
 }
 
 static shared_ptr<StringFilter> create_gb_svmc_filter(const string& modelpath) 
@@ -81,7 +67,6 @@ static map<string,map<string,pair<string,create_filter_func_t>>> s_filter_funcs 
     { "gb2312",
         {
             { "min",  { "minimum length in bytes, positive integer",  create_min_filter } },
-            { "freq", { "minimum frequency of character in gb2312 charset, 1 - 100", create_gb_freq_filter } },
             { "svmc", { "svm classify, model path", create_gb_svmc_filter } },
             { "inc",  { "file[:strict] accept when string contain at least one substring in the file", create_inclusive_filter } },
             { "exc",  { "file, reject when string contain substring in the file", create_exclusive_filter } },

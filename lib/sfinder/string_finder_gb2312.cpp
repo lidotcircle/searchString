@@ -33,6 +33,7 @@ void StringFinderGB2312::clear_half() {
     this->half_str.second.clear();
 }
 
+#include <iostream>
 void StringFinderGB2312::feed_char(unsigned char c) {
     if (!is_valid_gb2312(c)) {
         this->clear_half();
@@ -45,16 +46,27 @@ void StringFinderGB2312::feed_char(unsigned char c) {
             this->complete_str.second.push_back(c);
         } else if (_IS_V_FIRST(c)) {
             this->complete_str.second.push_back(c);
-            if (!this->half_str.second.empty())
-                this->half_str.second.push_back(c);
+            if (!this->half_str.second.empty()) {
+                char l = this->half_str.second.back();
 
-            auto tmp = std::move(this->half_str);
-            this->half_str = std::move(this->complete_str);
-            this->complete_str = std::move(tmp);
+                if (is_gb2312_twobyte(l, c)) {
+                    this->half_str.second.push_back(c);
+                } else {
+                    this->clear_half();
+                }
+            }
+
+            std::swap(this->complete_str, this->half_str);
         } else {
             this->clear_complete();
             if (!this->half_str.second.empty()) {
-                this->half_str.second.push_back(c);
+                char l = this->half_str.second.back();
+
+                if (is_gb2312_twobyte(l, c)) {
+                    this->half_str.second.push_back(c);
+                } else {
+                    this->clear_half();
+                }
                 this->complete_str = std::move(this->half_str);
             }
         }
