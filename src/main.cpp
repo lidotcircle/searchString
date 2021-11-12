@@ -150,8 +150,9 @@ int main(int argc, char** argv) {
         }
         catch (std::runtime_error &e)
         {
-            cout << e.what() << endl;
+            cerr << e.what() << endl;
             status = 1;
+            break;
         }
     }
 
