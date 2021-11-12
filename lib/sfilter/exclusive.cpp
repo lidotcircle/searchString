@@ -1,4 +1,5 @@
 #include "sfilter/exclusive.h"
+#include "utils.h"
 #include <fstream>
 #include <stdexcept>
 #include <aho_corasick.hpp>
@@ -12,7 +13,7 @@ ExclusiveFilter::ExclusiveFilter(const std::string& file) {
         throw std::runtime_error("Could not open file " + file);
 
     string line;
-    while (getline(fx, line))
+    while (safe_getline(fx, line))
         this->trie.insert(line);
 }
 

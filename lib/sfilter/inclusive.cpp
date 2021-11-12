@@ -1,4 +1,5 @@
 #include "sfilter/inclusive.h"
+#include "utils.h"
 #include <fstream>
 #include <stdexcept>
 #include <aho_corasick.hpp>
@@ -12,7 +13,7 @@ InclusiveFilter::InclusiveFilter(const std::string& file, bool strict): strict(s
         throw std::runtime_error("Could not open file " + file);
 
     string line;
-    while (getline(fx, line))
+    while (safe_getline(fx, line))
         this->trie.insert(line);
 }
 

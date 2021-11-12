@@ -94,3 +94,29 @@ std::string twobytes2gb2312str(const std::vector<uint16_t>& twobytes) {
     return ans;
 }
 
+
+std::istream& safe_getline(std::istream& is, std::string& t)
+{
+    t.clear();
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for(;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+        case '\n':
+            return is;
+        case '\r':
+            if(sb->sgetc() == '\n')
+                sb->sbumpc();
+            return is;
+        case EOF:
+            if(t.empty())
+                is.setstate(std::ios::eofbit);
+            return is;
+        default:
+            t += (char)c;
+        }
+    }
+}
