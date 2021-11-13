@@ -2,6 +2,7 @@
 #include "smap/string_truncate.h"
 #include "smap/string_split_line.h"
 #include "smap/base64.h"
+#include "smap/hexadecimal.h"
 #include <exception>
 #include <stdexcept>
 using namespace std;
@@ -29,6 +30,14 @@ std::shared_ptr<StringMapper> create_base64(const std::string& k) {
     return shared_ptr<StringMapper>(new Base64Mapper(decode));
 }
 
+std::shared_ptr<StringMapper> create_hex(const std::string& k) {
+    bool decode = false;
+    if (k == "decode")
+        decode = true;
+    else if (!k.empty())
+        throw std::runtime_error("please specify a correct mode");
+    return shared_ptr<StringMapper>(new HexMapper(decode));
+}
 
 namespace MapperFactory {
 
@@ -39,6 +48,7 @@ static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs 
             { "trun", make_pair("maximum length by truncating string", create_truncate) },
             { "splt", make_pair("split line by cr lf",                 create_split) },
             { "base64", make_pair("base64 encoder or decoder, [:decode]", create_base64) },
+            { "hex",  make_pair("hexadecimal encoder or decoder, [:decode]", create_hex) },
         }
     },
     { "gb2312",
@@ -46,6 +56,7 @@ static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs 
             { "trun", make_pair("maximum length by truncating string", create_truncate) },
             { "splt", make_pair("split line by cr lf",                 create_split) },
             { "base64", make_pair("base64 encoder or decoder, [:decode]", create_base64) },
+            { "hex",  make_pair("hexadecimal encoder or decoder, [:decode]", create_hex) },
         }
     }
 };

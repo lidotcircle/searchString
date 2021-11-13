@@ -12,6 +12,8 @@ class SortByLength : public StringReducer {
         SortByLength(bool ascend);
         virtual void reduce(const std::pair<size_t,std::string>& pair) override;
         virtual std::vector<std::pair<size_t,std::string>> reduce_end() override;
+
+        static const std::vector<int> register_handles;
 };
 
 #endif // _STRING_REDUCER_SORT_BY_LENGTH_H_

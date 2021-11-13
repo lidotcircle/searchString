@@ -1,4 +1,5 @@
 #include "sreduce/most_repeated_n.h"
+#include "sreduce/reducer_factory.h"
 #include <tuple>
 #include <algorithm>
 using namespace std;
@@ -34,3 +35,18 @@ vector<pair<size_t,string>> MostRepeatedN::reduce_end() {
     return result;
 }
 
+static auto name = "most_rep";
+static auto description = "most repeated n";
+static auto creator = [](const string& n) {
+    size_t pos = 0;
+    int nx = std::stoi(n, &pos);
+    if (pos != n.size() || nx <= 0)
+        throw std::runtime_error("please specify a correct positive integer");
+
+    return unique_ptr<StringReducer>(new MostRepeatedN(nx));
+};
+const vector<int> MostRepeatedN::register_handles =
+{
+    ReducerFactory::register_reducer("ascii",  name, description, creator),
+    ReducerFactory::register_reducer("gb2312", name, description, creator),
+};

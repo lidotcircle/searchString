@@ -19,7 +19,7 @@ create(const std::string& encoding, const std::string &reducer_expr);
 const std::map<std::string,std::map<std::string,std::string>>&
 get_supported_reducers();
 
-void
+int
 register_reducer(const std::string& encoding,
                  const std::string& reducer_type,
                  const std::string& description,

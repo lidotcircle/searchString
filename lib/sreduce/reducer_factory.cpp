@@ -1,92 +1,40 @@
 #include "sreduce/reducer_factory.h"
+#include <exception>
+#include <iostream>
+#include <stdexcept>
 #include "sreduce/identical.h"
-#include "sreduce/top_n.h"
 #include "sreduce/last_n.h"
 #include "sreduce/least_repeated_n.h"
+#include "sreduce/merge.h"
 #include "sreduce/most_repeated_n.h"
 #include "sreduce/reverse.h"
 #include "sreduce/sort_by_length.h"
-#include <exception>
-#include <stdexcept>
+#include "sreduce/top_n.h"
 using namespace std;
 
-
-std::unique_ptr<StringReducer> create_identical(const std::string&) {
-    return unique_ptr<StringReducer>(new IdenticalReducer());
-}
-std::unique_ptr<StringReducer> create_top_n(const std::string& n) {
-    size_t pos = 0;
-    int nx = std::stoi(n, &pos);
-    if (pos != n.size() || nx <= 0)
-        throw std::runtime_error("please specify a correct positive integer");
-
-    return unique_ptr<StringReducer>(new TopNReducer(nx));
-}
-std::unique_ptr<StringReducer> create_last_n(const std::string& n) {
-    size_t pos = 0;
-    int nx = std::stoi(n, &pos);
-    if (pos != n.size() || nx <= 0)
-        throw std::runtime_error("please specify a correct positive integer");
-
-    return unique_ptr<StringReducer>(new LastNReducer(nx));
-}
-std::unique_ptr<StringReducer> create_least_rep(const std::string& n) {
-    size_t pos = 0;
-    int nx = std::stoi(n, &pos);
-    if (pos != n.size() || nx <= 0)
-        throw std::runtime_error("please specify a correct positive integer");
-
-    return unique_ptr<StringReducer>(new LeastRepeatedN(nx));
-}
-std::unique_ptr<StringReducer> create_most_rep(const std::string& n) {
-    size_t pos = 0;
-    int nx = std::stoi(n, &pos);
-    if (pos != n.size() || nx <= 0)
-        throw std::runtime_error("please specify a correct positive integer");
-
-    return unique_ptr<StringReducer>(new MostRepeatedN(nx));
-}
-std::unique_ptr<StringReducer> create_reverse(const std::string&) {
-    return unique_ptr<StringReducer>(new ReverseReducer());
-}
-std::unique_ptr<StringReducer> create_sortbylen(const std::string& param) {
-    bool ascend = false;
-    if (param == "ascend") {
-        ascend = true;
-    } else if (!param.empty()) {
-        throw std::runtime_error("Invalid parameter for sortbylen reducer: " + param);
+static void keep_initialization_procedures(int i) {
+    auto hs = {
+        IdenticalReducer::register_handles,
+        LastNReducer::register_handles,
+        LeastRepeatedN::register_handles,
+        MergeReducer::register_handles,
+        MostRepeatedN::register_handles,
+        ReverseReducer::register_handles,
+        SortByLength::register_handles,
+        TopNReducer::register_handles,
+    };
+    for (auto& h : hs) {
+        for(auto& hh : h) {
+            if (hh == i)
+                return;
+        }
     }
-
-    return unique_ptr<StringReducer>(new SortByLength(ascend));
 }
 
 namespace ReducerFactory {
 
 static map<string,map<string,string>> s_reducers;
-static map<string,map<string,pair<string,create_reducer_func_t>>> s_reducer_funcs = {
-    { "ascii", 
-        {
-            { "iden",   make_pair("maximum length by truncating string", create_identical) },
-            { "topn",   make_pair("top n pairs",               create_top_n) },
-            { "lastn",  make_pair("last n pairs",              create_last_n) },
-            { "least_rep",  make_pair("least repeated n",      create_least_rep) },
-            { "most_rep",   make_pair("most repeated n",       create_most_rep) },
-            { "reverse",    make_pair("reverse",               create_reverse) },
-            { "sortbylen",  make_pair("sort by string length, [:ascend]", create_sortbylen) },
-        }
-    },
-    { "gb2312",
-        {
-            { "iden", make_pair("maximum length by truncating string", create_identical) },
-            { "topn",   make_pair("top n pairs",               create_top_n) },
-            { "lastn",  make_pair("last n pairs",              create_last_n) },
-            { "least_rep",  make_pair("least repeated n",      create_least_rep) },
-            { "most_rep",   make_pair("most repeated n",       create_most_rep) },
-            { "reverse",    make_pair("reverse",               create_reverse) },
-            { "sortbylen",  make_pair("sort by string length, [:ascend]", create_sortbylen) },
-        }
-    }
-};
+static map<string,map<string,pair<string,create_reducer_func_t>>> s_reducer_funcs;
 
 std::unique_ptr<StringReducer>
 create(const std::string& encoding, const std::string &reducer_expr) {
@@ -130,7 +78,7 @@ get_supported_reducers() {
     return s_reducers;
 }
 
-void
+int
 register_reducer(const std::string& encoding,
                 const std::string& reducer_type,
                 const std::string& description,
@@ -144,7 +92,8 @@ register_reducer(const std::string& encoding,
         throw runtime_error(reducer_type + " is already registered");
 
     es[reducer_type] = make_pair(description, factory);
-    vm += 1;
+    keep_initialization_procedures(vm);
+    return vm++;
 }
 
 }
