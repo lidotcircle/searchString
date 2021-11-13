@@ -27,6 +27,7 @@ set(StringFinder_SOURCES "")
 list(APPEND StringFinder_SOURCES
 	"src/main.cpp"
 	"src/print_transforms.cpp"
+	"src/trainsvm.cpp"
     )
 add_executable(${StringFinder})
 target_sources(${StringFinder} PRIVATE ${StringFinder_SOURCES})

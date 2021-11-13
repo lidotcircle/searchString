@@ -13,4 +13,6 @@
 
 void print_transforms(const std::string& encoding);
 
+int trainsvm_cmd(int argc, char** argv);
+
 #endif // _STRING_MAIN_H_

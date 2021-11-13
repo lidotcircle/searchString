@@ -60,13 +60,17 @@ public:
         this->learned_function.function = trainer.train(samples, labels);
     }
 
-    template<typename Iter, typename = is_input_iterator_t<Iter>>
+    template<typename Iter, 
+        typename = is_input_iterator_t<Iter>,
+        typename = is_iterator_value_is_same_with_t<Iter,TWord>>
     void word_counter_feed(Iter begin, Iter end)
     {
         this->counter.train(begin, end);
     }
 
-    template<typename Iter, typename = is_input_iterator_t<Iter>>
+    template<typename Iter,
+        typename = is_input_iterator_t<Iter>, 
+        typename = is_iterator_value_is_same_with_t<Iter,TWord>>
     auto feature(Iter begin, Iter end) const {
         auto ft = this->counter.feature(begin, end);
         sample_type ret;

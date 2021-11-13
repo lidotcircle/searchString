@@ -17,6 +17,9 @@ static int train(string valid_dir, string invalid_dir, string outfile) {
 }
 
 int main(int argc, char** argv) {
+    if (argc > 1 && string(argv[1]) == "trainsvm")
+        return trainsvm_cmd(argc - 1, argv + 1);
+
     string encoding;
     string list;
 
@@ -45,6 +48,7 @@ int main(int argc, char** argv) {
         { "n,num",       "print offset",                               cxxopts::value<bool>(print_prefix) },
         { "i,input",     "input file", cxxopts::value<vector<string>>(input_files) },
     });
+    options.custom_help("[ trainsvm ]");
     options.parse_positional("input");
     options.positional_help("<files>");
 
