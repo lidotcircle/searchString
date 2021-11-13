@@ -98,4 +98,51 @@ bool readFromBuf(std::map<KT,VT>& map, char* buf, size_t bufsize, size_t& read) 
     return true;
 }
 
+#include <tuple>
+template<size_t N, typename ...Types>
+bool writeToBuf_tuple(const std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& writed) {
+    if(!writeToBuf(std::get<N>(tup), buf, bufsize, writed))
+        return false;
+
+    constexpr size_t sn = std::tuple_size<std::tuple<Types...>>::value;
+    if (N + 1 == sn)
+        return true;
+
+    size_t n = 0;
+    if (!writeToBuf_tuple<std::min(N+1,sn-1)>(tup, buf + writed, bufsize - writed, n))
+        return false;
+
+    writed += n;
+    return true;
+}
+template<typename ...Types>
+bool writeToBuf(const std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& writed) {
+    return writeToBuf_tuple<0>(tup, buf, bufsize, writed);
+}
+template<>
+bool writeToBuf<>(const std::tuple<>& tup, char* buf, size_t bufsize, size_t& writed);
+
+template<size_t N, typename ...Types>
+bool readFromBuf_tuple(std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& read) {
+    if(!readFromBuf(std::get<N>(tup), buf, bufsize, read))
+        return false;
+
+    constexpr size_t sn = std::tuple_size<std::tuple<Types...>>::value;
+    if (N + 1 == sn)
+        return true;
+
+    size_t n = 0;
+    if (!readFromBuf_tuple<std::min(N+1,sn-1)>(tup, buf + read, bufsize - read, n))
+        return false;
+
+    read += n;
+    return true;
+}
+template<typename ...Types>
+bool readFromBuf(std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& read) {
+    return readFromBuf_tuple<0>(tup, buf, bufsize, read);
+}
+template<>
+bool readFromBuf<>(std::tuple<>& tup, char* buf, size_t bufsize, size_t& read);
+
 #endif // _SIMPLE_ARCHIVE_HPP_
