@@ -74,7 +74,7 @@ public:
     auto feature(Iter begin, Iter end) const {
         auto ft = this->counter.feature(begin, end);
         sample_type ret;
-        auto len = ft[0];
+        auto len = ft[0] + 1;
         ret(0) = len;
         for (size_t i=1;i <= N;i++) {
             ret(i) = ft[i];
