@@ -1,5 +1,4 @@
 #include "sfilter/filter_factory.h"
-#include "sfilter/gb2312_svm.h"
 #include "sfilter/min_length.h"
 #include "sfilter/inclusive.h"
 #include "sfilter/exclusive.h"

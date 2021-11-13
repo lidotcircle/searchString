@@ -2,20 +2,6 @@
 using namespace std;
 
 
-static int train(string valid_dir, string invalid_dir, string outfile) {
-    std::ofstream off(outfile, std::ios::binary);
-    if(!off.is_open()) {
-        std::cout << "can't open file " << outfile << endl;
-        return 1;
-    }
-
-    auto gb = std::make_shared<GB2312SVMFilter>();
-    gb->svm_train_directories_recursively(valid_dir, invalid_dir);
-
-    off << *gb;
-    return 0;
-}
-
 int main(int argc, char** argv) {
     if (argc > 1 && string(argv[1]) == "trainsvm")
         return trainsvm_cmd(argc - 1, argv + 1);
