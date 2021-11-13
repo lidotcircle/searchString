@@ -2,6 +2,7 @@
 #define _STRING_SFILTER_MIN_LENGTH_H_
 
 #include "string_filter.h"
+#include <vector>
 
 
 class MiniumLength: public StringFilter {
@@ -12,6 +13,8 @@ class MiniumLength: public StringFilter {
         MiniumLength(size_t);
         int filter(const std::string&) const override;
         ~MiniumLength() = default;
+
+        static const std::vector<int> register_handles;
 };
 
 #endif // _STRING_SFILTER_MIN_LENGTH_H_

@@ -3,6 +3,7 @@
 
 #include "string_filter.h"
 #include <aho_corasick.hpp>
+#include <vector>
 
 
 class InclusiveFilter: public StringFilter {
@@ -14,6 +15,8 @@ class InclusiveFilter: public StringFilter {
         InclusiveFilter(const std::string& file, bool strict);
         int filter(const std::string&) const override;
         ~InclusiveFilter() = default;
+
+        static const std::vector<int> register_handles;
 };
 
 #endif // _STRING_SFILTER_INCLUSIVE_H_

@@ -9,71 +9,25 @@
 using namespace std;
 
 
-static shared_ptr<StringFilter> create_min_filter(const string& minlen) 
-{
-    size_t pos = 0;
-    int len = std::stoi(minlen, &pos);
-    if (pos != minlen.size() || len <= 0)
-        throw std::runtime_error("please specify a correct positive integer");
-
-    return shared_ptr<StringFilter>(new MiniumLength(len));
-}
-
-static shared_ptr<StringFilter> create_gb_svmc_filter(const string& modelpath) 
-{
-    return nullptr;
-}
-
-static shared_ptr<StringFilter> create_inclusive_filter(const string& param) 
-{
-    bool strict = false;
-    auto file = param;
-    auto pos = param.find(':');
-    if (pos != std::string::npos) {
-        auto s = param.substr(pos + 1);
-        if (s == "strict")
-            strict = true;
-        else
-            throw std::runtime_error("please specify a correct parameter, file[:strict]");
-        file = param.substr(0, pos);
+static void keep_initialization_procedures(int i) {
+    auto hs = {
+        MiniumLength::register_handles,
+        InclusiveFilter::register_handles,
+        ExclusiveFilter::register_handles,
+        ExclusiveFullFilter::register_handles,
+    };
+    for (auto& h : hs) {
+        for(auto& hh : h) {
+            if (hh == i)
+                return;
+        }
     }
-
-    return shared_ptr<StringFilter>(new InclusiveFilter(file, strict));
 }
-
-static shared_ptr<StringFilter> create_exclusive_filter(const string& file) 
-{
-    return shared_ptr<StringFilter>(new ExclusiveFilter(file));
-}
-
-static shared_ptr<StringFilter> create_exclusive_full_filter(const string& file) 
-{
-    return shared_ptr<StringFilter>(new ExclusiveFullFilter(file));
-}
-
 
 namespace FilterFactory {
 
 static map<string,map<string,string>> s_filters;
-static map<string,map<string,pair<string,create_filter_func_t>>> s_filter_funcs = {
-    { "ascii",  
-        {
-            { "min", { "minimum length in bytes", create_min_filter } },
-            { "inc", { "file[:strict] accept when string contain at least one substring in the file", create_inclusive_filter } },
-            { "exc", { "file, reject when string contain substring in the file", create_exclusive_filter } },
-            { "exf", { "file, reject when string contain string in the file", create_exclusive_full_filter } },
-        }
-    },
-    { "gb2312",
-        {
-            { "min",  { "minimum length in bytes, positive integer",  create_min_filter } },
-            { "svmc", { "svm classify, model path", create_gb_svmc_filter } },
-            { "inc",  { "file[:strict] accept when string contain at least one substring in the file", create_inclusive_filter } },
-            { "exc",  { "file, reject when string contain substring in the file", create_exclusive_filter } },
-            { "exf",  { "file, reject when string contain string in the file", create_exclusive_full_filter } },
-        } 
-    },
-};
+static map<string,map<string,pair<string,create_filter_func_t>>> s_filter_funcs;
 
 std::shared_ptr<StringFilter>
 create(const std::string& encoding, const std::string &filter_expr) {
@@ -117,7 +71,7 @@ get_supported_filters() {
     return s_filters;
 }
 
-void
+int
 register_filter(const std::string& encoding,
                 const std::string& filter_type,
                 const std::string& description,
@@ -131,7 +85,8 @@ register_filter(const std::string& encoding,
         throw runtime_error(filter_type + " is already registered");
 
     es[filter_type] = make_pair(description, factory);
-    vm += 1;
+    keep_initialization_procedures(vm);
+    return vm++;
 }
 
 }

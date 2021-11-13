@@ -1,6 +1,5 @@
 #include "sreduce/reducer_factory.h"
 #include <exception>
-#include <iostream>
 #include <stdexcept>
 #include "sreduce/identical.h"
 #include "sreduce/last_n.h"

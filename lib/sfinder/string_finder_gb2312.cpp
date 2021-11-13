@@ -33,7 +33,6 @@ void StringFinderGB2312::clear_half() {
     this->half_str.second.clear();
 }
 
-#include <iostream>
 void StringFinderGB2312::feed_char(unsigned char c) {
     if (!is_valid_gb2312(c)) {
         this->clear_half();

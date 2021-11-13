@@ -13,6 +13,8 @@ public:
     virtual ~Base64Mapper() = default;
 
     virtual std::vector<std::pair<size_t,std::string>> map(const std::string& str) const override;
+
+    static const std::vector<int> register_handles;
 };
 
 #endif // _STRING_MAPPING_BASE64_H_

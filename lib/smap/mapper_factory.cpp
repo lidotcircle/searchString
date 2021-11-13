@@ -8,58 +8,25 @@
 using namespace std;
 
 
-std::shared_ptr<StringMapper> create_truncate(const std::string& max_len) {
-    size_t pos = 0;
-    int len = std::stoi(max_len, &pos);
-    if (pos != max_len.size() || len <= 0)
-        throw std::runtime_error("please specify a correct positive integer");
-
-    return shared_ptr<StringMapper>(new TruncateMapper(len));
-}
-
-std::shared_ptr<StringMapper> create_split(const std::string&) {
-    return shared_ptr<StringMapper>(new SplitLineMapper());
-}
-
-std::shared_ptr<StringMapper> create_base64(const std::string& k) {
-    bool decode = false;
-    if (k == "decode")
-        decode = true;
-    else if (!k.empty())
-        throw std::runtime_error("please specify a correct mode");
-    return shared_ptr<StringMapper>(new Base64Mapper(decode));
-}
-
-std::shared_ptr<StringMapper> create_hex(const std::string& k) {
-    bool decode = false;
-    if (k == "decode")
-        decode = true;
-    else if (!k.empty())
-        throw std::runtime_error("please specify a correct mode");
-    return shared_ptr<StringMapper>(new HexMapper(decode));
+static void keep_initialization_procedures(int i) {
+    auto hs = {
+        TruncateMapper::register_handles,
+        SplitLineMapper::register_handles,
+        Base64Mapper::register_handles,
+        HexMapper::register_handles,
+    };
+    for (auto& h : hs) {
+        for(auto& hh : h) {
+            if (hh == i)
+                return;
+        }
+    }
 }
 
 namespace MapperFactory {
 
 static map<string,map<string,string>> s_mappers;
-static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs = {
-    { "ascii", 
-        {
-            { "trun", make_pair("maximum length by truncating string", create_truncate) },
-            { "splt", make_pair("split line by cr lf",                 create_split) },
-            { "base64", make_pair("base64 encoder or decoder, [:decode]", create_base64) },
-            { "hex",  make_pair("hexadecimal encoder or decoder, [:decode]", create_hex) },
-        }
-    },
-    { "gb2312",
-        {
-            { "trun", make_pair("maximum length by truncating string", create_truncate) },
-            { "splt", make_pair("split line by cr lf",                 create_split) },
-            { "base64", make_pair("base64 encoder or decoder, [:decode]", create_base64) },
-            { "hex",  make_pair("hexadecimal encoder or decoder, [:decode]", create_hex) },
-        }
-    }
-};
+static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs;
 
 std::shared_ptr<StringMapper>
 create(const std::string& encoding, const std::string &mapper_expr) {
@@ -103,7 +70,7 @@ get_supported_mappers() {
     return s_mappers;
 }
 
-void
+int
 register_mapper(const std::string& encoding,
                 const std::string& mapper_type,
                 const std::string& description,
@@ -117,7 +84,8 @@ register_mapper(const std::string& encoding,
         throw runtime_error(mapper_type + " is already registered");
 
     es[mapper_type] = make_pair(description, factory);
-    vm += 1;
+    keep_initialization_procedures(vm);
+    return vm++;
 }
 
 }

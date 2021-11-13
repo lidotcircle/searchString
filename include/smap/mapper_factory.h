@@ -19,7 +19,7 @@ create(const std::string& encoding, const std::string &mapper_expr);
 const std::map<std::string,std::map<std::string,std::string>>&
 get_supported_mappers();
 
-void
+int
 register_mapper(const std::string& encoding,
                 const std::string& mapper_type,
                 const std::string& description,

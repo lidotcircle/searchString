@@ -44,6 +44,8 @@ class GB2312SVMFilter: public StringFilter {
 
         virtual int filter(const std::string& str) const override;
         virtual ~GB2312SVMFilter() override;
+
+        static const std::vector<int> register_handles;
 };
 
 #endif // _STRING_SFILTER_GB2312_SVM_FILTER_H_

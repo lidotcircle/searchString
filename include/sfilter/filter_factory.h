@@ -19,7 +19,7 @@ create(const std::string& encoding, const std::string &filter_expr);
 const std::map<std::string,std::map<std::string,std::string>>&
 get_supported_filters();
 
-void
+int
 register_filter(const std::string& encoding,
                 const std::string& filter_type,
                 const std::string& description,

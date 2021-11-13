@@ -1,4 +1,5 @@
 #include "sfilter/inclusive.h"
+#include "sfilter/filter_factory.h"
 #include "utils.h"
 #include <fstream>
 #include <stdexcept>
@@ -25,3 +26,25 @@ int InclusiveFilter::filter(const std::string& str) const {
 
     return strict ? -1 : 0;
 }
+
+static auto name = "inc";
+static auto desc = "file[:strict] accept when string contain at least one substring in the file";
+static auto creator = [](const string& param) {
+    bool strict = false;
+    auto file = param;
+    auto pos = param.find(':');
+    if (pos != std::string::npos) {
+        auto s = param.substr(pos + 1);
+        if (s == "strict")
+            strict = true;
+        else
+            throw std::runtime_error("please specify a correct parameter, file[:strict]");
+        file = param.substr(0, pos);
+    }
+
+    return shared_ptr<StringFilter>(new InclusiveFilter(file, strict));
+};
+const vector<int> InclusiveFilter::register_handles = {
+    FilterFactory::register_filter("ascii",  name, desc, creator),
+    FilterFactory::register_filter("gb2312", name, desc, creator),
+};

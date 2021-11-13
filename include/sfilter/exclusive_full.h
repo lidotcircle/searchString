@@ -4,6 +4,7 @@
 #include "string_filter.h"
 #include <set>
 #include <string>
+#include <vector>
 
 
 class ExclusiveFullFilter: public StringFilter {
@@ -14,6 +15,8 @@ class ExclusiveFullFilter: public StringFilter {
         ExclusiveFullFilter(const std::string& file);
         int filter(const std::string&) const override;
         ~ExclusiveFullFilter() = default;
+
+        static const std::vector<int> register_handles;
 };
 
 #endif // _STRING_SFILTER_EXCLUSIVE_FULL_H_

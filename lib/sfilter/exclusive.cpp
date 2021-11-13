@@ -1,4 +1,5 @@
 #include "sfilter/exclusive.h"
+#include "sfilter/filter_factory.h"
 #include "utils.h"
 #include <fstream>
 #include <stdexcept>
@@ -26,3 +27,12 @@ int ExclusiveFilter::filter(const std::string& str) const {
     return 0;
 }
 
+static auto name = "exc";
+static auto desc = "file, reject when string contain substring in the file";
+static auto creator = [](const string& file) {
+    return shared_ptr<StringFilter>(new ExclusiveFilter(file));
+};
+const vector<int> ExclusiveFilter::register_handles = {
+    FilterFactory::register_filter("ascii",  name, desc, creator),
+    FilterFactory::register_filter("gb2312", name, desc, creator),
+};

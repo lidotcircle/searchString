@@ -9,6 +9,8 @@ class SplitLineMapper: public StringMapper {
         ~SplitLineMapper() = default;
 
         virtual std::vector<std::pair<size_t,std::string>> map(const std::string& str) const override;
+
+        static const std::vector<int> register_handles;
 };
 
 
