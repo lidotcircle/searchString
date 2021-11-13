@@ -95,13 +95,14 @@ public:
         typename TWordIter,
         typename = is_input_iterator_t<TWordIter>,
         typename = is_iterator_value_is_same_with_t<TWordIter, TWord>>
-    auto feature(TWordIter begin, TWordIter end) {
+    auto feature(TWordIter begin, TWordIter end) const {
         assert(this->validn == 0 && "call eat_end() or feature_end() before another sentence");
+        auto _this = const_cast<WordCounterNGram<N, TWord>*>(this);
 
         for(;begin != end;begin++)
-            this->feature_eat(*begin);
+            _this->feature_eat(*begin);
 
-        return this->feature_end();
+        return _this->feature_end();
     }
 
     void feature_eat(TWord word) {
@@ -160,4 +161,3 @@ public:
 };
 
 #endif // _WORD_COUNTER_N_GRAMHPP_
-

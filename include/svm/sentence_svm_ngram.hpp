@@ -67,7 +67,7 @@ public:
     }
 
     template<typename Iter, typename = is_input_iterator_t<Iter>>
-    auto feature(Iter begin, Iter end) {
+    auto feature(Iter begin, Iter end) const {
         auto ft = this->counter.feature(begin, end);
         sample_type ret;
         auto len = ft[0];
@@ -81,7 +81,7 @@ public:
     }
 
     template<typename Iter, typename = is_input_iterator_t<Iter>>
-    bool predict(Iter begin, Iter end) {
+    bool predict(Iter begin, Iter end) const {
         auto ft = this->feature(begin, end);
         return this->learned_function(ft) > 0;
     }
