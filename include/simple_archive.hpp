@@ -4,147 +4,66 @@
 #include <map>
 #include <type_traits>
 
+/**
+ * @brief Simple functions for serialization and deserialization
+ *
+ * @function template
+ *    bool writeToBuf(T&, char* buf, size_t bufsize, size_t& writed);
+ *        @tparam T The type of the data to serialize.
+ *        @param buf storage for storing the serialized data.
+ *        @param bufsize size of the storage.
+ *        @param writed the number of bytes would write to the storage,
+ *               even if the storage is not enough, it will return correct value.
+ *        @return true if the data is serialized successfully, false otherwise.
+ *
+ * @function template
+ *    bool readFromBuf(T&, char* buf, size_t bufsize, size_t& readed);
+ *        @tparam T The type of the data to deserialize.
+ *        @param buf storage for storing the serialized data.
+ *        @param bufsize size of the storage.
+ *        @param readed the number of bytes would read from the storage,
+ *        @return true if the data is deserialized successfully, false otherwise.
+ *
+ */
+
+
+// integral
 template<typename IT,
          typename = typename std::enable_if<std::is_integral<IT>::value, void>::type>
-bool writeToBuf(const IT& i, char* buf, size_t bufsize, size_t& writed) {
-    size_t n = sizeof(i);
-
-    if (buf != nullptr) {
-        if(n > bufsize) {
-            return false;
-        }
-        *(IT*)buf = i;
-    }
-
-    writed = n;
-    return true;
-}
-
+bool writeToBuf(const IT& i, char* buf, size_t bufsize, size_t& writed);
 template<typename IT,
          typename = typename std::enable_if<std::is_integral<IT>::value, void>::type>
-bool readFromBuf(IT& i, char* buf, size_t bufsize, size_t& read) {
-    size_t n = sizeof(i);
-    if(n > bufsize) {
-        return false;
-    }
+bool readFromBuf(IT& i, char* buf, size_t bufsize, size_t& readed);
 
-    i = *(IT*)buf;
-    read = n;
-    return true;
-}
 
+// map
 template<typename KT, typename VT>
-bool writeToBuf(const std::map<KT,VT>& map, char* buf, size_t bufsize, size_t& writed) {
-    bool nowrite = buf == nullptr;
-    size_t i = sizeof(size_t);
-    if(!nowrite) {
-        if (i > bufsize) {
-            return false;
-        }
-        *((size_t*)buf) = map.size();
-    }
-
-    for(auto& kv: map) {
-        size_t n = 0;
-        if(!writeToBuf(kv.first, nowrite ? nullptr : buf + i, bufsize - i, n)) {
-            return false;
-        }
-        i += n;
-        if(!nowrite && bufsize < i) return false;
-
-        if(!writeToBuf(kv.second, nowrite ? nullptr : buf + i, bufsize - i, n)) {
-            return false;
-        }
-        i += n;
-        if(!nowrite && bufsize < i) return false;
-    }
-
-    writed = i;
-    return true;
-}
-
+bool writeToBuf(const std::map<KT,VT>& map, char* buf, size_t bufsize, size_t& writed);
 template<typename KT, typename VT>
-bool readFromBuf(std::map<KT,VT>& map, char* buf, size_t bufsize, size_t& read) {
-    map.clear();
-    size_t i = sizeof(size_t);
-    if(bufsize < i) {
-        return false;
-    }
+bool readFromBuf(std::map<KT,VT>& map, char* buf, size_t bufsize, size_t& readed);
 
-    size_t n = *(size_t*)buf;
-    for(;n>0;n--) {
-        KT k;
-        VT v;
-        size_t m;
-        if(!readFromBuf(k, buf + i, bufsize - i, m)) {
-            return false;
-        }
-        i += m;
-        if (bufsize < i) return false;
 
-        if(!readFromBuf(v, buf + i, bufsize - i, m)) {
-            return false;
-        }
-        i += m;
-        if (bufsize < i) return false;
-
-        if(map.find(k) != map.end()) {
-            return false;
-        }
-        map.insert(std::make_pair(k, v));
-    }
-
-    read = i;
-    return true;
-}
-
-#define MIN_AB(a, b) ((a) < (b) ? (a) : (b))
-
-#include <tuple>
-template<size_t N, typename ...Types>
-bool writeToBuf_tuple(const std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& writed) {
-    if(!writeToBuf(std::get<N>(tup), buf, bufsize, writed))
-        return false;
-
-    constexpr size_t sn = std::tuple_size<std::tuple<Types...>>::value;
-    if (N + 1 == sn)
-        return true;
-
-    size_t n = 0;
-    if (!writeToBuf_tuple<MIN_AB(N+1,sn-1)>(tup, buf + writed, bufsize - writed, n))
-        return false;
-
-    writed += n;
-    return true;
-}
+// tuple
 template<typename ...Types>
-bool writeToBuf(const std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& writed) {
-    return writeToBuf_tuple<0>(tup, buf, bufsize, writed);
-}
+bool writeToBuf(const std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& writed);
 template<>
 bool writeToBuf<>(const std::tuple<>& tup, char* buf, size_t bufsize, size_t& writed);
-
-template<size_t N, typename ...Types>
-bool readFromBuf_tuple(std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& read) {
-    if(!readFromBuf(std::get<N>(tup), buf, bufsize, read))
-        return false;
-
-    constexpr size_t sn = std::tuple_size<std::tuple<Types...>>::value;
-    if (N + 1 == sn)
-        return true;
-
-    size_t n = 0;
-    if (!readFromBuf_tuple<MIN_AB(N+1,sn-1)>(tup, buf + read, bufsize - read, n))
-        return false;
-
-    read += n;
-    return true;
-}
 template<typename ...Types>
-bool readFromBuf(std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& read) {
-    return readFromBuf_tuple<0>(tup, buf, bufsize, read);
-}
+bool readFromBuf(std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& readed);
 template<>
 bool readFromBuf<>(std::tuple<>& tup, char* buf, size_t bufsize, size_t& read);
+
+
+// array
+template<size_t N, typename T>
+bool writeToBuf(const std::array<T, N>& arr, char* buf, size_t bufsize, size_t& writed);
+template<size_t N, typename T>
+bool readFromBuf(std::array<T, N>& arr, char* buf, size_t bufsize, size_t& readed);
+
+
+#include "simple_archive/integral.hpp"
+#include "simple_archive/map.hpp"
+#include "simple_archive/tuple.hpp"
+#include "simple_archive/array.hpp"
 
 #endif // _SIMPLE_ARCHIVE_HPP_
