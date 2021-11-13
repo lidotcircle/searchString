@@ -98,6 +98,8 @@ bool readFromBuf(std::map<KT,VT>& map, char* buf, size_t bufsize, size_t& read) 
     return true;
 }
 
+#define MIN_AB(a, b) ((a) < (b) ? (a) : (b))
+
 #include <tuple>
 template<size_t N, typename ...Types>
 bool writeToBuf_tuple(const std::tuple<Types...>& tup, char* buf, size_t bufsize, size_t& writed) {
@@ -109,7 +111,7 @@ bool writeToBuf_tuple(const std::tuple<Types...>& tup, char* buf, size_t bufsize
         return true;
 
     size_t n = 0;
-    if (!writeToBuf_tuple<std::min(N+1,sn-1)>(tup, buf + writed, bufsize - writed, n))
+    if (!writeToBuf_tuple<MIN_AB(N+1,sn-1)>(tup, buf + writed, bufsize - writed, n))
         return false;
 
     writed += n;
@@ -132,7 +134,7 @@ bool readFromBuf_tuple(std::tuple<Types...>& tup, char* buf, size_t bufsize, siz
         return true;
 
     size_t n = 0;
-    if (!readFromBuf_tuple<std::min(N+1,sn-1)>(tup, buf + read, bufsize - read, n))
+    if (!readFromBuf_tuple<MIN_AB(N+1,sn-1)>(tup, buf + read, bufsize - read, n))
         return false;
 
     read += n;
