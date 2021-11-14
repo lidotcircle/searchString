@@ -120,3 +120,17 @@ std::istream& safe_getline(std::istream& is, std::string& t)
         }
     }
 }
+
+std::vector<std::string> split_string(const std::string& str, const std::string& delim) {
+    std::vector<std::string> ans;
+    size_t pos = 0;
+    size_t prev = 0;
+    while((pos = str.find(delim, prev)) != std::string::npos) {
+        ans.push_back(str.substr(prev, pos - prev));
+        prev = pos + delim.size();
+    }
+    ans.push_back(str.substr(prev));
+
+    return ans;
+}
+

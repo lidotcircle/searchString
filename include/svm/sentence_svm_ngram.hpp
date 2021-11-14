@@ -9,7 +9,9 @@
 #include "word_counter_ngram.hpp"
 
 
-template<size_t N, typename TWord>
+template<size_t N, typename TWord,
+    template<typename> typename TTrainer = dlib::svm_c_ekm_trainer,
+    template<typename> typename TKernel  = dlib::radial_basis_kernel>
 class NGramSentenceSVM {
 public:
     static_assert(N > 0, "N must be greater than 0");
@@ -17,7 +19,7 @@ public:
 
 
 private:
-    typedef dlib::radial_basis_kernel<sample_type>    kernel_type;
+    typedef TKernel<sample_type>                      kernel_type;
     typedef dlib::decision_function<kernel_type>      dec_funct_type;
     typedef dlib::normalized_function<dec_funct_type> funct_type;
     WordCounterNGram<N,TWord> counter;
@@ -35,25 +37,86 @@ public:
             samples[i] = normalizer(samples[i]);
         dlib::randomize_samples(samples, labels);
 
-        dlib::svm_c_ekm_trainer<kernel_type> trainer;
-        double m = 0;
-        double ga = 0;
-        double ca = 0;
-        for(double gamma = 0.00001;gamma<=1;gamma *= 5) {
+        TTrainer<kernel_type> trainer;
+        double ca = 1;
+
+        if constexpr (std::is_constructible_v<kernel_type,double,double,double>) {
+            double m = 0;
+            double ga = 0, coefa = 0, degreea = 0;
+            for(double gamma = 0.00001;gamma<=1;gamma *= 5) {
+                for(double coef = -100;coef<=100;coef++) {
+                    for(double degree = -100;degree<=100;degree++) {
+                        for(double C = 1; C<100000; C *= 5) {
+                            trainer.set_kernel(kernel_type(gamma, coef, degree));
+                            trainer.set_c(C);
+                            auto result = dlib::cross_validate_trainer(trainer, samples, labels, 3);
+                            double mx = 2 * dlib::prod(result) / dlib::sum(result);
+                            if(mx > m) {
+                                ca = C;
+                                ga = gamma;
+                                coefa = coef;
+                                degreea = degree;
+                            }
+                            m = mx > m ? mx : m;
+                        }
+                    }
+                }
+            }
+
+            trainer.set_kernel(kernel_type(ga, coefa, degreea));
+
+        } else if constexpr (std::is_constructible_v<kernel_type,double,double>) {
+            double m = 0;
+            double ga = 0, coefa = 0;
+            for(double gamma = 0.00001;gamma<=1;gamma *= 5) {
+                for(double coef = -100;coef<=100;coef++) {
+                    for(double C = 1; C<100000; C *= 5) {
+                        trainer.set_kernel(kernel_type(gamma, coef));
+                        trainer.set_c(C);
+                        auto result = dlib::cross_validate_trainer(trainer, samples, labels, 3);
+                        double mx = 2 * dlib::prod(result) / dlib::sum(result);
+                        if(mx > m) {
+                            ca = C;
+                            ga = gamma;
+                            coefa = coef;
+                        }
+                        m = mx > m ? mx : m;
+                    }
+                }
+            }
+
+            trainer.set_kernel(kernel_type(ga, coefa));
+        } else if constexpr (std::is_constructible_v<kernel_type, double>) {
+            double m = 0;
+            double ga = 0;
+            for(double gamma = 0.00001;gamma<=1;gamma *= 5) {
+                for(double C = 1; C<100000; C *= 5) {
+                    trainer.set_kernel(kernel_type(gamma));
+                    trainer.set_c(C);
+                    auto result = dlib::cross_validate_trainer(trainer, samples, labels, 3);
+                    double mx = 2 * dlib::prod(result) / dlib::sum(result);
+                    if(mx > m) {
+                        ca = C;
+                        ga = gamma;
+                    }
+                    m = mx > m ? mx : m;
+                }
+            }
+
+            trainer.set_kernel(kernel_type(ga));
+        } else if constexpr (std::is_constructible_v<kernel_type>) {
+            double m = 0;
             for(double C = 1; C<100000; C *= 5) {
-                trainer.set_kernel(kernel_type(gamma));
+                trainer.set_kernel(kernel_type());
                 trainer.set_c(C);
                 auto result = dlib::cross_validate_trainer(trainer, samples, labels, 3);
                 double mx = 2 * dlib::prod(result) / dlib::sum(result);
                 if(mx > m) {
-                    ga = gamma;
                     ca = C;
                 }
                 m = mx > m ? mx : m;
             }
         }
-
-        trainer.set_kernel(kernel_type(ga));
         trainer.set_c(ca);
 
         this->learned_function.normalizer = normalizer;
@@ -131,8 +194,8 @@ public:
     }
 };
 
-template<size_t N,typename TWord>
-std::ostream& operator<<(std::ostream& o, const NGramSentenceSVM<N,TWord>& s) {
+template<size_t N,typename TWord,template<typename> typename TTrainer,template<typename> typename TKernel>
+std::ostream& operator<<(std::ostream& o, const NGramSentenceSVM<N,TWord,TTrainer,TKernel>& s) {
     size_t n;
     if (s.save(nullptr, 0, n))
         throw std::runtime_error("expcet false");
@@ -145,8 +208,8 @@ std::ostream& operator<<(std::ostream& o, const NGramSentenceSVM<N,TWord>& s) {
     return o;
 }
 
-template<size_t N,typename TWord>
-std::istream& operator>>(std::istream& input, NGramSentenceSVM<N,TWord>& s) {
+template<size_t N,typename TWord,template<typename> typename TTrainer,template<typename> typename TKernel>
+std::istream& operator>>(std::istream& input, NGramSentenceSVM<N,TWord,TTrainer,TKernel>& s) {
     std::istream_iterator<char> eos;
     size_t cur = input.tellg();
     input.seekg(0, input.end);

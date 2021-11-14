@@ -3,9 +3,12 @@
 
 #include "sentence_svm_ngram.hpp"
 #include "utils.h"
+#include <dlib/svm.h>
 #include <fstream>
 
-template<size_t N,typename TWord>
+template<size_t N,typename TWord,
+    template<typename>typename TTrainer = dlib::svm_c_ekm_trainer,
+    template<typename>typename TKernel  = dlib::radial_basis_kernel>
 class SentenceSVMTrainer
 {
 private:
@@ -13,7 +16,7 @@ private:
     std::string positive_example_dir;
     std::string negative_example_dir;
     std::string output_model;
-    using sample_type = typename NGramSentenceSVM<N, TWord>::sample_type;
+    using sample_type = typename NGramSentenceSVM<N, TWord, TTrainer, TKernel>::sample_type;
 
     void feed_positive_sentence(const std::string& file) {
         std::ifstream ifs(file, std::ios::binary);

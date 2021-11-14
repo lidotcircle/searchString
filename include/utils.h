@@ -17,4 +17,6 @@ std::istream& safe_getline(std::istream& is, std::string& t);
 std::string base64_encode(const char* src, size_t src_len);
 std::vector<char> base64_decode(const std::string& base64_str);
 
+std::vector<std::string> split_string(const std::string& str, const std::string& delim);
+
 #endif // _UTILS_H_
