@@ -46,6 +46,6 @@ static auto creator = [](const string& param) {
 };
 
 template<>
-const vector<int> GB2312NGramSVMFilter<1>::register_handles = {
+const vector<int> GB2312NGramSVMFilter<1,dlib::svm_c_trainer,dlib::radial_basis_kernel>::register_handles = {
     FilterFactory::register_filter("gb2312", name, desc, creator),
 };

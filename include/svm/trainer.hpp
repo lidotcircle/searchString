@@ -7,12 +7,12 @@
 #include <fstream>
 
 template<size_t N,typename TWord,
-    template<typename>typename TTrainer = dlib::svm_c_ekm_trainer,
-    template<typename>typename TKernel  = dlib::radial_basis_kernel>
+    template<typename>typename TTrainer,
+    template<typename>typename TKernel>
 class SentenceSVMTrainer
 {
 private:
-    NGramSentenceSVM<N, TWord> model;
+    NGramSentenceSVM<N, TWord,TTrainer,TKernel> model;
     std::string positive_example_dir;
     std::string negative_example_dir;
     std::string output_model;

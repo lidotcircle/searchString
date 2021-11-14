@@ -8,8 +8,8 @@
 
 
 template<size_t N,
-    template<typename>typename TTrainer = dlib::svm_c_ekm_trainer,
-    template<typename>typename TKernel  = dlib::radial_basis_kernel>
+    template<typename>typename TTrainer,
+    template<typename>typename TKernel>
 class GB2312SentenceSVMTrainer: public SentenceSVMTrainer<N,uint16_t,TTrainer,TKernel> {
 protected:
     std::vector<uint16_t> str2words(const std::string& str) const override

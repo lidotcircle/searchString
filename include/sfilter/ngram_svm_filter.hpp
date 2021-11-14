@@ -7,8 +7,8 @@
 #include <stdexcept>
 
 template<size_t N, typename T,
-    template<typename>typename TTrainer = dlib::svm_c_ekm_trainer,
-    template<typename>typename TKernel  = dlib::radial_basis_kernel>
+    template<typename>typename TTrainer,
+    template<typename>typename TKernel>
 class NGramSVMFilter: public StringFilter {
     protected:
         NGramSentenceSVM<N, T, TTrainer, TKernel> svm;

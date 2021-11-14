@@ -7,7 +7,7 @@ using namespace std;
 
 class NGramSentenceSVMTest: public ::testing::Test {
     protected:
-        NGramSentenceSVM<2,uint16_t> svm, svm2;
+        NGramSentenceSVM<2,uint16_t,dlib::svm_c_trainer,dlib::radial_basis_kernel> svm, svm2;
         vector<decltype(svm)::sample_type> samples;
         vector<double> labels;
         vector<std::vector<uint16_t>> uy;

@@ -6,8 +6,8 @@
 
 
 template<size_t N,
-    template<typename>typename TTrainer = dlib::svm_c_ekm_trainer,
-    template<typename>typename TKernel  = dlib::radial_basis_kernel>
+    template<typename>typename TTrainer,
+    template<typename>typename TKernel>
 class GB2312NGramSVMFilter : public NGramSVMFilter<N,uint16_t,TTrainer,TKernel> {
     public:
         GB2312NGramSVMFilter(const std::string& model): NGramSVMFilter<N,uint16_t,TTrainer,TKernel>(model) {}

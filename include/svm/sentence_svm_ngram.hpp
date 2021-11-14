@@ -10,8 +10,8 @@
 
 
 template<size_t N, typename TWord,
-    template<typename> typename TTrainer = dlib::svm_c_ekm_trainer,
-    template<typename> typename TKernel  = dlib::radial_basis_kernel>
+    template<typename> typename TTrainer,
+    template<typename> typename TKernel>
 class NGramSentenceSVM {
 public:
     static_assert(N > 0, "N must be greater than 0");
