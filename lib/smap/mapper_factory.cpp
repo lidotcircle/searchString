@@ -3,6 +3,7 @@
 #include "smap/string_split_line.h"
 #include "smap/base64.h"
 #include "smap/hexadecimal.h"
+#include "smap/trim.h"
 #include <exception>
 #include <stdexcept>
 using namespace std;
@@ -14,6 +15,7 @@ static void keep_initialization_procedures(int i) {
         SplitLineMapper::register_handles,
         Base64Mapper::register_handles,
         HexMapper::register_handles,
+        TrimMapper::register_handles,
     };
     for (auto& h : hs) {
         for(auto& hh : h) {
