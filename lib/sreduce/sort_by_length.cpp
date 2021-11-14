@@ -1,6 +1,7 @@
 #include "sreduce/sort_by_length.h"
 #include "sreduce/reducer_factory.h"
 #include <algorithm>
+#include <stdexcept>
 using namespace std;
 
 

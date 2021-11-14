@@ -1,5 +1,6 @@
 #include "sreduce/top_n.h"
 #include "sreduce/reducer_factory.h"
+#include <stdexcept>
 using namespace std;
 
 

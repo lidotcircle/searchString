@@ -4,6 +4,7 @@
 #include "utils.h"
 #include <assert.h>
 #include <ctype.h>
+#include <stdexcept>
 using namespace std;
 
 

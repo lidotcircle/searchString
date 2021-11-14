@@ -1,6 +1,7 @@
 #include "smap/trim.h"
 #include "smap/mapper_factory.h"
 #include "utils.h"
+#include <stdexcept>
 using namespace std;
 
 

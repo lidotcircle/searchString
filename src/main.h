@@ -9,6 +9,7 @@
 #include <tuple>
 #include <map>
 #include <cxxopts.hpp>
+#include <stdexcept>
 #include "search_string.h"
 
 void print_transforms(const std::string& encoding);

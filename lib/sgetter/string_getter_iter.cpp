@@ -1,6 +1,7 @@
 #include "sgetter/string_getter_iter.h"
 #include "sgetter/string_getter_base.h"
 #include <assert.h>
+#include <stdexcept>
 using namespace std;
 
 

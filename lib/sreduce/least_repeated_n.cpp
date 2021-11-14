@@ -2,6 +2,7 @@
 #include "sreduce/reducer_factory.h"
 #include <tuple>
 #include <algorithm>
+#include <stdexcept>
 using namespace std;
 
 
