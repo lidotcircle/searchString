@@ -1,5 +1,6 @@
 #include "smap/string_truncate.h"
 #include "smap/mapper_factory.h"
+#include <stdexcept>
 using namespace std;
 
 TruncateMapper::TruncateMapper(size_t max_length): len(max_length) { }

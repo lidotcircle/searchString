@@ -1,6 +1,7 @@
 #include "sfilter/min_length.h"
 #include "sfilter/filter_factory.h"
 #include <ctype.h>
+#include <stdexcept>
 using namespace std;
 
 
