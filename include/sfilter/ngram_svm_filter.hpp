@@ -13,7 +13,7 @@ class NGramSVMFilter: public StringFilter {
 
     public:
         NGramSVMFilter(const std::string& model) {
-            std::ifstream ifs(model);
+            std::ifstream ifs(model, std::ios::binary);
             if (!ifs)
                  throw std::runtime_error("NGramSVMFilter: can't open model file: " + model);
 

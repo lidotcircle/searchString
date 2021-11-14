@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
             status = 1;
             continue;
         }
-        cout << "Search " << filename << ":" << endl;
+        cerr << "Search " << filename << ":" << endl;
         std::istreambuf_iterator<char> inputBegin(inputFile), inputEnd;
 
         try
@@ -137,6 +137,7 @@ int main(int argc, char** argv) {
 
                 cout << ss.second << endl;
             }
+            cerr << "Search Finish" << endl;
         }
         catch (std::runtime_error &e)
         {

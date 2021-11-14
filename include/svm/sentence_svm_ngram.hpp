@@ -35,7 +35,7 @@ public:
             samples[i] = normalizer(samples[i]);
         dlib::randomize_samples(samples, labels);
 
-        dlib::svm_c_trainer<kernel_type> trainer;
+        dlib::svm_c_ekm_trainer<kernel_type> trainer;
         double m = 0;
         double ga = 0;
         double ca = 0;

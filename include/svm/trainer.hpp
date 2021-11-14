@@ -16,7 +16,7 @@ private:
     using sample_type = typename NGramSentenceSVM<N, TWord>::sample_type;
 
     void feed_positive_sentence(const std::string& file) {
-        std::ifstream ifs(file);
+        std::ifstream ifs(file, std::ios::binary);
         std::string line;
 
         while (safe_getline(ifs, line)) {
@@ -26,7 +26,7 @@ private:
     }
 
     void add_to_sample(const std::string& file, std::vector<sample_type>& samples) {
-        std::ifstream ifs(file);
+        std::ifstream ifs(file, std::ios::binary);
         std::string line;
 
         while (safe_getline(ifs, line)) {
@@ -54,7 +54,7 @@ public:
         auto f1 = ls_files_recursively(positive_example_dir);
         auto f2 = ls_files_recursively(negative_example_dir);
 
-        std::fstream out(output_model);
+        std::fstream out(output_model, std::ios::out | std::ios::binary);
         if (!out)
             throw std::runtime_error("cannot open output model file: " + output_model);
 
