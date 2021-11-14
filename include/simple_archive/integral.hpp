@@ -6,7 +6,7 @@
 
 
 template<typename IT,
-         typename = typename std::enable_if<std::is_integral<IT>::value, void>::type>
+         typename X>
 bool writeToBuf(const IT& i, char* buf, size_t bufsize, size_t& writed) {
     size_t n = sizeof(i);
     writed = n;
@@ -19,7 +19,7 @@ bool writeToBuf(const IT& i, char* buf, size_t bufsize, size_t& writed) {
 }
 
 template<typename IT,
-         typename = typename std::enable_if<std::is_integral<IT>::value, void>::type>
+         typename X>
 bool readFromBuf(IT& i, char* buf, size_t bufsize, size_t& readed) {
     size_t n = sizeof(i);
     if (n > bufsize)

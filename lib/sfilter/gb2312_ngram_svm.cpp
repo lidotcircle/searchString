@@ -3,13 +3,14 @@
 #include "svm/supported_trainer_kernel.h"
 #include "utils.h"
 #include <assert.h>
+#include <ctype.h>
 using namespace std;
 
 
 static auto name = "svm";
-static auto desc = "model[:ngram[:trainer[:kernel]]] svm classifier, ngram between 1 to 3";
+static auto desc = "model[:ngram=2[:trainer=c_ekm[:kernel=rbf]]] svm classifier, ngram between 1 to 3";
 static auto creator = [](const string& param) {
-    string file, trainer, kernel;
+    string file, trainer = "c_ekm", kernel = "rbf";
     int ngram = 2;
     auto vmm = split_string(param, ":");
     assert(vmm.size() > 0);
@@ -17,6 +18,8 @@ static auto creator = [](const string& param) {
     file = vmm[0];
     if (vmm.size() > 1) {
         auto ngram_str = vmm[1];
+        if (ngram_str.empty() || !isdigit(ngram_str[0]))
+            throw std::runtime_error("please specify a correct ngram value");
 
         size_t pos = 0;
         ngram = std::stoi(ngram_str, &pos);

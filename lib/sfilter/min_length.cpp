@@ -1,5 +1,6 @@
 #include "sfilter/min_length.h"
 #include "sfilter/filter_factory.h"
+#include <ctype.h>
 using namespace std;
 
 
@@ -13,6 +14,9 @@ int MiniumLength::filter(const std::string& str) const {
 static auto name = "min";
 static auto desc = "minimum length in bytes, positive integer";
 static auto creator = [](const string& minlen) {
+    if (minlen.empty() || !isdigit(minlen[0]))
+        throw std::runtime_error("please specify a correct positive integer");
+
     size_t pos = 0;
     int len = std::stoi(minlen, &pos);
     if (pos != minlen.size() || len <= 0)

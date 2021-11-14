@@ -32,7 +32,7 @@ int trainsvm_cmd(int argc, char **argv)
         ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
         ("ngram",      "sentence feature extracted by ngram frequency", cxxopts::value<size_t>(ngram)->default_value("2"), "<ngram>")
         ("trainer",    "svm trainer, see dlib for details", cxxopts::value<string>(trainer)->default_value("c_ekm"), "<trainer>")
-        ("kernel",     "svm kernel type, see dlib for details", cxxopts::value<string>(kernel)->default_value("radial_basis"), "<kernel>")
+        ("kernel",     "svm kernel type, see dlib for details", cxxopts::value<string>(kernel)->default_value("rbf"), "<kernel>")
         ("info",       "list support tariners and kernels")
         ("p,positive", "positive example directory", cxxopts::value<string>(positive_example_dir), "<positive>")
         ("n,negative", "negative example directory", cxxopts::value<string>(negative_example_dir), "<negative>")
@@ -73,7 +73,6 @@ int trainsvm_cmd(int argc, char **argv)
     cout << "training info:" << endl;
     cout << "  encoding:          " << encoding << endl;
     cout << "  ngram:             " << ngram << endl;
-    cout << "  trainer:           " << trainer << endl;
     cout << "  trainer:           " << trainer << endl;
     cout << "  kernel:            " << kernel << endl;
     cout << "  output model:      " << model << endl;
