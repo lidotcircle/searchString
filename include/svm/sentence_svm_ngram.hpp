@@ -15,7 +15,7 @@ template<size_t N, typename TWord,
 class NGramSentenceSVM {
 public:
     static_assert(N > 0, "N must be greater than 0");
-    typedef dlib::matrix<double,2*N+1,1> sample_type;
+    typedef dlib::matrix<double,4*N+1,1> sample_type;
 
 
 private:
@@ -23,6 +23,7 @@ private:
     typedef dlib::decision_function<kernel_type>      dec_funct_type;
     typedef dlib::normalized_function<dec_funct_type> funct_type;
     WordCounterNGram<N,TWord> counter;
+    WordCounterNGram<N,TWord> neg_counter;
     funct_type learned_function;
 
 
@@ -131,17 +132,28 @@ public:
         this->counter.train(begin, end);
     }
 
+    template<typename Iter, 
+        typename = is_input_iterator_t<Iter>,
+        typename = is_iterator_value_is_same_with_t<Iter,TWord>>
+    void neg_word_counter_feed(Iter begin, Iter end)
+    {
+        this->neg_counter.train(begin, end);
+    }
+
     template<typename Iter,
         typename = is_input_iterator_t<Iter>, 
         typename = is_iterator_value_is_same_with_t<Iter,TWord>>
     auto feature(Iter begin, Iter end) const {
         auto ft = this->counter.feature(begin, end);
+        auto nft = this->neg_counter.feature(begin, end);
         sample_type ret;
         auto len = ft[0] + 1;
         ret(0) = len;
         for (size_t i=1;i <= N;i++) {
             ret(i) = ft[i];
             ret(i+N) = (double)ft[i] / len;
+            ret(i+2*N) = nft[i];
+            ret(i+3*N) = (double)nft[i] / len;
         }
 
         return ret;
@@ -158,6 +170,11 @@ public:
 
         ret = this->counter.save(buf, bufsize, writed);
         size_t k1 = writed;
+
+        auto nx = bufsize > k1 ? bufsize - k1 : 0;
+        ret = this->neg_counter.save(buf + k1, nx, writed) && ret;
+        k1 += writed;
+        writed = k1;
 
         std::ostringstream membuf;
         dlib::serialize(membuf) << this->learned_function;
@@ -178,6 +195,11 @@ public:
     bool load(char* buf, size_t bufsize, size_t& readed) {
         if (!this->counter.load(buf, bufsize, readed))
             return false;
+
+        size_t k1 = readed;
+        if (!this->neg_counter.load(buf + k1, bufsize - k1, readed))
+            return false;
+        readed += k1;
 
         if (bufsize < readed + sizeof(size_t))
             return false;

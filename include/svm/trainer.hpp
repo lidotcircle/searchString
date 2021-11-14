@@ -28,6 +28,16 @@ private:
         }
     }
 
+    void feed_negative_sentence(const std::string& file) {
+        std::ifstream ifs(file, std::ios::binary);
+        std::string line;
+
+        while (safe_getline(ifs, line)) {
+            std::vector<TWord> words = this->str2words(line);
+            this->model.neg_word_counter_feed(words.begin(), words.end());
+        }
+    }
+
     void add_to_sample(const std::string& file, std::vector<sample_type>& samples) {
         std::ifstream ifs(file, std::ios::binary);
         std::string line;
@@ -63,6 +73,9 @@ public:
 
         for (auto& f : f1)
             this->feed_positive_sentence(f);
+
+        for (auto& f : f2)
+            this->feed_negative_sentence(f);
 
         std::vector<sample_type> samples;
         std::vector<double> labels;

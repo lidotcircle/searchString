@@ -19,7 +19,10 @@ class NGramSentenceSVMTest: public ::testing::Test {
                 for(uint16_t j=0;j<100;j++)
                     mn.push_back(i << 7 & j);
 
-                svm.word_counter_feed(mn.begin(), mn.end());
+                if (i%2 == 0)
+                    svm.word_counter_feed(mn.begin(), mn.end());
+                else
+                    svm.neg_word_counter_feed(mn.begin(), mn.end());
             }
 
             for(uint16_t i=0;i<8;i++) {
