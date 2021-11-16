@@ -4,6 +4,7 @@ project(StringFinder VERSION 0.1.0)
 include("cmake/CPM.cmake")
 include("cmake/dlib.cmake")
 include("cmake/googletest.cmake")
+add_subdirectory(thirdparty/pe-parse)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -15,6 +16,7 @@ file(GLOB_RECURSE StringFinderLib_SOURCES_C CONFIGURE_DEPENDS ./lib/**.c)
 list(APPEND StringFinderLib_SOURCES ${StringFinderLib_SOURCES_C})
 add_library(StringFinderLib STATIC ${StringFinderLib_SOURCES})
 target_link_libraries(StringFinderLib PUBLIC dlib)
+target_link_libraries(StringFinderLib PUBLIC pe-parse::pe-parse)
 set_property(TARGET StringFinderLib PROPERTY CXX_STANDARD 17)
 target_include_directories(StringFinderLib PUBLIC include)
 target_include_directories(StringFinderLib PUBLIC thirdparty/aho_corasick/src/aho_corasick)
@@ -28,6 +30,7 @@ list(APPEND StringFinder_SOURCES
 	"src/main.cpp"
 	"src/print_transforms.cpp"
 	"src/trainsvm.cpp"
+    "src/pefile.cpp"
     )
 add_executable(${StringFinder})
 target_sources(${StringFinder} PRIVATE ${StringFinder_SOURCES})

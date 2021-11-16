@@ -8,6 +8,7 @@ int main(int argc, char** argv) {
 
     string encoding;
     string list;
+    string pefile;
 
     string train_output;
     vector<string> train_dirs;
@@ -41,6 +42,7 @@ int main(int argc, char** argv) {
     options.add_options()
         ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
         ("list",       "list filters, mappers and reducers", cxxopts::value<string>(list), "[encoding | all]")
+        ("pe",         "search in pe file, which will do searching regarding pe section", cxxopts::value(pefile), "<pefile>")
         ("h,help",     "print help");
 
     cxxopts::ParseResult result;
@@ -109,6 +111,16 @@ int main(int argc, char** argv) {
         }
     }
     */
+
+    if (result.count("pe")) {
+        if (!input_files.empty()) {
+            cerr << "nope in pe mode" << endl;
+            cerr << options.help() << endl;
+            return 1;
+        }
+
+        return search_in_pefile(pefile, encoding, transforms, print_prefix);
+    }
 
     if (input_files.empty()) {
         cout << options.help() << endl;
