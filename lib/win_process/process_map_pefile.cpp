@@ -9,7 +9,7 @@ ProcessMapPEFile::ProcessMapPEFile(const peparse::bounded_buffer* buffr, void* b
 {
 }
 
-char ProcessMapPEFile::get_at(size_t offset) {
+char ProcessMapPEFile::get_at(size_t offset) const {
     if (offset >= map_size) {
         throw runtime_error("offset out of bounds");
     }
@@ -24,11 +24,11 @@ void ProcessMapPEFile::set_at(size_t offset, char value) {
     throw std::runtime_error("pe file is read only");
 }
 
-void* ProcessMapPEFile::baseaddr() {
+void* ProcessMapPEFile::baseaddr() const {
     return this->base_address;
 }
 
-size_t ProcessMapPEFile::size() {
+size_t ProcessMapPEFile::size() const {
     return this->map_size;
 }
 

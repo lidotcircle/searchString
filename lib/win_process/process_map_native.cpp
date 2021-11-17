@@ -9,7 +9,7 @@ using namespace std;
 
 
 ProcessMapNative::ProcessMapNative(ProcessHandle handle, void* base, size_t size, bool direct_write):
-    process_handle(handle), baseaddress(base), map_size(size)
+    process_handle(handle), baseaddress(base), map_size(size),
     cache(new char[CACHE_SIZE]), cache_size(0), cache_offset(std::string::npos), direct_write(direct_write), write_dirty(false)
 {
 }
@@ -22,7 +22,7 @@ ProcessMapNative::~ProcessMapNative()
 
 void* ProcessMapNative::baseaddr() const
 {
-    return this->baseaddr;
+    return this->baseaddress;
 }
     
 size_t ProcessMapNative::size() const
@@ -30,24 +30,26 @@ size_t ProcessMapNative::size() const
     return this->map_size;
 }
 
-char ProcessMapNative::get_at(size_t offset) {
+char ProcessMapNative::get_at(size_t offset) const {
     if (offset >= map_size)
         throw out_of_range("offset out of range");
 
-    size_t base = reinterpret_cast<size_t>(baseaddress);
-    size_t addr = reinterpret_cast<void*>(base + offset);
+    auto _this = const_cast<ProcessMapNative*>(this);
+
+    size_t base = reinterpret_cast<size_t>(this->baseaddress);
+    void* addr  = reinterpret_cast<void*>(base + offset);
 
     if (cache_offset <= offset && offset < cache_offset + cache_size) {
         return cache[offset - cache_offset];
     }
 
-    size_t n;
+    SIZE_T n;
     if (!ReadProcessMemory(*this->process_handle.get(), addr, cache, CACHE_SIZE, &n)) {
         throw runtime_error("ReadProcessMemory failed");
     }
-    this->cache_size = n;
+    _this->cache_size = n;
 
-    cache_offset = offset;
+    _this->cache_offset = offset;
     return cache[offset - cache_offset];
 }
 
@@ -56,7 +58,7 @@ void ProcessMapNative::set_at(size_t offset, char value) {
         throw out_of_range("offset out of range");
 
     size_t base = reinterpret_cast<size_t>(baseaddress);
-    size_t addr = reinterpret_cast<void*>(base + offset);
+    auto   addr = reinterpret_cast<void*>(base + offset);
 
     if (this->direct_write) {
         if (!WriteProcessMemory(*this->process_handle.get(), addr, &value, 1, nullptr)) {
@@ -77,7 +79,7 @@ void ProcessMapNative::flush() {
         return;
 
     size_t base = reinterpret_cast<size_t>(baseaddress);
-    size_t addr = reinterpret_cast<void*>(base + this->cache_offset);
+    auto addr = reinterpret_cast<void*>(base + this->cache_offset);
     if (!WriteProcessMemory(*this->process_handle.get(), addr, this->cache, cache_size, nullptr))
         throw runtime_error("WriteProcessMemory failed");
 }

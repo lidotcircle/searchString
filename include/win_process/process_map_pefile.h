@@ -15,11 +15,11 @@ private:
 public:
     ProcessMapPEFile(const peparse::bounded_buffer* buffer, void* base_address, size_t size);
 
-    virtual char get_at(size_t offset) override;
+    virtual char get_at(size_t offset) const override;
     virtual void set_at(size_t offset, char value) override;
 
-    virtual void* baseaddr() override;
-    virtual size_t size() override;
+    virtual void* baseaddr() const override;
+    virtual size_t size() const override;
 
     ~ProcessMapPEFile();
 };

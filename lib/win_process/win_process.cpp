@@ -2,7 +2,7 @@
 #include <stdexcept>
 using namespace std;
 
-char WinProcess::get_at(size_t addr) {
+char WinProcess::get_at(size_t addr) const {
     for (size_t i=0;i<this->map_count();i++) {
         auto region = this->get_map(i);
         size_t base = reinterpret_cast<size_t>(region->baseaddr());
@@ -12,6 +12,11 @@ char WinProcess::get_at(size_t addr) {
     }
 
     throw runtime_error("Address not mapped");
+}
+
+const std::shared_ptr<ProcessMap> WinProcess::get_map(size_t index) const {
+    auto _this = const_cast<WinProcess*>(this);
+    return _this->get_map(index);
 }
 
 void WinProcess::set_at(size_t addr, char value) {
@@ -44,4 +49,3 @@ MemoryValueRef WinProcess::operator[] (size_t addr) {
 
     return MemoryValueRef(this, addr);
 }
-

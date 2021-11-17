@@ -21,4 +21,11 @@ int search_in_pefile(const std::string& pefile,
                      const std::vector<std::string>& transforms,
                      bool print_prefix);
 
+#if defined(_WIN32) || defined(_WIN64)
+int search_in_win_process(int pid,
+                          const std::string& encoding,
+                          const std::vector<std::string>& transforms,
+                          bool print_prefix);
+#endif // defined(_WIN32) || defined(_WIN64)
+
 #endif // _STRING_MAIN_H_

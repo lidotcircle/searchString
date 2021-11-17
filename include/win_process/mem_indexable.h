@@ -8,7 +8,7 @@ class MemIndexable
 {
 public:
     virtual ~MemIndexable() = default;
-    virtual char get_at(size_t index) = 0;
+    virtual char get_at(size_t index) const = 0;
     virtual void set_at(size_t index, char value) = 0;
 };
 

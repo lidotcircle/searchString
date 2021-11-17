@@ -4,6 +4,11 @@
 #include "win_process.h"
 #include <vector>
 #include <memory>
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#else
+typedef int HANDLE;
+#endif // defined(_WIN32) || defined(_WIN64)
 
 
 class WinProcessNative : public WinProcess

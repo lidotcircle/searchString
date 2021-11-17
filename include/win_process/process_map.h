@@ -9,8 +9,8 @@
 
 class ProcessMap: public MemIndexable {
 public:
-    virtual void* baseaddr() = 0;
-    virtual size_t size() = 0;
+    virtual void* baseaddr() const = 0;
+    virtual size_t size() const = 0;
 
     virtual ~ProcessMap() = default;
 

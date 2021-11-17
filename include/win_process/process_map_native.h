@@ -1,8 +1,13 @@
 #ifndef _PROCESS_MAP_NATIVE_H_
 #define _PROCESS_MAP_NATIVE_H_
 
-#inlcude "process_map.h"
+#include "process_map.h"
 #include <memory>
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#else
+typedef int HANDLE;
+#endif // defined(_WIN32) || defined(_WIN64)
 
 
 class ProcessMapNative : public ProcessMap

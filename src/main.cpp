@@ -9,6 +9,7 @@ int main(int argc, char** argv) {
     string encoding;
     string list;
     string pefile;
+    int pid;
 
     string train_output;
     vector<string> train_dirs;
@@ -43,6 +44,9 @@ int main(int argc, char** argv) {
         ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
         ("list",       "list filters, mappers and reducers", cxxopts::value<string>(list), "[encoding | all]")
         ("pe",         "search in pe file, which will do searching regarding pe section", cxxopts::value(pefile), "<pefile>")
+#if defined(_WIN32) || defined(_WIN64)
+        ("pid",      "search process", cxxopts::value(pid), "<pid>")
+#endif // defined(_WIN32) || defined(_WIN64)
         ("h,help",     "print help");
 
     cxxopts::ParseResult result;
@@ -112,15 +116,28 @@ int main(int argc, char** argv) {
     }
     */
 
-    if (result.count("pe")) {
-        if (!input_files.empty()) {
-            cerr << "nope in pe mode" << endl;
-            cerr << options.help() << endl;
-            return 1;
-        }
+    int nmode = 0;
+    if (result.count("pid"))
+        nmode++;
+    if (result.count("pe"))
+        nmode++;
+    if (!input_files.empty())
+        nmode++;
+    if (nmode != 1) {
+        cerr << "bad command line: specify pefile or pid or files only one" << endl;
+        cerr << options.help() << endl;
+        return 1;
+    }
 
+    if (result.count("pe")) {
         return search_in_pefile(pefile, encoding, transforms, print_prefix);
     }
+
+#if defined(_WIN32) || defined(_WIN64)
+    if (result.count("pid")) {
+        return search_in_win_process(pid, encoding, transforms, print_prefix);
+    }
+#endif // defined(_WIN32) || defined(_WIN64)
 
     if (input_files.empty()) {
         cout << options.help() << endl;
