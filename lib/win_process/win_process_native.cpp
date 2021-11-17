@@ -5,18 +5,25 @@
 #include <Windows.h>
 #include <psapi.h>
 #include <tlhelp32.h>
+#include <algorithm>
+#include <iostream>
 using namespace std;
 
 
-WinProcessNative::WinProcessNative(int pid)
+WinProcessNative::WinProcessNative(int pid): process_id(pid) {
+    this->refresh_process();
+}
+
+void WinProcessNative::refresh_process()
 {
     HANDLE ph = OpenProcess( PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION,
-                             FALSE, pid );
+                             FALSE, this->process_id );
 
     if (ph == NULL)
         throw runtime_error("OpenProcess failed");
 
     this->process_handle = std::shared_ptr<HANDLE>(new HANDLE(ph), [](HANDLE* ph) { CloseHandle(*ph); delete ph;});
+    this->process_maps.clear();
 
 
 #if defined(_WIN64)
@@ -44,7 +51,7 @@ WinProcessNative::WinProcessNative(int pid)
 
 #elif defined(_WIN32)
 
-    HANDLE hSnapshot=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+    HANDLE hSnapshot=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, this->process_id);
     if ( hSnapshot == INVALID_HANDLE_VALUE )
     {
         throw runtime_error("CreateToolhelp32Snapshot failed");
@@ -70,6 +77,33 @@ WinProcessNative::WinProcessNative(int pid)
         }
     }
 #endif // _WIN64
+
+    this->add_nomodule_pages();
+}
+
+void WinProcessNative::add_nomodule_pages()
+{
+    auto handle = *this->process_handle.get();
+    MEMORY_BASIC_INFORMATION mbi;
+    LPCVOID addr = nullptr;
+
+    this->process_maps.clear();
+    while(VirtualQueryEx(handle, addr, &mbi, sizeof(mbi))) {
+        if (!this->is_valid_addr(reinterpret_cast<size_t>(mbi.BaseAddress))) {
+            auto mmap = std::make_shared<ProcessMapNative>(this->process_handle, mbi.BaseAddress, mbi.RegionSize, false);
+            if (mbi.State == MEM_COMMIT && mbi.Type != MEM_MAPPED) {
+                this->process_maps.push_back(mmap);
+            }
+        }
+
+        addr = reinterpret_cast<LPCVOID>(reinterpret_cast<size_t>(mbi.BaseAddress) + mbi.RegionSize);
+    }
+
+    std::sort(this->process_maps.begin(),
+              this->process_maps.end(),
+              [](const std::shared_ptr<ProcessMap>& a, const std::shared_ptr<ProcessMap>& b) {
+        return a->baseaddr() < b->baseaddr();
+    });
 }
 
 size_t WinProcessNative::map_count() const {

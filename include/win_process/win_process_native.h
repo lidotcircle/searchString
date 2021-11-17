@@ -17,8 +17,12 @@ public:
     using ProcessHandle = std::shared_ptr<HANDLE>;
 
 private:
+    int process_id;
     ProcessHandle process_handle;
     std::vector<std::shared_ptr<ProcessMap>> process_maps;
+
+    void refresh_process();
+    void add_nomodule_pages();
 
 public:
     WinProcessNative(int pid);
