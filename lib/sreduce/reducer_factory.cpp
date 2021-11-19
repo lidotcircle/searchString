@@ -9,6 +9,7 @@
 #include "sreduce/reverse.h"
 #include "sreduce/sort_by_length.h"
 #include "sreduce/top_n.h"
+#include "sreduce/unique.h"
 using namespace std;
 
 static void keep_initialization_procedures(int i) {
@@ -21,6 +22,7 @@ static void keep_initialization_procedures(int i) {
         ReverseReducer::register_handles,
         SortByLength::register_handles,
         TopNReducer::register_handles,
+        UniqueReducer::register_handles,
     };
     for (auto& h : hs) {
         for(auto& hh : h) {
