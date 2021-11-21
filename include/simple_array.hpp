@@ -5,18 +5,26 @@
 
 
 template<typename T, size_t N>
-class SimpleArray {
+class simple_array {
 private:
     T data[N];
 
 public:
-    constexpr SimpleArray(): data{ T() } {}
+    constexpr simple_array(): data{ T() } {}
 
     constexpr T& operator[](size_t index) {
         return data[index];
     }
 
     constexpr const T& operator[](size_t index) const {
+        return data[index];
+    }
+
+    constexpr void set_at(size_t index, T value) {
+        data[index] = value;
+    }
+
+    constexpr T get_at(size_t index) const {
         return data[index];
     }
 };

@@ -1902,22 +1902,26 @@ constexpr static uint16_t UnicodeToGB2312_Tab[][2] = {
 };
 
 
-static constexpr auto unicode_to_gb2312_table_init() {
-    SimpleArray<uint16_t, 0xFFFF> table;
+// constexpr cause github action build out of memory in linux with error message:
+//     c++: fatal error: Killed signal terminated program cc1plus
+// and build failed in windows FIXME.
+// however, it builds successfully in linux and windows with my devlopment machine.
+static auto unicode_to_gb2312_table_init() {
+    simple_array<uint16_t, 0xFFFF> table;
     for (auto& p: UnicodeToGB2312_Tab)
-        table[p[0]] = p[1];
+        table.set_at(p[0], p[1]);
     return table;
 }
 
-static constexpr auto gb2312_to_unicode_table_init() {
-    SimpleArray<uint16_t, 0xFFFF> table;
+static auto gb2312_to_unicode_table_init() {
+    simple_array<uint16_t, 0xFFFF> table;
     for (auto& p: UnicodeToGB2312_Tab)
-        table[p[1]] = p[0];
+        table.set_at(p[1], p[0]);
     return table;
 }
 
-static constexpr SimpleArray<uint16_t,0xFFFF> unicode_to_gb2312_table = unicode_to_gb2312_table_init();
-static constexpr SimpleArray<uint16_t,0xFFFF> gb2312_to_unicode_table = gb2312_to_unicode_table_init();
+static const simple_array<uint16_t,0xFFFF> unicode_to_gb2312_table = unicode_to_gb2312_table_init();
+static const simple_array<uint16_t,0xFFFF> gb2312_to_unicode_table = gb2312_to_unicode_table_init();
 
 std::vector<int> gb2312_to_unicode(const std::vector<int>& gb2312str) {
     std::vector<int> unicodestr;
