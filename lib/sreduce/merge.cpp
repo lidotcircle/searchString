@@ -18,4 +18,6 @@ const vector<int> MergeReducer::register_handles =
 {
     ReducerFactory::register_reducer("ascii",  "merge", "merge inputs from pipeline", creator),
     ReducerFactory::register_reducer("gb2312", "merge", "merge inputs from pipeline", creator),
+    ReducerFactory::register_reducer("utf8", "merge", "merge inputs from pipeline", creator),
+    ReducerFactory::register_reducer("utf16", "merge", "merge inputs from pipeline", creator),
 };

@@ -33,4 +33,6 @@ static auto creator = [](const string& file) {
 const vector<int> ExclusiveFullFilter::register_handles = {
     FilterFactory::register_filter("ascii",  name, desc, creator),
     FilterFactory::register_filter("gb2312", name, desc, creator),
+    FilterFactory::register_filter("utf8", name, desc, creator),
+    FilterFactory::register_filter("utf16", name, desc, creator),
 };

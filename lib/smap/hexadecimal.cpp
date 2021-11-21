@@ -33,4 +33,6 @@ static auto creator = [](const string& k) {
 const vector<int> HexMapper::register_handles = {
     MapperFactory::register_mapper("ascii",  name, desc, creator),
     MapperFactory::register_mapper("gb2312", name, desc, creator),
+    MapperFactory::register_mapper("utf8", name, desc, creator),
+    MapperFactory::register_mapper("utf16", name, desc, creator),
 };

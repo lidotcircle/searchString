@@ -8,10 +8,9 @@
 class StringFinderUTF8: public StringFinder {
 private:
     std::vector<std::pair<size_t,std::string>> outputs;
-    std::vector<char> pre_chars;
+    std::string pre_chars;
     std::string candidate;
     size_t pos, start_pos;
-    int state;
 
     void clear_to_outputs();
 

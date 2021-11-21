@@ -18,4 +18,6 @@ const vector<int> IdenticalReducer::register_handles =
 {
     ReducerFactory::register_reducer("ascii",  name, description, creator),
     ReducerFactory::register_reducer("gb2312", name, description, creator),
+    ReducerFactory::register_reducer("utf8", name, description, creator),
+    ReducerFactory::register_reducer("utf16", name, description, creator),
 };
