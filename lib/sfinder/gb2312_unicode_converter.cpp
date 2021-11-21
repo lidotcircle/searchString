@@ -1,5 +1,5 @@
 #include "sfinder/unicode_converter.h"
-#include <array>
+#include "simple_array.hpp"
 #include <stdexcept>
 
 
@@ -1903,21 +1903,21 @@ constexpr static uint16_t UnicodeToGB2312_Tab[][2] = {
 
 
 static constexpr auto unicode_to_gb2312_table_init() {
-    std::array<uint16_t, 0xFFFF> table = { 0 };
+    SimpleArray<uint16_t, 0xFFFF> table;
     for (auto& p: UnicodeToGB2312_Tab)
         table[p[0]] = p[1];
     return table;
 }
 
 static constexpr auto gb2312_to_unicode_table_init() {
-    std::array<uint16_t, 0xFFFF> table = { 0 };
+    SimpleArray<uint16_t, 0xFFFF> table;
     for (auto& p: UnicodeToGB2312_Tab)
         table[p[1]] = p[0];
     return table;
 }
 
-static constexpr std::array<uint16_t, 0xFFFF> unicode_to_gb2312_table = unicode_to_gb2312_table_init();
-static constexpr std::array<uint16_t, 0xFFFF> gb2312_to_unicode_table = gb2312_to_unicode_table_init();
+static constexpr SimpleArray<uint16_t,0xFFFF> unicode_to_gb2312_table = unicode_to_gb2312_table_init();
+static constexpr SimpleArray<uint16_t,0xFFFF> gb2312_to_unicode_table = gb2312_to_unicode_table_init();
 
 std::vector<int> gb2312_to_unicode(const std::vector<int>& gb2312str) {
     std::vector<int> unicodestr;
@@ -1925,9 +1925,9 @@ std::vector<int> gb2312_to_unicode(const std::vector<int>& gb2312str) {
         if (c < 0x80) {
             unicodestr.push_back(c);
         } else {
-            auto p = gb2312_to_unicode_table.data() + c;
-            if (*p)
-                unicodestr.push_back(*p);
+            auto p = gb2312_to_unicode_table[c];
+            if (p)
+                unicodestr.push_back(p);
             else
                 unicodestr.push_back(0xFFFF);
         }
@@ -1941,9 +1941,9 @@ std::vector<int> unicode_to_gb2312(const std::vector<int>& gb2312str) {
         if (c < 0x80) {
             unicodestr.push_back(c);
         } else {
-            auto p = unicode_to_gb2312_table.data() + c;
-            if (*p)
-                unicodestr.push_back(*p);
+            auto p = unicode_to_gb2312_table[c];
+            if (p)
+                unicodestr.push_back(p);
             else
                 unicodestr.push_back(0xFFFF);
         }
