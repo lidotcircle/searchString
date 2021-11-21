@@ -11,7 +11,7 @@ StringFinderUTF8::StringFinderUTF8(): pos(0), state(0) {}
 void StringFinderUTF8::clear_to_outputs() {
     this->state = 0;
     if (candidate.size() > 0) {
-        this->outputs.push_back(make_pair(this->pos - candidate.size(),candidate));
+        this->outputs.push_back(make_pair(this->start_pos,candidate));
         this->candidate.clear();
     }
     this->pre_chars.clear();
@@ -43,6 +43,9 @@ void StringFinderUTF8::feed_char(unsigned char c) {
             } else {
                 this->clear_to_outputs();
             }
+
+            if (this->candidate.empty())
+                start_pos = pos - 1;
         } break;
         case 1:
         {

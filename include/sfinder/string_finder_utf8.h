@@ -10,7 +10,7 @@ private:
     std::vector<std::pair<size_t,std::string>> outputs;
     std::vector<char> pre_chars;
     std::string candidate;
-    size_t pos;
+    size_t pos, start_pos;
     int state;
 
     void clear_to_outputs();

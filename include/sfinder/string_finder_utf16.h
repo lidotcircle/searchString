@@ -8,13 +8,16 @@
 class StringFinderUTF16: public StringFinder {
 private:
     std::vector<std::pair<size_t,std::string>> outputs;
-    std::vector<char> pre_chars;
-    std::string candidate;
     bool little_endian;
     size_t pos;
-    int state;
+    struct {
+        std::string pre_chars;
+        std::string candidate;
+        size_t start_pos;
+    } s1, s2;
 
     void clear_to_outputs();
+    void clear_to_outputs2();
 
 protected:
     virtual std::vector<std::pair<size_t,std::string>>& pre_fetch() override;

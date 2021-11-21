@@ -861,7 +861,7 @@ static constexpr simple_bitset<0xFFFF> unicode_bitset_init() {
 static constexpr simple_bitset<0xFFFF> unicode_bitset = unicode_bitset_init();
 
 bool is_desired_unicode_code_point(int val) {
-    if (val > 0xFFFF)
+    if (val > 0xFFFF || val <= 0)
         return false;
 
     return unicode_bitset.test(val);
