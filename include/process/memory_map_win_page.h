@@ -1,7 +1,7 @@
-#ifndef _PROCESS_MAP_NATIVE_H_
-#define _PROCESS_MAP_NATIVE_H_
+#ifndef _MEMORY_MAP_WIN_PAGE_H_
+#define _MEMORY_MAP_WIN_PAGE_H_
 
-#include "process_map.h"
+#include "memory_map.h"
 #include <memory>
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -10,7 +10,7 @@ typedef int HANDLE;
 #endif // defined(_WIN32) || defined(_WIN64)
 
 
-class ProcessMapNative : public ProcessMap
+class MemoryMapWinPage : public MemoryMap
 {
 public:
     using ProcessHandle = std::shared_ptr<HANDLE>;
@@ -26,7 +26,7 @@ private:
     bool write_dirty;
 
 public:
-    ProcessMapNative(ProcessHandle process_handle, void* baseaddress, size_t map_size, bool direct_write);
+    MemoryMapWinPage(ProcessHandle process_handle, void* baseaddress, size_t map_size, bool direct_write);
 
     virtual void* baseaddr() const override;
     virtual size_t size() const override;
@@ -35,7 +35,7 @@ public:
     virtual void set_at(size_t index, char value) override;
 
     void flush();
-    ~ProcessMapNative() override;
+    ~MemoryMapWinPage() override;
 };
 
-#endif // _PROCESS_MAP_NATIVE_H_
+#endif // _MEMORY_MAP_WIN_PAGE_H_

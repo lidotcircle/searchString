@@ -1,11 +1,11 @@
-#ifndef _PROCESS_MAP_PEFILE_H_
-#define _PROCESS_MAP_PEFILE_H_
+#ifndef _MEMORY_MAP_PEFILE_H_
+#define _MEMORY_MAP_PEFILE_H_
 
-#include "process_map.h"
+#include "memory_map.h"
 #include <pe-parse/parse.h>
 
 
-class ProcessMapPEFile : public ProcessMap
+class MemoryMapPEFile : public MemoryMap
 {
 private:
     const peparse::bounded_buffer* buffer;
@@ -13,7 +13,7 @@ private:
     size_t map_size;
 
 public:
-    ProcessMapPEFile(const peparse::bounded_buffer* buffer, void* base_address, size_t size);
+    MemoryMapPEFile(const peparse::bounded_buffer* buffer, void* base_address, size_t size);
 
     virtual char get_at(size_t offset) const override;
     virtual void set_at(size_t offset, char value) override;
@@ -21,7 +21,7 @@ public:
     virtual void* baseaddr() const override;
     virtual size_t size() const override;
 
-    ~ProcessMapPEFile();
+    ~MemoryMapPEFile();
 };
 
-#endif // _PROCESS_MAP_PEFILE_H_
+#endif // _MEMORY_MAP_PEFILE_H_

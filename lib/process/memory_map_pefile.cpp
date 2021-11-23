@@ -1,15 +1,15 @@
-#include "win_process/process_map_pefile.h"
+#include "process/memory_map_pefile.h"
 #include <pe-parse/parse.h>
 #include <stdexcept>
 using namespace std;
 
 
-ProcessMapPEFile::ProcessMapPEFile(const peparse::bounded_buffer* buffr, void* base_addr, size_t size):
+MemoryMapPEFile::MemoryMapPEFile(const peparse::bounded_buffer* buffr, void* base_addr, size_t size):
     buffer(buffr), base_address(base_addr), map_size(size)
 {
 }
 
-char ProcessMapPEFile::get_at(size_t offset) const {
+char MemoryMapPEFile::get_at(size_t offset) const {
     if (offset >= map_size) {
         throw runtime_error("offset out of bounds");
     }
@@ -20,17 +20,17 @@ char ProcessMapPEFile::get_at(size_t offset) const {
     return value;
 }
 
-void ProcessMapPEFile::set_at(size_t offset, char value) {
+void MemoryMapPEFile::set_at(size_t offset, char value) {
     throw std::runtime_error("pe file is read only");
 }
 
-void* ProcessMapPEFile::baseaddr() const {
+void* MemoryMapPEFile::baseaddr() const {
     return this->base_address;
 }
 
-size_t ProcessMapPEFile::size() const {
+size_t MemoryMapPEFile::size() const {
     return this->map_size;
 }
 
-ProcessMapPEFile::~ProcessMapPEFile() {
+MemoryMapPEFile::~MemoryMapPEFile() {
 }

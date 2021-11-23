@@ -1,6 +1,6 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include "main.h"
-#include "win_process/win_process_native.h"
+#include "process/win_process_native.h"
 using namespace std;
 
 int search_in_win_process(int pid,

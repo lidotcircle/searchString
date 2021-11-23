@@ -1,5 +1,5 @@
-#include "win_process/memory_value_ref.h"
-#include "win_process/mem_indexable.h"
+#include "process/memory_value_ref.h"
+#include "process/mem_indexable.h"
 #include <stdexcept>
 using namespace std;
 

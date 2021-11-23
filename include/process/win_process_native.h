@@ -1,7 +1,7 @@
 #ifndef _WIN_PROCESS_NATIVE_H_
 #define _WIN_PROCESS_NATIVE_H_
 
-#include "win_process.h"
+#include "memory_map_collection.h"
 #include <vector>
 #include <memory>
 #if defined(_WIN32) || defined(_WIN64)
@@ -11,7 +11,7 @@ typedef int HANDLE;
 #endif // defined(_WIN32) || defined(_WIN64)
 
 
-class WinProcessNative : public WinProcess
+class WinProcessNative : public MemoryMapCollection
 {
 public:
     using ProcessHandle = std::shared_ptr<HANDLE>;
@@ -19,7 +19,7 @@ public:
 private:
     int process_id;
     ProcessHandle process_handle;
-    std::vector<std::shared_ptr<ProcessMap>> process_maps;
+    std::vector<std::shared_ptr<MemoryMap>> process_maps;
 
     void refresh_process();
     void add_nomodule_pages();
@@ -28,7 +28,7 @@ public:
     WinProcessNative(int pid);
 
     virtual size_t map_count() const override;
-    virtual std::shared_ptr<ProcessMap> get_map(size_t index) override;
+    virtual std::shared_ptr<MemoryMap> get_map(size_t index) override;
 };
 
 #endif // _WIN_PROCESS_NATIVE_H_

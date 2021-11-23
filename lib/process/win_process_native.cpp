@@ -1,6 +1,6 @@
 #if defined(_WIN32) || defined(_WIN64)
-#include "win_process/win_process_native.h"
-#include "win_process/process_map_native.h"
+#include "process/win_process_native.h"
+#include "process/memory_map_win_page.h"
 #include <stdexcept>
 #include <Windows.h>
 #include <psapi.h>
@@ -40,7 +40,7 @@ void WinProcessNative::refresh_process()
         MODULEINFO info;
         if( GetModuleInformation( ph, hMods[i], &info, sizeof(MODULEINFO) ) )
         {
-            auto mmap = std::make_shared<ProcessMapNative>(this->process_handle, info.lpBaseOfDll, info.SizeOfImage, false);
+            auto mmap = std::make_shared<MemoryMapWinPage>(this->process_handle, info.lpBaseOfDll, info.SizeOfImage, false);
             this->process_maps.push_back(mmap);
         }
         else
@@ -61,14 +61,14 @@ void WinProcessNative::refresh_process()
     tmpModule.dwSize = sizeof(MODULEENTRY32);
     if( Module32First(hSnapshot, &tmpModule) )
     {
-        auto mmap = std::make_shared<ProcessMapNative>(this->process_handle, tmpModule.modBaseAddr,
+        auto mmap = std::make_shared<MemoryMapWinPage>(this->process_handle, tmpModule.modBaseAddr,
                                                        tmpModule.modBaseSize, false);
         this->process_maps.push_back(mmap);
 
         tmpModule.dwSize = sizeof(MODULEENTRY32);
         while(Module32Next(hSnapshot,&tmpModule))
         {
-            auto mmap = std::make_shared<ProcessMapNative>(this->process_handle, 
+            auto mmap = std::make_shared<MemoryMapWinPage>(this->process_handle, 
                                                            tmpModule.modBaseAddr,
                                                            tmpModule.modBaseSize, 
                                                            false);
@@ -90,7 +90,7 @@ void WinProcessNative::add_nomodule_pages()
     this->process_maps.clear();
     while(VirtualQueryEx(handle, addr, &mbi, sizeof(mbi))) {
         if (!this->is_valid_addr(reinterpret_cast<size_t>(mbi.BaseAddress))) {
-            auto mmap = std::make_shared<ProcessMapNative>(this->process_handle, mbi.BaseAddress, mbi.RegionSize, false);
+            auto mmap = std::make_shared<MemoryMapWinPage>(this->process_handle, mbi.BaseAddress, mbi.RegionSize, false);
             if (mbi.State == MEM_COMMIT && mbi.Type != MEM_MAPPED) {
                 this->process_maps.push_back(mmap);
             }
@@ -101,7 +101,7 @@ void WinProcessNative::add_nomodule_pages()
 
     std::sort(this->process_maps.begin(),
               this->process_maps.end(),
-              [](const std::shared_ptr<ProcessMap>& a, const std::shared_ptr<ProcessMap>& b) {
+              [](const std::shared_ptr<MemoryMap>& a, const std::shared_ptr<MemoryMap>& b) {
         return a->baseaddr() < b->baseaddr();
     });
 }
@@ -110,7 +110,7 @@ size_t WinProcessNative::map_count() const {
     return this->process_maps.size();
 }
 
-std::shared_ptr<ProcessMap> WinProcessNative::get_map(size_t index) {
+std::shared_ptr<MemoryMap> WinProcessNative::get_map(size_t index) {
     if (index >= this->process_maps.size())
         throw runtime_error("index out of range");
 

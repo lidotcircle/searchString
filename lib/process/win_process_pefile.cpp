@@ -1,11 +1,11 @@
-#include "win_process/win_process_pefile.h"
-#include "win_process/process_map_pefile.h"
+#include "process/win_process_pefile.h"
+#include "process/memory_map_pefile.h"
 #include <stdexcept>
 #include <pe-parse/parse.h>
 using namespace std;
 
 
-WinProcessPEFile::WinProcessPEFile(const string& path): WinProcess(), pehandle(nullptr, [](peparse::parsed_pe*) {})
+WinProcessPEFile::WinProcessPEFile(const string& path): MemoryMapCollection(), pehandle(nullptr, [](peparse::parsed_pe*) {})
 {
     auto handle = peparse::ParsePEFromFile(path.c_str());
     if (!handle)
@@ -21,7 +21,7 @@ WinProcessPEFile::WinProcessPEFile(const string& path): WinProcess(), pehandle(n
             const peparse::bounded_buffer* data) 
     {
         auto self = static_cast<WinProcessPEFile*>(N);
-        auto map = std::make_shared<ProcessMapPEFile>(data, reinterpret_cast<void*>(secbase), header.SizeOfRawData);
+        auto map = std::make_shared<MemoryMapPEFile>(data, reinterpret_cast<void*>(secbase), header.SizeOfRawData);
         self->mmaps.push_back(map);
         return 0;
     };
@@ -32,7 +32,7 @@ size_t WinProcessPEFile::map_count() const {
     return this->mmaps.size();
 }
 
-std::shared_ptr<ProcessMap> WinProcessPEFile::get_map(size_t index) {
+std::shared_ptr<MemoryMap> WinProcessPEFile::get_map(size_t index) {
     return this->mmaps[index];
 }
 
