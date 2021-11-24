@@ -5,15 +5,22 @@
 #include <algorithm>
 #include <vector>
 #include <memory>
+#include <map>
 using namespace std;
+
+class MemoryMapSection;
 
 class MemoryMapModule : public MemoryMap
 {
+public:
+    using SectionMapType = std::map<std::string, std::shared_ptr<MemoryMapSection>>;
+
 private:
     std::vector<std::shared_ptr<MemoryMap>> pages;
     ptrdiff_t base_addr;
     size_t    mod_size;
     std::string mod_name;
+    SectionMapType sections;
 
 public:
     MemoryMapModule() = delete;
@@ -26,6 +33,7 @@ public:
     virtual void set_at(addr_t index, char value) override;
 
     const std::string& module_name() const;
+    const SectionMapType& get_sections() const;
 };
 
 #endif // _MEMORY_MAP_MODULE_H_

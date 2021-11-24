@@ -1,28 +1,29 @@
 #include "process/memory_map_module.h"
+#include "process/memory_map_section.h"
 #include <algorithm>
 #include <stdexcept>
 using namespace std;
 
 
-MemoryMapModule::MemoryMapModule(const std::string& mod_name, std::vector<std::shared_ptr<MemoryMap>> pages):
-    mod_name(mod_name), pages(std::move(pages))
+MemoryMapModule::MemoryMapModule(const std::string& mod_name, std::vector<std::shared_ptr<MemoryMap>> _pages):
+    mod_name(mod_name), pages(std::move(_pages))
 {
-    std::sort(pages.begin(), pages.end(), [](const std::shared_ptr<MemoryMap>& a, const std::shared_ptr<MemoryMap>& b) {
+    if (this->pages.empty())
+        throw std::runtime_error("MemoryMapModule: no pages");
+
+    std::sort(this->pages.begin(), this->pages.end(), [](const std::shared_ptr<MemoryMap>& a, const std::shared_ptr<MemoryMap>& b) {
         return a->baseaddr() < b->baseaddr();
     });
 
-    size_t prev_end = 0;
-    size_t module_size = 0;
-    for (auto& page : pages) {
-        if (prev_end > 0 && page->baseaddr() != prev_end) {
-            throw std::runtime_error("MemoryMapModule: pages are not continuous");
+    for (auto& sec: this->pages) {
+        auto secm = std::dynamic_pointer_cast<MemoryMapSection>(sec);
+        if (secm) {
+            this->sections[secm->section_name()] = secm;
         }
-
-        module_size += page->size();
-        prev_end = page->baseaddr() + page->size();
     }
-    this->mod_size = module_size;
-    this->base_addr = pages.front()->baseaddr();
+
+    this->base_addr = this->pages.front()->baseaddr();
+    this->mod_size = this->pages.back()->baseaddr() + this->pages.back()->size() - this->base_addr;
 }
 
 MemoryMapModule::addr_t MemoryMapModule::baseaddr() const {
@@ -40,7 +41,7 @@ char MemoryMapModule::get_at(addr_t index) const {
     });
 
     if (page == this->pages.end()) {
-        throw std::runtime_error("MemoryMapModule: index out of range");
+        throw std::runtime_error("MemoryMapModule: index out of range or there is a hole");
     }
 
     return (*page)->get_at(index - (*page)->baseaddr());
@@ -53,7 +54,7 @@ void MemoryMapModule::set_at(addr_t index, char value) {
     });
 
     if (page == this->pages.end()) {
-        throw std::runtime_error("MemoryMapModule: index out of range");
+        throw std::runtime_error("MemoryMapModule: index out of range or there is a hole");
     }
 
     (*page)->set_at(index - (*page)->baseaddr(), value);
@@ -61,4 +62,8 @@ void MemoryMapModule::set_at(addr_t index, char value) {
 
 const std::string& MemoryMapModule::module_name() const {
     return this->mod_name;
+}
+
+const MemoryMapModule::SectionMapType& MemoryMapModule::get_sections() const {
+    return this->sections;
 }
