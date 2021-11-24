@@ -9,7 +9,7 @@
 
 class MemoryMap: public MemIndexable {
 public:
-    virtual void* baseaddr() const = 0;
+    virtual addr_t baseaddr() const = 0;
     virtual size_t size() const = 0;
 
     virtual ~MemoryMap() = default;

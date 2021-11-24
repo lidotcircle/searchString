@@ -17,7 +17,7 @@ public:
 
 private:
     ProcessHandle process_handle;
-    void* baseaddress;
+    addr_t baseaddress;
     size_t map_size;
     char* cache;
     size_t cache_offset;
@@ -28,11 +28,11 @@ private:
 public:
     MemoryMapWinPage(ProcessHandle process_handle, void* baseaddress, size_t map_size, bool direct_write);
 
-    virtual void* baseaddr() const override;
+    virtual addr_t baseaddr() const override;
     virtual size_t size() const override;
 
-    virtual char get_at(size_t index) const override;
-    virtual void set_at(size_t index, char value) override;
+    virtual char get_at(addr_t index) const override;
+    virtual void set_at(addr_t index, char value) override;
 
     void flush();
     ~MemoryMapWinPage() override;

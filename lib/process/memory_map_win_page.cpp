@@ -21,7 +21,7 @@ static string addr2hexstr(void* addr) {
 }
 
 MemoryMapWinPage::MemoryMapWinPage(ProcessHandle handle, void* base, size_t size, bool direct_write):
-    process_handle(handle), baseaddress(base), map_size(size),
+    process_handle(handle), baseaddress(reinterpret_cast<addr_t>(base)), map_size(size),
     cache(new char[CACHE_SIZE]), cache_size(0), cache_offset(std::string::npos), direct_write(direct_write), write_dirty(false)
 {
 }
@@ -32,7 +32,7 @@ MemoryMapWinPage::~MemoryMapWinPage()
         delete[] cache;
 }
 
-void* MemoryMapWinPage::baseaddr() const
+MemoryMapWinPage::addr_t MemoryMapWinPage::baseaddr() const
 {
     return this->baseaddress;
 }
@@ -42,14 +42,14 @@ size_t MemoryMapWinPage::size() const
     return this->map_size;
 }
 
-char MemoryMapWinPage::get_at(size_t offset) const {
+char MemoryMapWinPage::get_at(addr_t offset) const {
     if (offset >= map_size)
         throw out_of_range("offset out of range");
 
     auto _this = const_cast<MemoryMapWinPage*>(this);
 
-    size_t base = reinterpret_cast<size_t>(this->baseaddress);
-    void* addr  = reinterpret_cast<void*>(base + offset);
+    auto base = this->baseaddress;
+    auto addr = reinterpret_cast<void*>(base + offset);
 
     if (cache_offset <= offset && offset < cache_offset + cache_size) {
         return cache[offset - cache_offset];
@@ -79,13 +79,11 @@ char MemoryMapWinPage::get_at(size_t offset) const {
     return cache[offset - cache_offset];
 }
 
-void MemoryMapWinPage::set_at(size_t offset, char value) {
+void MemoryMapWinPage::set_at(addr_t offset, char value) {
     if (offset >= map_size)
         throw out_of_range("offset out of range");
 
-    size_t base = reinterpret_cast<size_t>(baseaddress);
-    auto   addr = reinterpret_cast<void*>(base + offset);
-
+    auto addr = reinterpret_cast<void*>(this->baseaddress + offset);
     if (this->direct_write) {
         DWORD old_protect;
         if (!VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, PAGE_READWRITE, &old_protect))
@@ -113,7 +111,7 @@ void MemoryMapWinPage::flush() {
     if (!this->write_dirty)
         return;
 
-    size_t base = reinterpret_cast<size_t>(baseaddress);
+    auto base = baseaddress;
     auto addr = reinterpret_cast<void*>(base + this->cache_offset);
 
     DWORD old_protect;

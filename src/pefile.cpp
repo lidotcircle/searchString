@@ -18,7 +18,7 @@ int search_in_pefile(const std::string& pefile,
 
             auto getter = GetterFactory::create_by_exprs(
                     encoding, transforms, mmap->begin(), mmap->end());
-            size_t base = reinterpret_cast<size_t>(mmap->baseaddr());
+            auto base = mmap->baseaddr();
 
             for(auto& n: *getter.get()) {
                 if (print_prefix)

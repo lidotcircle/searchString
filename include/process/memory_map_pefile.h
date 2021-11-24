@@ -9,16 +9,16 @@ class MemoryMapPEFile : public MemoryMap
 {
 private:
     const peparse::bounded_buffer* buffer;
-    void* base_address;
+    addr_t base_address;
     size_t map_size;
 
 public:
     MemoryMapPEFile(const peparse::bounded_buffer* buffer, void* base_address, size_t size);
 
-    virtual char get_at(size_t offset) const override;
-    virtual void set_at(size_t offset, char value) override;
+    virtual char get_at(addr_t offset) const override;
+    virtual void set_at(addr_t offset, char value) override;
 
-    virtual void* baseaddr() const override;
+    virtual addr_t baseaddr() const override;
     virtual size_t size() const override;
 
     ~MemoryMapPEFile();

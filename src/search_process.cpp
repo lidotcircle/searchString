@@ -17,7 +17,7 @@ int search_in_win_process(int pid,
 
             auto getter = GetterFactory::create_by_exprs(
                     encoding, transforms, mmap->begin(), mmap->end());
-            size_t base = reinterpret_cast<size_t>(mmap->baseaddr());
+            auto base = mmap->baseaddr();
 
             try {
                 for (auto &n : *getter.get()) {

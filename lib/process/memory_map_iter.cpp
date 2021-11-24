@@ -24,7 +24,7 @@ MemoryMapIter MemoryMapIter::operator++(int) {
 }
 
 MemoryMapIter& MemoryMapIter::operator--() {
-    if (index < 0) {
+    if (index == 0) {
         throw out_of_range("ProcessMapIter::operator--");
     }
     index--;
@@ -38,34 +38,46 @@ MemoryMapIter MemoryMapIter::operator--(int) {
 }
 
 MemoryMapIter& MemoryMapIter::operator+=(int n) {
+    if (n < 0)
+        return operator-=(-n);
+
     index += n;
-    if (index > map->size() || index < 0) {
+    if (index > map->size()) {
         throw out_of_range("ProcessMapIter::operator+=");
     }
     return *this;
 }
 
 MemoryMapIter& MemoryMapIter::operator-=(int n) {
-    index -= n;
-    if (index > map->size() || index < 0) {
+    if (n < 0)
+        return this->operator+=(-n);
+
+    if (index < n || index - n > this->map->size()) {
         throw out_of_range("ProcessMapIter::operator-=");
     }
+    index -= n;
     return *this;
 }
 
 MemoryMapIter MemoryMapIter::operator+(int n) const {
+    if (n < 0)
+        return this->operator-(-n);
+
     MemoryMapIter tmp(*this);
-    tmp.index += n;
-    if (tmp.index < 0 || tmp.index > map->size())
+    if (tmp.index + n > map->size())
         throw out_of_range("ProcessMapIter::operator+");
+    tmp.index += n;
     return tmp;
 }
 
 MemoryMapIter MemoryMapIter::operator-(int n) const {
+    if (n < 0)
+        return this->operator+(-n);
+
     MemoryMapIter tmp(*this);
-    tmp.index -= n;
-    if (tmp.index < 0 || tmp.index > map->size())
+    if (tmp.index < n)
         throw out_of_range("ProcessMapIter::operator-");
+    tmp.index -= n;
     return tmp;
 }
 
@@ -78,6 +90,5 @@ bool MemoryMapIter::operator!=(const MemoryMapIter& other) const {
 }
 
 MemoryValueRef MemoryMapIter::operator*() {
-    // return this->map->get_at(index);
     return MemoryValueRef(map, index);
 }

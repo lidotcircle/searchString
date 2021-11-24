@@ -17,7 +17,7 @@ public:
 
 private:
     MemoryMap *map;
-    int index;
+    size_t index;
 
 public:
     MemoryMapIter(MemoryMap *map, size_t);

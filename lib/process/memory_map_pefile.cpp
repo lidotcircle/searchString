@@ -5,11 +5,11 @@ using namespace std;
 
 
 MemoryMapPEFile::MemoryMapPEFile(const peparse::bounded_buffer* buffr, void* base_addr, size_t size):
-    buffer(buffr), base_address(base_addr), map_size(size)
+    buffer(buffr), base_address(reinterpret_cast<addr_t>(base_addr)), map_size(size)
 {
 }
 
-char MemoryMapPEFile::get_at(size_t offset) const {
+char MemoryMapPEFile::get_at(addr_t offset) const {
     if (offset >= map_size) {
         throw runtime_error("offset out of bounds");
     }
@@ -20,11 +20,11 @@ char MemoryMapPEFile::get_at(size_t offset) const {
     return value;
 }
 
-void MemoryMapPEFile::set_at(size_t offset, char value) {
+void MemoryMapPEFile::set_at(addr_t offset, char value) {
     throw std::runtime_error("pe file is read only");
 }
 
-void* MemoryMapPEFile::baseaddr() const {
+MemoryMapPEFile::addr_t MemoryMapPEFile::baseaddr() const {
     return this->base_address;
 }
 
