@@ -9,6 +9,7 @@ int main(int argc, char** argv) {
     string encoding;
     string list;
     string pefile;
+    string need_filter;
     int pid;
 
     string train_output;
@@ -44,6 +45,8 @@ int main(int argc, char** argv) {
         ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
         ("list",       "list filters, mappers and reducers", cxxopts::value<string>(list), "[encoding | all]")
         ("pe",         "search in pe file, which will do searching regarding pe section", cxxopts::value(pefile), "<pefile>")
+        ("need",       "filter pe modules and sections, only meaningful in searching PE."
+                       "spec: module, module@section, @section or empty for all pages, support regex", cxxopts::value(need_filter), "<need-filter>")
 #if defined(_WIN32) || defined(_WIN64)
         ("pid",      "search process", cxxopts::value(pid), "<pid>")
 #endif // defined(_WIN32) || defined(_WIN64)

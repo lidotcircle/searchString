@@ -9,7 +9,8 @@ using namespace std;
 int search_in_win_process(int pid,
                           const std::string& encoding,
                           const std::vector<std::string>& transforms,
-                          bool print_prefix)
+                          bool print_prefix,
+                          const std::string& needfilter)
 {
     auto printx = [&](std::shared_ptr<MemoryMap> mmap) {
         auto getter = GetterFactory::create_by_exprs(

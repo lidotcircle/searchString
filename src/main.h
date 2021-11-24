@@ -19,13 +19,15 @@ int trainsvm_cmd(int argc, char** argv);
 int search_in_pefile(const std::string& pefile,
                      const std::string& encoding,
                      const std::vector<std::string>& transforms,
-                     bool print_prefix);
+                     bool print_prefix,
+                     const std::string& need_filter);
 
 #if defined(_WIN32) || defined(_WIN64)
 int search_in_win_process(int pid,
                           const std::string& encoding,
                           const std::vector<std::string>& transforms,
-                          bool print_prefix);
+                          bool print_prefix,
+                          const std::string& need_filter);
 #endif // defined(_WIN32) || defined(_WIN64)
 
 #endif // _STRING_MAIN_H_
