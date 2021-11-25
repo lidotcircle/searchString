@@ -190,4 +190,8 @@ const WinProcessNative::ModuleMapType& WinProcessNative::get_modules() const {
     return this->modules;
 }
 
+void WinProcessNative::refresh() {
+    this->refresh_process();
+}
+
 #endif // _WIN32 || _WIN64

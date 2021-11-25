@@ -1,5 +1,6 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include "process/memory_map_win_page.h"
+#include "utils.hpp"
 #include <stdexcept>
 #include <Windows.h>
 #include <string>
@@ -42,6 +43,23 @@ size_t MemoryMapWinPage::size() const
     return this->map_size;
 }
 
+static bool page_readable(int prot)
+{
+    return (prot & PAGE_READONLY) || (prot & PAGE_READWRITE) || 
+           (prot & PAGE_EXECUTE_READ) || (prot & PAGE_EXECUTE_READWRITE) ||
+           (prot & PAGE_EXECUTE_WRITECOPY) || (prot & PAGE_WRITECOPY);
+}
+
+static bool page_writable(int prot) {
+    return (prot & PAGE_READWRITE) || (prot & PAGE_EXECUTE_READWRITE) ||
+           (prot & PAGE_EXECUTE_WRITECOPY) || (prot & PAGE_WRITECOPY);
+}
+
+static bool page_executable(int prot) {
+    return (prot & PAGE_EXECUTE) || (prot & PAGE_EXECUTE_READ) ||
+           (prot & PAGE_EXECUTE_READWRITE) || (prot & PAGE_EXECUTE_WRITECOPY);
+}
+
 char MemoryMapWinPage::get_at(addr_t offset) const {
     if (offset >= map_size)
         throw out_of_range("offset out of range");
@@ -63,21 +81,24 @@ char MemoryMapWinPage::get_at(addr_t offset) const {
         throw runtime_error("VirtualQueryEx failed");
     }
     DWORD alloc_protect = mbi.AllocationProtect, old_protect;
+    bool readable = page_readable(mbi.Protect);
 
-    if (!VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, alloc_protect, &old_protect)) {
+    if (!readable && !VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, alloc_protect, &old_protect)) {
         throw runtime_error("X VirtualProtectEx failed: 0x" + addr2hexstr(addr));
     }
 
-    SIZE_T n;
-    auto result = ReadProcessMemory(*this->process_handle.get(), addr, cache, CACHE_SIZE, &n);
-    VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, old_protect, &old_protect);
+    auto cleanProtectEx = defer([&]() {
+        if (!readable)
+            VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, old_protect, &old_protect);
+    });
 
-    if (!result) {
+    SIZE_T n;
+    if (!ReadProcessMemory(*this->process_handle.get(), addr, cache, CACHE_SIZE, &n)) {
         throw runtime_error("ReadProcessMemory failed at: 0x" + addr2hexstr(addr) + 
                             ", region base: 0x" + integer2hexstr(base));
     }
-    _this->cache_size = n;
 
+    _this->cache_size = n;
     _this->cache_offset = offset;
     return cache[offset - cache_offset];
 }
@@ -119,17 +140,25 @@ void MemoryMapWinPage::flush() {
     auto base = baseaddress;
     auto addr = reinterpret_cast<void*>(base + this->cache_offset);
 
-    DWORD old_protect;
-    if (!VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, PAGE_EXECUTE_READWRITE, &old_protect))
+    MEMORY_BASIC_INFORMATION mbi;
+    if (!VirtualQueryEx(*this->process_handle.get(), addr, &mbi, sizeof(mbi))) {
+        throw runtime_error("VirtualQueryEx failed");
+    }
+    DWORD alloc_protect = mbi.AllocationProtect, old_protect;
+    bool writable = page_writable(mbi.Protect);
+
+    if (!writable && !VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, PAGE_EXECUTE_READWRITE, &old_protect))
     {
         throw runtime_error("VirtualProtectEx failed");
     }
 
-    auto result = WriteProcessMemory(*this->process_handle.get(), addr, this->cache, cache_size, nullptr);
-    VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, old_protect, &old_protect);
+    auto clearProtectEx = defer([&]() {
+        if (!writable)
+            VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, old_protect, &old_protect);
+        this->cache_offset = this->map_size;
+    });
 
-    this->cache_offset = this->map_size;
-    if (!result) {
+    if (!WriteProcessMemory(*this->process_handle.get(), addr, this->cache, cache_size, nullptr)) {
         throw runtime_error("WriteProcessMemory failed");
     }
 }

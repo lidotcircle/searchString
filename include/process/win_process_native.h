@@ -36,6 +36,8 @@ public:
     virtual std::shared_ptr<MemoryMap> get_map(size_t index) override;
 
     const ModuleMapType& get_modules() const;
+
+    void refresh();
 };
 
 #endif // _WIN_PROCESS_NATIVE_H_

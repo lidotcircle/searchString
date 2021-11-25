@@ -11,9 +11,7 @@ int GetPIDByProcessName(const std::string& processName)
     HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
     if (hProcessSnap == INVALID_HANDLE_VALUE)
-    {
         return 0;
-    }
 
     PROCESSENTRY32 pe32;
     pe32.dwSize = sizeof(PROCESSENTRY32);
@@ -29,7 +27,7 @@ int GetPIDByProcessName(const std::string& processName)
 
     do
     {
-        if (_stricmp(pe32.szExeFile, processName.c_str()))
+        if (_stricmp(pe32.szExeFile, processName.c_str()) == 0)
         {
             pid = pe32.th32ProcessID;
             break;

@@ -116,6 +116,10 @@ int main(int argc, char** argv) {
     }
     if (result.count("process")) {
         pid = GetPIDByProcessName(processname);
+        if (pid == 0) {
+            cerr << "process not found" << endl;
+            return 1;
+        }
         return search_in_win_process(pid, encoding, transforms, print_prefix, need_filter);
     }
 #endif // defined(_WIN32) || defined(_WIN64)
