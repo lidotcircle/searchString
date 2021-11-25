@@ -34,7 +34,7 @@ public:
     virtual char get_at(addr_t index) const override;
     virtual void set_at(addr_t index, char value) override;
 
-    void flush();
+    virtual void flush() override;
     ~MemoryMapWinPage() override;
 };
 

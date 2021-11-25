@@ -55,6 +55,9 @@ char MemoryMapWinPage::get_at(addr_t offset) const {
         return cache[offset - cache_offset];
     }
 
+    if (this->write_dirty)
+        _this->flush();
+
     MEMORY_BASIC_INFORMATION mbi;
     if (!VirtualQueryEx(*_this->process_handle.get(), addr, &mbi, sizeof(mbi))) {
         throw runtime_error("VirtualQueryEx failed");
@@ -108,8 +111,10 @@ void MemoryMapWinPage::set_at(addr_t offset, char value) {
 }
 
 void MemoryMapWinPage::flush() {
-    if (!this->write_dirty)
+    if (!this->write_dirty) {
+        this->cache_offset = this->map_size;
         return;
+    }
 
     auto base = baseaddress;
     auto addr = reinterpret_cast<void*>(base + this->cache_offset);
@@ -123,6 +128,7 @@ void MemoryMapWinPage::flush() {
     auto result = WriteProcessMemory(*this->process_handle.get(), addr, this->cache, cache_size, nullptr);
     VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, old_protect, &old_protect);
 
+    this->cache_offset = this->map_size;
     if (!result) {
         throw runtime_error("WriteProcessMemory failed");
     }
