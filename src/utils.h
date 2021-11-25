@@ -3,6 +3,6 @@
 
 #include <regex>
 
-std::pair<std::regex,std::regex> parse_regex(const std::string& need);
+std::pair<std::regex,std::regex> parse_needfilter_regex(const std::string& need);
 
 #endif // _CMDLINE_UTILS_H_

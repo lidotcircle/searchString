@@ -21,7 +21,7 @@ WinProcessPEFile::WinProcessPEFile(const string& path): MemoryMapCollection(), p
             const peparse::bounded_buffer* data) 
     {
         auto self = static_cast<WinProcessPEFile*>(N);
-        auto map = std::make_shared<MemoryMapPEFile>(data, reinterpret_cast<void*>(secbase), header.SizeOfRawData);
+        auto map = std::make_shared<MemoryMapPEFile>(data, reinterpret_cast<void*>(secbase), header.SizeOfRawData, secname);
         self->mmaps.push_back(map);
         return 0;
     };

@@ -88,37 +88,6 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    /* TODO
-    if (!train_dirs.empty()) {
-        if (train_output.empty()) {
-            cout << options.help() << endl;
-            return 1;
-        }
-
-        if (train_dirs.size() != 2) {
-            cout << options.help() << endl;
-            return 1;
-        }
-
-        return train(train_dirs[0], train_dirs[1], train_output);
-    }
-
-    auto gb = std::make_shared<GB2312SVMFilter>();
-    if (!model.empty()) {
-        std::ifstream iss(model, std::ios::binary);
-        if (!iss.is_open()) {
-            cout << "can't open model file '" << model << "' to read" << endl;
-            return 1;
-        }
-        try {
-            iss >> *gb;
-        } catch (std::exception e) {
-            cout << "can't load model '" << model << "'" << endl;
-            return 1;
-        }
-    }
-    */
-
     int nmode = 0;
     if (result.count("pid"))
         nmode++;
@@ -133,12 +102,12 @@ int main(int argc, char** argv) {
     }
 
     if (result.count("pe")) {
-        return search_in_pefile(pefile, encoding, transforms, print_prefix);
+        return search_in_pefile(pefile, encoding, transforms, print_prefix, need_filter);
     }
 
 #if defined(_WIN32) || defined(_WIN64)
     if (result.count("pid")) {
-        return search_in_win_process(pid, encoding, transforms, print_prefix);
+        return search_in_win_process(pid, encoding, transforms, print_prefix, need_filter);
     }
 #endif // defined(_WIN32) || defined(_WIN64)
 

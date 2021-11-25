@@ -1,5 +1,6 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include "main.h"
+#include "utils.h"
 #include "process/win_process_native.h"
 #include "process/memory_map_module.h"
 #include "process/memory_map_section.h"
@@ -31,6 +32,9 @@ int search_in_win_process(int pid,
             std::cerr << "warning: " << e.what() << std::endl;
         }
     };
+    auto nf = parse_needfilter_regex(needfilter);
+    auto mf = nf.first;
+    auto sf = nf.second;
 
     try {
         WinProcessNative winprocess(pid);
@@ -42,13 +46,17 @@ int search_in_win_process(int pid,
 
             if (modmap) {
                 auto modname = modmap->module_name();
+                if (!regex_match(modname, mf))
+                    continue;
                 std::cout << "module: " << modname << std::endl;
 
                 for (auto& sec: modmap->get_sections()) {
+                    if (!regex_match(sec.first, sf))
+                        continue;
                     std::cout << "module@section: " << modname << "@" << sec.first << std::endl;
                     printx(sec.second);
                 }
-            } else {
+            } else if (needfilter.empty()) {
                 cout << "page: 0x" << std::hex << mmap->baseaddr() << endl;
                 printx(mmap);
             }

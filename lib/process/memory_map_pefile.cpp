@@ -4,8 +4,8 @@
 using namespace std;
 
 
-MemoryMapPEFile::MemoryMapPEFile(const peparse::bounded_buffer* buffr, void* base_addr, size_t size):
-    buffer(buffr), base_address(reinterpret_cast<addr_t>(base_addr)), map_size(size)
+MemoryMapPEFile::MemoryMapPEFile(const peparse::bounded_buffer* buffr, void* base_addr, size_t size, const std::string& secname):
+    buffer(buffr), base_address(reinterpret_cast<addr_t>(base_addr)), map_size(size), m_section_name(secname)
 {
 }
 
@@ -30,6 +30,14 @@ MemoryMapPEFile::addr_t MemoryMapPEFile::baseaddr() const {
 
 size_t MemoryMapPEFile::size() const {
     return this->map_size;
+}
+
+bool MemoryMapPEFile::is_section() const {
+    return !this->m_section_name.empty();
+}
+
+const string& MemoryMapPEFile::section_name() const {
+    return this->m_section_name;
 }
 
 MemoryMapPEFile::~MemoryMapPEFile() {

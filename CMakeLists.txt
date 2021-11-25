@@ -39,11 +39,12 @@ set(StringFinder strfd)
 set(StringFinder_SOURCES "")
 list(APPEND StringFinder_SOURCES
 	"src/main.cpp"
+	"src/utils.cpp"
 	"src/print_transforms.cpp"
 	"src/trainsvm.cpp"
-    "src/pefile.cpp"
-    "src/search_process.cpp"
-    )
+  "src/pefile.cpp"
+  "src/search_process.cpp"
+  )
 add_executable(${StringFinder})
 target_sources(${StringFinder} PRIVATE ${StringFinder_SOURCES})
 target_link_libraries(${StringFinder} PRIVATE cxxopts)
