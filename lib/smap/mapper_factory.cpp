@@ -8,6 +8,7 @@
 #include "smap/utf8_to_utf16.h"
 #include "smap/utf8_to_gb2312.h"
 #include "smap/gb2312_to_utf8.h"
+#include "smap/substitute.h"
 #include <exception>
 #include <stdexcept>
 using namespace std;
@@ -24,6 +25,7 @@ static void keep_initialization_procedures(int i) {
         UTF8ToUTF16Mapper::register_handles,
         UTF8ToGB2312Mapper::register_handles,
         GB2312ToUTF8Mapper::register_handles,
+        SubstituteMapper::register_handles,
     };
     for (auto& h : hs) {
         for(auto& hh : h) {

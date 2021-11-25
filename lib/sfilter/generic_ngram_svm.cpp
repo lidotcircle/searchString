@@ -42,7 +42,8 @@ static auto parse_param(const std::string& param) {
 
 static auto name = "svm";
 static auto desc = "model[:ngram=2[:trainer=c_ekm[:kernel=rbf]]] svm classifier, ngram between 1 to 3";
-static auto gb2312_creator = [](const string& param) {
+template<const char* encoding>
+static auto svm_creator = [](const string& param) {
     string file, trainer, kernel;
     int ngram;
     std::tie(file, ngram, trainer, kernel) = parse_param(param);
@@ -50,7 +51,7 @@ static auto gb2312_creator = [](const string& param) {
 #define NENTRY(ngram_l, ngram_, trainer_l, trainer_, kernel_l, kernel_) \
     if (ngram_l == ngram && trainer_l == trainer && kernel_l == kernel) { \
         return std::shared_ptr<StringFilter>(\
-                new GenericNGramSVMFilter<ngram_,trainer_,kernel_>(file, "gb2312")); \
+                new GenericNGramSVMFilter<ngram_,trainer_,kernel_>(file, encoding)); \
     }
     kernel_map();
 #undef NENTRY
@@ -58,58 +59,14 @@ static auto gb2312_creator = [](const string& param) {
     throw runtime_error("invalid parameters for svm");
 };
 
-static auto utf8_creator = [](const string& param) {
-    string file, trainer, kernel;
-    int ngram;
-    std::tie(file, ngram, trainer, kernel) = parse_param(param);
-
-#define NENTRY(ngram_l, ngram_, trainer_l, trainer_, kernel_l, kernel_) \
-    if (ngram_l == ngram && trainer_l == trainer && kernel_l == kernel) { \
-        return std::shared_ptr<StringFilter>(\
-                new GenericNGramSVMFilter<ngram_,trainer_,kernel_>(file, "utf8")); \
-    }
-    kernel_map();
-#undef NENTRY
-
-    throw runtime_error("invalid parameters for svm");
-};
-
-static auto ascii_creator = [](const string& param) {
-    string file, trainer, kernel;
-    int ngram;
-    std::tie(file, ngram, trainer, kernel) = parse_param(param);
-
-#define NENTRY(ngram_l, ngram_, trainer_l, trainer_, kernel_l, kernel_) \
-    if (ngram_l == ngram && trainer_l == trainer && kernel_l == kernel) { \
-        return std::shared_ptr<StringFilter>(\
-                new GenericNGramSVMFilter<ngram_,trainer_,kernel_>(file, "ascii")); \
-    }
-    kernel_map();
-#undef NENTRY
-
-    throw runtime_error("invalid parameters for svm");
-};
-
-static auto utf16_creator = [](const string& param) {
-    string file, trainer, kernel;
-    int ngram;
-    std::tie(file, ngram, trainer, kernel) = parse_param(param);
-
-#define NENTRY(ngram_l, ngram_, trainer_l, trainer_, kernel_l, kernel_) \
-    if (ngram_l == ngram && trainer_l == trainer && kernel_l == kernel) { \
-        return std::shared_ptr<StringFilter>(\
-                new GenericNGramSVMFilter<ngram_,trainer_,kernel_>(file, "utf16")); \
-    }
-    kernel_map();
-#undef NENTRY
-
-    throw runtime_error("invalid parameters for svm");
-};
-
+static const char encoding_gb2312[] = "gb2312";
+static const char encoding_ascii[]  = "ascii";
+static const char encoding_utf8[]   = "utf8";
+static const char encoding_utf16[]  = "utf16";
 template<>
 const vector<int> GenericNGramSVMFilter<1,dlib::svm_c_trainer,dlib::radial_basis_kernel>::register_handles = {
-    FilterFactory::register_filter("gb2312", name, desc, gb2312_creator),
-    FilterFactory::register_filter("ascii",  name, desc, ascii_creator),
-    FilterFactory::register_filter("utf8",   name, desc, utf8_creator),
-    FilterFactory::register_filter("utf16",  name, desc, utf16_creator),
+    FilterFactory::register_filter("gb2312", name, desc, svm_creator<encoding_gb2312>),
+    FilterFactory::register_filter("ascii",  name, desc, svm_creator<encoding_ascii>),
+    FilterFactory::register_filter("utf8",   name, desc, svm_creator<encoding_utf8>),
+    FilterFactory::register_filter("utf16",  name, desc, svm_creator<encoding_utf16>),
 };

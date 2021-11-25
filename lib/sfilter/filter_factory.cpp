@@ -4,6 +4,7 @@
 #include "sfilter/exclusive.h"
 #include "sfilter/exclusive_full.h"
 #include "sfilter/generic_ngram_svm.hpp"
+#include "sfilter/regex.h"
 #include <exception>
 #include <stdexcept>
 using namespace std;
@@ -15,6 +16,7 @@ static void keep_initialization_procedures(int i) {
         InclusiveFilter::register_handles,
         ExclusiveFilter::register_handles,
         ExclusiveFullFilter::register_handles,
+        RegexFilter::register_handles,
         GenericNGramSVMFilter<1,dlib::svm_c_trainer,dlib::radial_basis_kernel>::register_handles,
     };
     for (auto& h : hs) {

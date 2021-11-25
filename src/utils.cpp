@@ -15,6 +15,6 @@ std::pair<std::regex,std::regex> parse_needfilter_regex(const std::string& need)
     if (f2.empty())
         f2 = ".*";
 
-    return std::make_pair(std::regex(f1, std::regex_constants::grep),
-                          std::regex(f2, std::regex_constants::grep));
+    return std::make_pair(std::regex(f1, std::regex_constants::ECMAScript),
+                          std::regex(f2, std::regex_constants::ECMAScript));
 }
