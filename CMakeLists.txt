@@ -40,6 +40,7 @@ set(StringFinder_SOURCES "")
 list(APPEND StringFinder_SOURCES
 	"src/main.cpp"
 	"src/utils.cpp"
+	"src/win32_utils.cpp"
 	"src/print_transforms.cpp"
 	"src/trainsvm.cpp"
   "src/pefile.cpp"

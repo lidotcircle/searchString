@@ -1,4 +1,5 @@
 #include "main.h"
+#include "utils.h"
 using namespace std;
 
 
@@ -9,6 +10,7 @@ int main(int argc, char** argv) {
     string encoding;
     string list;
     string pefile;
+    string processname;
     string need_filter;
     int pid;
 
@@ -49,6 +51,7 @@ int main(int argc, char** argv) {
                        "spec: module, module@section, @section or empty for all pages, support regex", cxxopts::value(need_filter), "<need-filter>")
 #if defined(_WIN32) || defined(_WIN64)
         ("pid",      "search process", cxxopts::value(pid), "<pid>")
+        ("process",  "process name", cxxopts::value(processname), "<process-name>")
 #endif // defined(_WIN32) || defined(_WIN64)
         ("h,help",     "print help");
 
@@ -91,6 +94,8 @@ int main(int argc, char** argv) {
     int nmode = 0;
     if (result.count("pid"))
         nmode++;
+    if (result.count("process"))
+        nmode++;
     if (result.count("pe"))
         nmode++;
     if (!input_files.empty())
@@ -107,6 +112,10 @@ int main(int argc, char** argv) {
 
 #if defined(_WIN32) || defined(_WIN64)
     if (result.count("pid")) {
+        return search_in_win_process(pid, encoding, transforms, print_prefix, need_filter);
+    }
+    if (result.count("process")) {
+        pid = GetPIDByProcessName(processname);
         return search_in_win_process(pid, encoding, transforms, print_prefix, need_filter);
     }
 #endif // defined(_WIN32) || defined(_WIN64)
