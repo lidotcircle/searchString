@@ -67,6 +67,17 @@ public:
         auto f1 = ls_files_recursively(positive_example_dir);
         auto f2 = ls_files_recursively(negative_example_dir);
 
+        {
+            std::ifstream omodel(output_model, std::ios::binary | std::ios::in);
+            if (omodel) {
+                omodel.seekg(0, std::ios::end);
+                if (omodel.tellg() > 0) {
+                    omodel.seekg(0, std::ios::beg);
+                    omodel >> this->model;
+                }
+            }
+        }
+
         std::fstream out(output_model, std::ios::out | std::ios::binary);
         if (!out)
             throw std::runtime_error("cannot open output model file: " + output_model);

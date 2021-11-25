@@ -4,6 +4,7 @@
 #include "ngram_svm_filter.hpp"
 #include "utils.h"
 #include "../sfinder/unicode_converter.h"
+#include <vector>
 
 
 template<size_t N,
@@ -17,7 +18,7 @@ class GenericNGramSVMFilter : public NGramSVMFilter<N,int,TTrainer,TKernel> {
         GenericNGramSVMFilter(const std::string& model, const std::string& encoding): NGramSVMFilter<N,int,TTrainer,TKernel>(model), encoding(encoding) {}
 
         int filter(const std::string& str) const override {
-            vector<int> words;
+            std::vector<int> words;
             if (this->encoding == "gb2312") {
                 words = gb2312str_to_unicode(str);
             } else if (this->encoding == "utf8" || this->encoding == "ascii") {
