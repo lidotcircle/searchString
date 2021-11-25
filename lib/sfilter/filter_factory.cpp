@@ -3,7 +3,7 @@
 #include "sfilter/inclusive.h"
 #include "sfilter/exclusive.h"
 #include "sfilter/exclusive_full.h"
-#include "sfilter/gb2312_ngram_svm.hpp"
+#include "sfilter/generic_ngram_svm.hpp"
 #include <exception>
 #include <stdexcept>
 using namespace std;
@@ -15,7 +15,7 @@ static void keep_initialization_procedures(int i) {
         InclusiveFilter::register_handles,
         ExclusiveFilter::register_handles,
         ExclusiveFullFilter::register_handles,
-        GB2312NGramSVMFilter<1,dlib::svm_c_trainer,dlib::radial_basis_kernel>::register_handles,
+        GenericNGramSVMFilter<1,dlib::svm_c_trainer,dlib::radial_basis_kernel>::register_handles,
     };
     for (auto& h : hs) {
         for(auto& hh : h) {

@@ -1,23 +1,24 @@
-#include "svm/trainer_gb2312.hpp"
+#include "svm/trainer_generic.hpp"
 #include <stdexcept>
 #include "svm/supported_trainer_kernel.h"
 using namespace std;
 
 
-void train_gb2312_sentence_svm(size_t ngram,
-                               const string& trainer,
-                               const string& kernel,
-                               const string& positive_example_dir, 
-                               const string& negative_example_dir,
-                               const string& output_model)
+void train_sentence_svm(size_t ngram,
+                        const string& encoding,
+                        const string& trainer,
+                        const string& kernel,
+                        const string& positive_example_dir, 
+                        const string& negative_example_dir,
+                        const string& output_model)
 {
     if (ngram > 3)
         throw runtime_error("ngram must be <= 3");
 
 #define NENTRY(ngram_l, ngram_, trainer_l, trainer_, kernel_l, kernel_) \
     if (ngram_l == ngram && trainer_l == trainer && kernel_l == kernel) { \
-        GB2312SentenceSVMTrainer<ngram_,trainer_,kernel_> \
-            trainer__(positive_example_dir, negative_example_dir, output_model); \
+        GenericSentenceSVMTrainer<ngram_,trainer_,kernel_> \
+            trainer__(encoding, positive_example_dir, negative_example_dir, output_model); \
         trainer__.run_trainer(); \
         return; \
     }

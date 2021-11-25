@@ -1,6 +1,9 @@
 #include "sfinder/unicode_converter.h"
 #include "simple_array.hpp"
+#include "utils.h"
+#include <vector>
 #include <stdexcept>
+using namespace std;
 
 
 constexpr static uint16_t UnicodeToGB2312_Tab[][2] = {
@@ -1953,4 +1956,14 @@ std::vector<int> unicode_to_gb2312(const std::vector<int>& gb2312str) {
         }
     }
     return unicodestr;
+}
+
+std::vector<int> gb2312str_to_unicode(const std::string& gb2312str) {
+    auto f1 = gb2312str2twobytes(gb2312str);
+    return gb2312_to_unicode(vector<int>(f1.begin(), f1.end()));
+}
+
+std::string unicode_to_gb2312str(const std::vector<int>& unicode) {
+    auto f1 = unicode_to_gb2312(unicode);
+    return twobytes2gb2312str(vector<uint16_t>(f1.begin(), f1.end()));
 }

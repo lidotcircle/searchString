@@ -1,6 +1,6 @@
 #include "main.h"
 #include "search_string.h"
-#include "svm/trainer_gb2312.hpp"
+#include "svm/trainer_generic.hpp"
 #include <stdexcept>
 using namespace std;
 
@@ -29,7 +29,7 @@ int trainsvm_cmd(int argc, char **argv)
             "train a svm model for sentence validation");
 
     options.add_options()
-        ("e,encoding", "support ascii and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
+        ("e,encoding", "support ascii utf8 utf16 and gb2312", cxxopts::value<string>(encoding)->default_value("gb2312"), "<encoding>")
         ("ngram",      "sentence feature extracted by ngram frequency", cxxopts::value<size_t>(ngram)->default_value("2"), "<ngram>")
         ("trainer",    "svm trainer, see dlib for details", cxxopts::value<string>(trainer)->default_value("c_ekm"), "<trainer>")
         ("kernel",     "svm kernel type, see dlib for details", cxxopts::value<string>(kernel)->default_value("rbf"), "<kernel>")
@@ -64,7 +64,7 @@ int trainsvm_cmd(int argc, char **argv)
         return 1;
     }
 
-    if (encoding != "gb2312") {
+    if (encoding != "gb2312" && encoding != "utf8" && encoding != "utf16" && encoding != "ascii") {
         cerr << "unsupport encoding" << endl;
         cerr << options.help() << endl;
         return 1;
@@ -80,7 +80,7 @@ int trainsvm_cmd(int argc, char **argv)
     cout << "  negative exmpales: " << negative_example_dir << endl;
 
     try {
-        train_gb2312_sentence_svm(ngram, trainer, kernel, positive_example_dir, negative_example_dir, model);
+        train_sentence_svm(ngram, encoding, trainer, kernel, positive_example_dir, negative_example_dir, model);
         cout << "train finished" << endl;
     } catch (std::runtime_error& e) {
         cerr << e.what() << endl;

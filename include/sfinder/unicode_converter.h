@@ -14,6 +14,9 @@ std::string      encoder_utf16(const std::vector<int>& str, size_t& n, bool litt
 std::vector<int> gb2312_to_unicode(const std::vector<int>& gb2312str);
 std::vector<int> unicode_to_gb2312(const std::vector<int>& gb2312str);
 
+std::vector<int> gb2312str_to_unicode(const std::string& gb2312str);
+std::string      unicode_to_gb2312str(const std::vector<int>& unicode);
+
 bool is_desired_unicode_code_point(int val);
 
 #endif // _UNICODE_CONVERTER_H_
