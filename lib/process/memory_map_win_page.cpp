@@ -23,7 +23,7 @@ static string addr2hexstr(void* addr) {
 
 MemoryMapWinPage::MemoryMapWinPage(ProcessHandle handle, void* base, size_t size, bool direct_write):
     process_handle(handle), baseaddress(reinterpret_cast<addr_t>(base)), map_size(size),
-    cache(new char[CACHE_SIZE]), cache_size(0), cache_offset(std::string::npos), direct_write(direct_write), write_dirty(false)
+    cache(new char[CACHE_SIZE]), cache_size(0), cache_offset(size), direct_write(direct_write), write_dirty(false)
 {
 }
 
@@ -156,6 +156,7 @@ void MemoryMapWinPage::flush() {
         if (!writable)
             VirtualProtectEx(*this->process_handle.get(), addr, CACHE_SIZE, old_protect, &old_protect);
         this->cache_offset = this->map_size;
+        this->write_dirty = false;
     });
 
     if (!WriteProcessMemory(*this->process_handle.get(), addr, this->cache, cache_size, nullptr)) {

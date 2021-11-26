@@ -67,3 +67,9 @@ const std::string& MemoryMapModule::module_name() const {
 const MemoryMapModule::SectionMapType& MemoryMapModule::get_sections() const {
     return this->sections;
 }
+
+void MemoryMapModule::flush() {
+    for (auto& page: this->pages) {
+        page->flush();
+    }
+}

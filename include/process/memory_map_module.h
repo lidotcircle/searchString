@@ -34,6 +34,8 @@ public:
 
     const std::string& module_name() const;
     const SectionMapType& get_sections() const;
+
+    virtual void flush() override;
 };
 
 #endif // _MEMORY_MAP_MODULE_H_

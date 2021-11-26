@@ -81,6 +81,12 @@ MemoryMapIter MemoryMapIter::operator-(int n) const {
     return tmp;
 }
 
+MemoryMapIter::difference_type MemoryMapIter::operator-(const MemoryMapIter &other) const {
+    if (this->map != other.map)
+        throw invalid_argument("ProcessMapIter::operator-");
+    return index - other.index;
+}
+
 bool MemoryMapIter::operator==(const MemoryMapIter& other) const {
     return this->map == other.map &&  index == other.index;
 }

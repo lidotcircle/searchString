@@ -66,3 +66,9 @@ void MemoryMapSection::set_at(addr_t index, char value) {
 const std::string& MemoryMapSection::section_name() const {
     return this->sec_name;
 }
+
+void MemoryMapSection::flush() {
+    for (auto& page: this->pages) {
+        page->flush();
+    }
+}

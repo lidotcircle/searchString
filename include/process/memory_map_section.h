@@ -25,6 +25,8 @@ public:
     virtual void set_at(addr_t index, char value) override;
 
     const std::string& section_name() const;
+
+    virtual void flush() override;
 };
 
 #endif // _MEMORY_MAP_SECTION_H_

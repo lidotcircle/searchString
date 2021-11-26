@@ -21,6 +21,8 @@ public:
 
     bool is_valid_addr(addr_t addr);
     MemoryValueRef operator[](addr_t addr);
+
+    virtual void flush() override;
 };
 
 #endif // _MEMORY_MAP_COLLECTION_H_

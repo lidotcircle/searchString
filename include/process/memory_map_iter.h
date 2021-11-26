@@ -34,6 +34,8 @@ public:
     MemoryMapIter operator+(int n) const;
     MemoryMapIter operator-(int n) const;
 
+    difference_type operator-(const MemoryMapIter &other) const;
+
     bool operator==(const MemoryMapIter &other) const;
     bool operator!=(const MemoryMapIter &other) const;
 

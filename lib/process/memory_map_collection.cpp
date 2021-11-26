@@ -49,3 +49,10 @@ MemoryValueRef MemoryMapCollection::operator[] (addr_t addr) {
 
     return MemoryValueRef(this, addr);
 }
+
+void MemoryMapCollection::flush() {
+    for (size_t i=0;i<this->map_count();i++) {
+        auto region = this->get_map(i);
+        region->flush();
+    }
+}
