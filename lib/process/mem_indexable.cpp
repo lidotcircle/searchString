@@ -2,7 +2,8 @@
 
 
 #define GET_VAL(type) { \
-        this->flush(); \
+        if (this->flush_on_get_value) \
+            this->flush(); \
         union { \
             type f; \
             char c[sizeof(type)]; \
@@ -24,6 +25,12 @@
         this->flush(); \
     }
 
+
+MemIndexable::MemIndexable(): flush_on_get_value(false) {}
+
+void MemIndexable::set_flush_before_get_value(bool value) {
+    this->flush_on_get_value = value;
+}
 
 void MemIndexable::flush() {
 }

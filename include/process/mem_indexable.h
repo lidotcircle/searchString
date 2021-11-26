@@ -7,8 +7,13 @@
 
 class MemIndexable
 {
+private:
+    // flush before getting u8 u16 .. float double
+    bool flush_on_get_value;
+
 public:
     using addr_t = size_t;
+    MemIndexable();
 
     virtual ~MemIndexable() = default;
     virtual char get_at(addr_t index) const = 0;
@@ -28,6 +33,7 @@ public:
     virtual double  get_double(addr_t index);
     virtual void    set_double(addr_t index, double value);
 
+    void set_flush_before_get_value(bool value);
     virtual void flush();
 };
 
