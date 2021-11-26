@@ -53,19 +53,6 @@ target_link_libraries(${StringFinder} PRIVATE StringFinderLib)
 set_property(TARGET ${StringFinder} PROPERTY CXX_STANDARD 17)
 target_include_directories(${StringFinder} PRIVATE include)
 
-if(MSVC)
-  add_executable(cosmod ${CMAKE_CURRENT_LIST_DIR}/tools/cplayer_field_modify.cpp)
-  add_executable(pcbs   ${CMAKE_CURRENT_LIST_DIR}/tools/process_byte_change.cpp)
-  add_library(cheatcos STATIC
-    ${CMAKE_CURRENT_LIST_DIR}/tools/cplayer_finder.cpp
-    )
-  target_link_libraries(cheatcos PUBLIC StringFinderLib)
-  target_link_libraries(cheatcos PUBLIC cxxopts)
-  set_property(TARGET cheatcos PROPERTY CXX_STANDARD 17)
-  target_link_libraries(cosmod cheatcos)
-  target_link_libraries(pcbs   cheatcos)
-endif()
-
 # testing
 enable_testing()
 include(GoogleTest)

@@ -63,10 +63,14 @@ static const char encoding_gb2312[] = "gb2312";
 static const char encoding_ascii[]  = "ascii";
 static const char encoding_utf8[]   = "utf8";
 static const char encoding_utf16[]  = "utf16";
+static const auto fn_gb2312 = svm_creator<encoding_gb2312>;
+static const auto fn_utf8   = svm_creator<encoding_utf8>;
+static const auto fn_ascii  = svm_creator<encoding_ascii>;
+static const auto fn_utf16  = svm_creator<encoding_utf16>;
 template<>
 const vector<int> GenericNGramSVMFilter<1,dlib::svm_c_trainer,dlib::radial_basis_kernel>::register_handles = {
-    FilterFactory::register_filter("gb2312", name, desc, svm_creator<encoding_gb2312>),
-    FilterFactory::register_filter("ascii",  name, desc, svm_creator<encoding_ascii>),
-    FilterFactory::register_filter("utf8",   name, desc, svm_creator<encoding_utf8>),
-    FilterFactory::register_filter("utf16",  name, desc, svm_creator<encoding_utf16>),
+    FilterFactory::register_filter("gb2312", name, desc, fn_gb2312),
+    FilterFactory::register_filter("ascii",  name, desc, fn_ascii),
+    FilterFactory::register_filter("utf8",   name, desc, fn_utf8),
+    FilterFactory::register_filter("utf16",  name, desc, fn_utf16),
 };
