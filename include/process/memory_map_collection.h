@@ -19,7 +19,8 @@ public:
     virtual char get_at(addr_t addr) const override;
     virtual void set_at(addr_t addr, char value) override;
 
-    bool is_valid_addr(addr_t addr);
+    bool is_valid_addr(addr_t addr) const;
+    virtual std::shared_ptr<MemoryMap> get_map_by_addr(addr_t addr);
     MemoryValueRef operator[](addr_t addr);
 
     virtual void flush() override;
