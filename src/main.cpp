@@ -1,11 +1,17 @@
 #include "main.h"
 #include "utils.h"
+#include "lua/lua_wrapper.h"
 using namespace std;
 
 
 int main(int argc, char** argv) {
     if (argc > 1 && string(argv[1]) == "trainsvm")
         return trainsvm_cmd(argc - 1, argv + 1);
+    
+    if (lua_wrapper)
+        cout << "load lua" << endl;
+    else
+        cerr << "load lua failed" << endl;
 
     string encoding;
     string list;
