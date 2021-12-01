@@ -29,8 +29,14 @@ static void keep_initialization_procedures(int i) {
 
 namespace FilterFactory {
 
+FilterGeneratorWrapper::FilterGeneratorWrapper(create_filter_func_t gen): _creator_func(gen) {}
+
+std::shared_ptr<StringFilter> FilterGeneratorWrapper::operator()(const std::string& params) const {
+    return this->_creator_func(params);
+}
+
 static map<string,map<string,string>> s_filters;
-static map<string,map<string,pair<string,create_filter_func_t>>> s_filter_funcs;
+static map<string,map<string,pair<string,std::shared_ptr<FilterGenerator>>>> s_filter_funcs;
 
 std::shared_ptr<StringFilter>
 create(const std::string& encoding, const std::string &filter_expr) {
@@ -50,7 +56,7 @@ create(const std::string& encoding, const std::string &filter_expr) {
         throw runtime_error(filter + " is not supported by " + encoding);
 
     auto& entry = es[filter];
-    return entry.second(filter_params);
+    return entry.second->operator()(filter_params);
 }
 
 static int vn = 0, vm = 1;
@@ -80,8 +86,18 @@ register_filter(const std::string& encoding,
                 const std::string& description,
                 create_filter_func_t factory)
 {
+    return register_filter(encoding, filter_type, description,
+                           std::static_pointer_cast<FilterGenerator>(std::make_shared<FilterGeneratorWrapper>(factory)));
+}
+
+int
+register_filter(const std::string& encoding,
+                const std::string& filter_type,
+                const std::string& description,
+                std::shared_ptr<FilterGenerator> factory)
+{
     if (s_filter_funcs.find(encoding) == s_filter_funcs.end())
-        s_filter_funcs[encoding] = map<string,pair<string,create_filter_func_t>>();
+        s_filter_funcs[encoding] = map<string,pair<string,std::shared_ptr<FilterGenerator>>>();
 
     auto& es = s_filter_funcs[encoding];
     if (es.find(filter_type) != es.end())

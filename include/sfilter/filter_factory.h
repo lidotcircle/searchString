@@ -12,6 +12,22 @@ namespace FilterFactory {
 
 typedef std::shared_ptr<StringFilter> (*create_filter_func_t)(const std::string& params);
 
+class FilterGenerator {
+public:
+    virtual std::shared_ptr<StringFilter> operator()(const std::string& params) const = 0;
+};
+
+class FilterGeneratorWrapper : public FilterGenerator {
+private:
+    create_filter_func_t _creator_func;
+
+public:
+    FilterGeneratorWrapper() = delete;
+    FilterGeneratorWrapper(create_filter_func_t create_filter_func);
+
+    virtual std::shared_ptr<StringFilter> operator()(const std::string& params) const override;
+};
+
 
 std::shared_ptr<StringFilter>
 create(const std::string& encoding, const std::string &filter_expr);
@@ -24,6 +40,12 @@ register_filter(const std::string& encoding,
                 const std::string& filter_type,
                 const std::string& description,
                 create_filter_func_t factory);
+
+int
+register_filter(const std::string& encoding,
+                const std::string& filter_type,
+                const std::string& description,
+                std::shared_ptr<FilterGenerator> factory);
 
 }
 

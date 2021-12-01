@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <assert.h>
 #include "lua/lua_wrapper.h"
 using namespace std;
 
@@ -282,6 +283,15 @@ int LuaWrapper::lua_error(lua_State *L) const {
     return this->_lua_error(L);
 }
 
+int LuaWrapper::lua_error_except(lua_State *L) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_error_except not found");
+
+    assert(this->lua_isstring(L, -1));
+    auto err = this->lua_tostring(L, -1);
+    throw std::runtime_error(err);
+}
+
 lua_Number LuaWrapper::lua_tonumberx(lua_State *L, int idx, int *isnum) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_tonumberx not found");
@@ -350,6 +360,35 @@ const char* LuaWrapper::lua_checkstring(lua_State *L, int idx) const {
     if (!this->lua_isstring(L, idx)) {
         this->lua_pushstring(L, "string expected");
         this->lua_error(L);
+        return nullptr;
+    }
+
+    return this->lua_tostring(L, idx);
+}
+
+lua_Number LuaWrapper::lua_checknumber_except(lua_State *L, int idx) const {
+    int isnum;
+    auto ret = this->lua_tonumberx(L, idx, &isnum);
+    if (!isnum) {
+        this->lua_pushstring(L, "number expected");
+        return this->lua_error_except(L);
+    }
+
+    return ret;
+}
+lua_Integer LuaWrapper::lua_checkinteger_except(lua_State *L, int idx) const {
+    int isnum;
+    auto ret = this->lua_tointegerx(L, idx, &isnum);
+    if (!isnum) {
+        this->lua_pushstring(L, "integer expected");
+        return this->lua_error_except(L);
+    }
+    return ret;
+}
+const char* LuaWrapper::lua_checkstring_except(lua_State *L, int idx) const {
+    if (!this->lua_isstring(L, idx)) {
+        this->lua_pushstring(L, "string expected");
+        this->lua_error_except(L);
         return nullptr;
     }
 

@@ -5,7 +5,7 @@
 #include "../lua/lua_wrapper.h"
 #include <memory>
 
-class LuaFilter: StringFilter
+class LuaFilter: public StringFilter
 {
 private:
     lua_State* L;

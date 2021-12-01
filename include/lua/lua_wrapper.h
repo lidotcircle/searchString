@@ -133,7 +133,6 @@ private:
     lua_tointegerx_t _lua_tointegerx = nullptr;
     lua_toboolean_t _lua_toboolean = nullptr;
     lua_tolstring_t _lua_tolstring = nullptr;
-    lua_rawlen_t    _lua_rawlen = nullptr;
     lua_tocfunction_t _lua_tocfunction = nullptr;
     lua_touserdata_t _lua_touserdata = nullptr;
     lua_tothread_t _lua_tothread = nullptr;
@@ -199,6 +198,7 @@ public:
     void lua_pushcclosure(lua_State *L, lua_CFunction fn, int n) const;
 
     int lua_error(lua_State *L) const;
+    int lua_error_except(lua_State *L) const;
 
     lua_Number lua_tonumberx(lua_State *L, int idx, int *isnum) const;
     lua_Integer lua_tointegerx(lua_State *L, int idx, int *isnum) const;
@@ -214,9 +214,21 @@ public:
     lua_Integer lua_checkinteger(lua_State *L, int idx) const;
     const char* lua_checkstring(lua_State *L, int idx) const;
 
+    lua_Number  lua_checknumber_except (lua_State *L, int idx) const;
+    lua_Integer lua_checkinteger_except(lua_State *L, int idx) const;
+    const char* lua_checkstring_except (lua_State *L, int idx) const;
+
     operator bool() const;
 };
 
 extern const LuaWrapper lua_wrapper;
+
+#define LUA_EXCEPTION_BEGIN() \
+    try {
+#define LUA_EXCEPTION_END() \
+    } catch (std::runtime_error& e) { \
+        lua_wrapper.lua_pushstring(L, e.what()); \
+        return lua_wrapper.lua_error(L); \
+    }
 
 #endif // _LUA_WRAPPER_H_
