@@ -18,7 +18,7 @@ int LuaFilter::filter(const std::string& str) const {
     if (lua_wrapper.lua_pcall(L, 1, 1, 0) != LuaWrapper::LUA_OK) {
         size_t n;
         const char* err = lua_wrapper.lua_tolstring(L, -1, &n);
-        throw runtime_error(string(err, n));
+        throw runtime_error("lua_filter failed: " + string(err, n));
     }
 
     if (!lua_wrapper.lua_isnumber(L, -1))
@@ -60,6 +60,6 @@ int lua_register_filter(lua_State * L) {
     int ref = lua_wrapper.luaL_ref(L, LuaWrapper::LUA_REGISTRYINDEX);
     FilterFactory::register_filter(encoding, filter_name, desc,
                                    std::static_pointer_cast<FilterGenerator>(std::make_shared<LuaFilterGenerator>(L, ref)));
-
+    return 0;
     LUA_EXCEPTION_END();
 }

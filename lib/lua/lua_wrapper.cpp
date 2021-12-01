@@ -46,60 +46,20 @@ void LuaWrapper::resolve_functions() {
     if (this->library_handle == nullptr)
         return;
 
-    this->_luaL_newstate = (luaL_newstate_t)loader_resolve_symbol(*this->library_handle, "luaL_newstate");
-    this->_lua_close = (lua_close_t)loader_resolve_symbol(*this->library_handle, "lua_close");
-
-    this->_luaL_loadstring = (luaL_loadstring_t)loader_resolve_symbol(*this->library_handle, "luaL_loadstring");
-    this->_lua_pcallk = (lua_pcallk_t)loader_resolve_symbol(*this->library_handle, "lua_pcallk");
-    this->_lua_callk = (lua_callk_t)loader_resolve_symbol(*this->library_handle, "lua_callk");
-    this->_luaL_openlibs = (lua_CFunction)loader_resolve_symbol(*this->library_handle, "luaL_openlibs");
-
-    this->_lua_type = (lua_type_t)loader_resolve_symbol(*this->library_handle, "lua_type");
-
-    this->_luaL_ref = (luaL_ref_t)loader_resolve_symbol(*this->library_handle, "luaL_ref");
-    this->_luaL_unref = (luaL_unref_t)loader_resolve_symbol(*this->library_handle, "luaL_unref");
-
-    this->_lua_absindex = (lua_absindex_t)loader_resolve_symbol(*this->library_handle, "lua_absindex");
-    this->_lua_gettop = (lua_gettop_t)loader_resolve_symbol(*this->library_handle, "lua_gettop");
-    this->_lua_settop = (lua_settop_t)loader_resolve_symbol(*this->library_handle, "lua_settop");
-    this->_lua_pushvalue = (lua_pushvalue_t)loader_resolve_symbol(*this->library_handle, "lua_pushvalue");
-    this->_lua_rotate = (lua_rotate_t)loader_resolve_symbol(*this->library_handle, "lua_rotate");
-    this->_lua_copy = (lua_copy_t)loader_resolve_symbol(*this->library_handle, "lua_copy");
-    this->_lua_checkstack = (lua_checkstack_t)loader_resolve_symbol(*this->library_handle, "lua_checkstack");
-
-    this->_lua_getglobal = (lua_getglobal_t)loader_resolve_symbol(*this->library_handle, "lua_getglobal");
-    this->_lua_setglobal = (lua_setglobal_t)loader_resolve_symbol(*this->library_handle, "lua_setglobal");
-
-    this->_lua_createtable = (lua_createtable_t)loader_resolve_symbol(*this->library_handle, "lua_createtable");
-    this->_lua_gettable = (lua_gettable_t)loader_resolve_symbol(*this->library_handle, "lua_gettable");
-    this->_lua_settable = (lua_gettable_t)loader_resolve_symbol(*this->library_handle, "lua_settable");
-    this->_lua_rawlen   = (lua_rawlen_t)loader_resolve_symbol(*this->library_handle, "lua_rawlen");
-
-    this->_lua_pushnil = (lua_pushnil_t)loader_resolve_symbol(*this->library_handle, "lua_pushnil");
-    this->_lua_pushnumber = (lua_pushnumber_t)loader_resolve_symbol(*this->library_handle, "lua_pushnumber");
-    this->_lua_pushinteger = (lua_pushinteger_t)loader_resolve_symbol(*this->library_handle, "lua_pushinteger");
-    this->_lua_pushlstring = (lua_pushlstring_t)loader_resolve_symbol(*this->library_handle, "lua_pushlstring");
-    this->_lua_pushstring = (lua_pushstring_t)loader_resolve_symbol(*this->library_handle, "lua_pushstring");
-    this->_lua_pushboolean = (lua_pushboolean_t)loader_resolve_symbol(*this->library_handle, "lua_pushboolean");
-    this->_lua_pushlightuserdata = (lua_pushlightuserdata_t)loader_resolve_symbol(*this->library_handle, "lua_pushlightuserdata");
-    this->_lua_pushcclosure = (lua_pushcclosure_t)loader_resolve_symbol(*this->library_handle, "lua_pushcclosure");
-
-    this->_lua_error = (lua_CFunction)loader_resolve_symbol(*this->library_handle, "lua_error");
-
-    this->_lua_tonumberx = (lua_tonumberx_t)loader_resolve_symbol(*this->library_handle, "lua_tonumberx");
-    this->_lua_tointegerx = (lua_tointegerx_t)loader_resolve_symbol(*this->library_handle, "lua_tointegerx");
-    this->_lua_toboolean = (lua_toboolean_t)loader_resolve_symbol(*this->library_handle, "lua_toboolean");
-    this->_lua_tolstring = (lua_tolstring_t)loader_resolve_symbol(*this->library_handle, "lua_tolstring");
-    this->_lua_tocfunction = (lua_tocfunction_t)loader_resolve_symbol(*this->library_handle, "lua_tocfunction");
-    this->_lua_touserdata = (lua_touserdata_t)loader_resolve_symbol(*this->library_handle, "lua_touserdata");
-    this->_lua_tothread = (lua_tothread_t)loader_resolve_symbol(*this->library_handle, "lua_tothread");
-    this->_lua_topointer = (lua_topointer_t)loader_resolve_symbol(*this->library_handle, "lua_topointer");
+#define LFENTRY(rettype, funcname, ...) \
+    this->_ ## funcname = (rettype (*)(__VA_ARGS__))loader_resolve_symbol(*this->library_handle, #funcname);
+LUA_FUNCTION_LIST
+#undef LFENTRY
 }
 
+static const char* NX_REGISTRY = "__NX_REGISTRY";
 lua_State* LuaWrapper::luaL_newstate() const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("luaL_newstate not found");
-    return this->_luaL_newstate();
+    auto state = this->_luaL_newstate();
+    this->lua_newtable(state);
+    this->lua_setglobal(state, NX_REGISTRY);
+    return state;
 }
 
 lua_State* LuaWrapper::luaL_newstate_close_by_wrapper() const {
@@ -166,13 +126,31 @@ int LuaWrapper::lua_type(lua_State* L, int index) const {
 int LuaWrapper::luaL_ref(lua_State* L, int registry) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("luaL_ref not found");
-    return this->_luaL_ref(L, registry);
+
+    if (registry == LuaWrapper::LUA_REGISTRYINDEX) {
+        this->lua_checkstack(L, 2);
+        this->lua_getglobal(L, NX_REGISTRY);
+        this->lua_pushvalue(L, -2);
+        auto n = this->luaL_ref(L, -2);
+        this->lua_pop(L, 2);
+        return n;
+    } else {
+        return this->_luaL_ref(L, registry);
+    }
 }
 
 void LuaWrapper::luaL_unref(lua_State* L, int registry, int ref) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("luaL_unref not found");
-    this->_luaL_unref(L, registry, ref);
+
+    if (registry == LuaWrapper::LUA_REGISTRYINDEX) {
+        this->lua_checkstack(L, 2);
+        this->lua_getglobal(L, NX_REGISTRY);
+        this->luaL_unref(L, -1, ref);
+        this->lua_pop(L, 1);
+    } else {
+        this->_luaL_unref(L, registry, ref);
+    }
 }
 
 int LuaWrapper::lua_absindex(lua_State *L, int idx) const {
