@@ -14,4 +14,6 @@
 #include "smap/string_mapper.h"
 #include "smap/mapper_factory.h"
 
+#include "lua/strfd.h"
+
 #endif // _STRING_STRING_H_

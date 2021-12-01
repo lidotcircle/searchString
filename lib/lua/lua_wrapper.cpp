@@ -36,6 +36,12 @@ LuaWrapper::LuaWrapper()
     }
 }
 
+LuaWrapper::~LuaWrapper()
+{
+    for(auto L: this->l_states)
+        this->lua_close(L);
+}
+
 void LuaWrapper::resolve_functions() {
     if (this->library_handle == nullptr)
         return;
@@ -66,7 +72,7 @@ void LuaWrapper::resolve_functions() {
 
     this->_lua_createtable = (lua_createtable_t)loader_resolve_symbol(*this->library_handle, "lua_createtable");
     this->_lua_gettable = (lua_gettable_t)loader_resolve_symbol(*this->library_handle, "lua_gettable");
-    this->_lua_gettable = (lua_gettable_t)loader_resolve_symbol(*this->library_handle, "lua_gettable");
+    this->_lua_settable = (lua_gettable_t)loader_resolve_symbol(*this->library_handle, "lua_settable");
     this->_lua_rawlen   = (lua_rawlen_t)loader_resolve_symbol(*this->library_handle, "lua_rawlen");
 
     this->_lua_pushnil = (lua_pushnil_t)loader_resolve_symbol(*this->library_handle, "lua_pushnil");
@@ -77,12 +83,30 @@ void LuaWrapper::resolve_functions() {
     this->_lua_pushboolean = (lua_pushboolean_t)loader_resolve_symbol(*this->library_handle, "lua_pushboolean");
     this->_lua_pushlightuserdata = (lua_pushlightuserdata_t)loader_resolve_symbol(*this->library_handle, "lua_pushlightuserdata");
     this->_lua_pushcclosure = (lua_pushcclosure_t)loader_resolve_symbol(*this->library_handle, "lua_pushcclosure");
+
+    this->_lua_error = (lua_CFunction)loader_resolve_symbol(*this->library_handle, "lua_error");
+
+    this->_lua_tonumberx = (lua_tonumberx_t)loader_resolve_symbol(*this->library_handle, "lua_tonumberx");
+    this->_lua_tointegerx = (lua_tointegerx_t)loader_resolve_symbol(*this->library_handle, "lua_tointegerx");
+    this->_lua_toboolean = (lua_toboolean_t)loader_resolve_symbol(*this->library_handle, "lua_toboolean");
+    this->_lua_tolstring = (lua_tolstring_t)loader_resolve_symbol(*this->library_handle, "lua_tolstring");
+    this->_lua_tocfunction = (lua_tocfunction_t)loader_resolve_symbol(*this->library_handle, "lua_tocfunction");
+    this->_lua_touserdata = (lua_touserdata_t)loader_resolve_symbol(*this->library_handle, "lua_touserdata");
+    this->_lua_tothread = (lua_tothread_t)loader_resolve_symbol(*this->library_handle, "lua_tothread");
+    this->_lua_topointer = (lua_topointer_t)loader_resolve_symbol(*this->library_handle, "lua_topointer");
 }
 
 lua_State* LuaWrapper::luaL_newstate() const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("luaL_newstate not found");
     return this->_luaL_newstate();
+}
+
+lua_State* LuaWrapper::luaL_newstate_close_by_wrapper() const {
+    lua_State* state = this->luaL_newstate();
+    auto _this = const_cast<LuaWrapper*>(this);
+    _this->l_states.push_back(state);
+    return state;
 }
 
 void LuaWrapper::lua_close(lua_State* L) const {

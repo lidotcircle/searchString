@@ -2,6 +2,7 @@
 #define _LUA_WRAPPER_H_
 
 #include <stdarg.h>
+#include <vector>
 #include <memory>
 #include "loader.h"
 
@@ -138,12 +139,16 @@ private:
     lua_tothread_t _lua_tothread = nullptr;
     lua_topointer_t _lua_topointer = nullptr;
 
+    std::vector<lua_State*> l_states;
+
     void resolve_functions();
 
 public:
     LuaWrapper();
+    ~LuaWrapper();
 
     lua_State* luaL_newstate() const;
+    lua_State* luaL_newstate_close_by_wrapper() const;
     void lua_close(lua_State* L) const;
 
     int luaL_loadstring(lua_State *L, const char *s) const;
