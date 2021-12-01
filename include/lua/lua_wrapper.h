@@ -110,11 +110,11 @@ public:
     LuaWrapper();
     ~LuaWrapper();
 
-    lua_State* luaL_newstate_close_by_wrapper() const;
-
 #define LFENTRY(rettype, funcname, ...) rettype funcname(__VA_ARGS__) const;
 LUA_FUNCTION_LIST
 #undef LFENTRY
+
+    lua_State* luaL_newstate_close_by_wrapper() const;
 
     int  luaL_dostring(lua_State* L, const char* s) const;
     int  lua_pcall (lua_State *L, int nargs, int nresults, int errfunc) const;

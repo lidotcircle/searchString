@@ -3,6 +3,7 @@
 #include "lua/lua_wrapper.h"
 #include <stdexcept>
 #include <string>
+#include <iostream>
 using namespace std;
 using namespace FilterFactory;
 
@@ -12,8 +13,8 @@ LuaFilter::LuaFilter(lua_State* L, int funcref): L(L), filter_func_ref(funcref) 
 int LuaFilter::filter(const std::string& str) const {
     auto L = this->L;
 
+    lua_wrapper.lua_rawgeti(L, LuaWrapper::LUA_REGISTRYINDEX, this->filter_func_ref);
     lua_wrapper.lua_pushlstring(L, str.c_str(), str.size());
-    lua_wrapper.lua_pushvalue(L, this->filter_func_ref);
 
     if (lua_wrapper.lua_pcall(L, 1, 1, 0) != LuaWrapper::LUA_OK) {
         size_t n;

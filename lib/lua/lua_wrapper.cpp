@@ -70,17 +70,16 @@ lua_State* LuaWrapper::luaL_newstate() const {
     return state;
 }
 
-lua_State* LuaWrapper::luaL_newstate_close_by_wrapper() const {
-    lua_State* state = this->luaL_newstate();
-    auto _this = const_cast<LuaWrapper*>(this);
-    _this->l_states.push_back(state);
-    return state;
-}
-
 void LuaWrapper::lua_close(lua_State* L) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_close not found");
     this->_lua_close(L);
+}
+
+void LuaWrapper::luaL_openlibs(lua_State* L) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("luaL_openlibs not found");
+    this->_luaL_openlibs(L);
 }
 
 int LuaWrapper::luaL_loadstring(lua_State* L, const char* s) const {
@@ -89,40 +88,16 @@ int LuaWrapper::luaL_loadstring(lua_State* L, const char* s) const {
     return this->_luaL_loadstring(L, s);
 }
 
-int LuaWrapper::luaL_dostring(lua_State* L, const char* s) const {
-    if (this->library_handle == nullptr)
-        throw std::runtime_error("luaL_dostring not found");
-    return this->luaL_loadstring(L, s) || this->lua_pcall(L, 0, -1, 0);
-}
-
 int LuaWrapper::lua_pcallk(lua_State* L, int nargs, int nresults, int errfunc, lua_KContext ctx, lua_KFunction k) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_pcallk not found");
     return this->_lua_pcallk(L, nargs, nresults, errfunc, ctx, k);
 }
 
-int LuaWrapper::lua_pcall(lua_State* L, int nargs, int nresults, int errfunc) const {
-    if (this->library_handle == nullptr)
-        throw std::runtime_error("lua_pcall not found");
-    return this->_lua_pcallk(L, nargs, nresults, errfunc, 0, nullptr);
-}
-
 void LuaWrapper::lua_callk(lua_State* L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_callk not found");
     this->_lua_callk(L, nargs, nresults, ctx, k);
-}
-
-void LuaWrapper::lua_call(lua_State* L, int nargs, int nresults) const {
-    if (this->library_handle == nullptr)
-        throw std::runtime_error("lua_call not found");
-    this->_lua_callk(L, nargs, nresults, 0, nullptr);
-}
-
-void LuaWrapper::luaL_openlibs(lua_State* L) const {
-    if (this->library_handle == nullptr)
-        throw std::runtime_error("luaL_openlibs not found");
-    this->_luaL_openlibs(L);
 }
 
 int LuaWrapper::lua_type(lua_State* L, int index) const {
@@ -197,12 +172,6 @@ int LuaWrapper::lua_checkstack(lua_State *L, int extra) const {
     return this->_lua_checkstack(L, extra);
 }
 
-void LuaWrapper::lua_pop(lua_State *L, int n) const {
-    if (this->library_handle == nullptr)
-        throw std::runtime_error("lua_pop not found");
-    this->lua_settop(L, -n - 1);
-}
-
 int LuaWrapper::lua_getglobal(lua_State* L, const char* name) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_getglobal not found");
@@ -215,10 +184,10 @@ int LuaWrapper::lua_setglobal(lua_State* L, const char* name) const {
     return this->_lua_setglobal(L, name);
 }
 
-void LuaWrapper::lua_newtable(lua_State* L) const {
+void LuaWrapper::lua_createtable(lua_State* L, int narr, int nrec) const {
     if (this->library_handle == nullptr)
-        throw std::runtime_error("lua_newtable not found");
-    this->_lua_createtable(L, 0, 0);
+        throw std::runtime_error("lua_createtable not found");
+    this->_lua_createtable(L, narr, nrec);
 }
 
 void LuaWrapper::lua_settable(lua_State* L, int idx) const {
@@ -237,6 +206,50 @@ size_t LuaWrapper::lua_rawlen(lua_State* L, int idx) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_rawlen not found");
     return this->_lua_rawlen(L, idx);
+}
+
+int LuaWrapper::lua_getfield(lua_State* L, int idx, const char* k) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_getfield not found");
+    return this->_lua_getfield(L, idx, k);
+}
+
+int LuaWrapper::lua_geti(lua_State* L, int idx, lua_Integer n) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_geti not found");
+
+    if (idx == LuaWrapper::LUA_REGISTRYINDEX) {
+        this->lua_checkstack(L, 2);
+        this->lua_getglobal(L, NX_REGISTRY);
+        auto r = this->_lua_geti(L, -1, n);
+        this->lua_rotate(L, -2, -1);
+        this->lua_pop(L, 1);
+        return r;
+    } else {
+        return this->_lua_geti(L, idx, n);
+    }
+}
+
+int LuaWrapper::lua_rawget(lua_State* L, int idx) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_rawget not found");
+    return this->_lua_rawget(L, idx);
+}
+
+int LuaWrapper::lua_rawgeti(lua_State* L, int idx, lua_Integer n) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_rawgeti not found");
+
+    if (idx == LuaWrapper::LUA_REGISTRYINDEX) {
+        this->lua_checkstack(L, 2);
+        this->lua_getglobal(L, NX_REGISTRY);
+        auto r = this->_lua_rawgeti(L, -1, n);
+        this->lua_rotate(L, -2, -1);
+        this->lua_pop(L, 1);
+        return r;
+    } else {
+        return this->_lua_rawgeti(L, idx, n);
+    }
 }
 
 void LuaWrapper::lua_pushnil(lua_State* L) const {
@@ -293,15 +306,6 @@ int LuaWrapper::lua_error(lua_State *L) const {
     return this->_lua_error(L);
 }
 
-int LuaWrapper::lua_error_except(lua_State *L) const {
-    if (this->library_handle == nullptr)
-        throw std::runtime_error("lua_error_except not found");
-
-    assert(this->lua_isstring(L, -1));
-    auto err = this->lua_tostring(L, -1);
-    throw std::runtime_error(err);
-}
-
 lua_Number LuaWrapper::lua_tonumberx(lua_State *L, int idx, int *isnum) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_tonumberx not found");
@@ -322,10 +326,6 @@ const char* LuaWrapper::lua_tolstring(lua_State *L, int idx, size_t *len) const 
         throw std::runtime_error("lua_tolstring not found");
     return this->_lua_tolstring(L, idx, len);
 }
-const char* LuaWrapper::lua_tostring(lua_State *L, int idx) const {
-    size_t len;
-    return this->lua_tolstring(L, idx, &len);
-}
 lua_CFunction LuaWrapper::lua_tocfunction(lua_State *L, int idx) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_tocfunction not found");
@@ -345,6 +345,53 @@ const void* LuaWrapper::lua_topointer(lua_State *L, int idx) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_topointer not found");
     return this->_lua_topointer(L, idx);
+}
+
+
+LuaWrapper::operator bool() const {
+    return this->library_handle != nullptr;
+}
+
+
+lua_State* LuaWrapper::luaL_newstate_close_by_wrapper() const {
+    lua_State* state = this->luaL_newstate();
+    auto _this = const_cast<LuaWrapper*>(this);
+    _this->l_states.push_back(state);
+    return state;
+}
+
+int LuaWrapper::luaL_dostring(lua_State* L, const char* s) const {
+    return this->luaL_loadstring(L, s) || this->lua_pcall(L, 0, -1, 0);
+}
+
+int LuaWrapper::lua_pcall(lua_State* L, int nargs, int nresults, int errfunc) const {
+    return this->_lua_pcallk(L, nargs, nresults, errfunc, 0, nullptr);
+}
+
+void LuaWrapper::lua_call(lua_State* L, int nargs, int nresults) const {
+    this->_lua_callk(L, nargs, nresults, 0, nullptr);
+}
+
+void LuaWrapper::lua_newtable(lua_State* L) const {
+    this->lua_createtable(L, 0, 0);
+}
+
+void LuaWrapper::lua_pop(lua_State *L, int n) const {
+    this->lua_settop(L, -n - 1);
+}
+
+int LuaWrapper::lua_error_except(lua_State *L) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_error_except not found");
+
+    assert(this->lua_isstring(L, -1));
+    auto err = this->lua_tostring(L, -1);
+    throw std::runtime_error(err);
+}
+
+const char* LuaWrapper::lua_tostring(lua_State *L, int idx) const {
+    size_t len;
+    return this->lua_tolstring(L, idx, &len);
 }
 
 lua_Number LuaWrapper::lua_checknumber(lua_State *L, int idx) const {
@@ -405,6 +452,3 @@ const char* LuaWrapper::lua_checkstring_except(lua_State *L, int idx) const {
     return this->lua_tostring(L, idx);
 }
 
-LuaWrapper::operator bool() const {
-    return this->library_handle != nullptr;
-}
