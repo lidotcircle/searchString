@@ -6,22 +6,30 @@ using namespace std;
 
 #if defined(linux) || defined(BSD) || defined(__APPLE__)
 #define LIB_SUFFIX ".so"
+#define LIB_PREFIX "lib"
 #elif defined(_WIN32) || defined(_WIN64)
 #define LIB_SUFFIX ".dll"
+#define LIB_PREFIX ""
 #endif
 
 const LuaWrapper lua_wrapper;
+constexpr static const char* libluanames[] = {
+    "lua", "lua51", "lua52", "lua53"
+    "lua5.1", "lua5.2", "lua5.3"
+};
 
 LuaWrapper::LuaWrapper()
 {
-    lhandle_t handle = loader_load("lua" LIB_SUFFIX);
-    if (handle == nullptr)
-        handle = loader_load("lua51" LIB_SUFFIX);
-    if (handle == nullptr)
-        handle = loader_load("lua52" LIB_SUFFIX);
-    if (handle == nullptr)
-        handle = loader_load("lua53" LIB_SUFFIX);
-    
+    lhandle_t handle = nullptr;
+    auto nnames = sizeof(libluanames) / sizeof(libluanames[0]);
+    for (size_t i=0;i<nnames;i++) {
+        auto name = libluanames[i];
+        try {
+            handle = loader_load(LIB_PREFIX + string(name) + LIB_SUFFIX);
+            break;
+        } catch (runtime_error&) { }
+    }
+   
     if (handle != nullptr) {
         this->library_handle = std::shared_ptr<lhandle_t>(new lhandle_t(handle), [](lhandle_t* handle) {
             loader_unload(*handle);

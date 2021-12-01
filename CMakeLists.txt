@@ -31,6 +31,9 @@ target_link_libraries(StringFinderLib PUBLIC pe-parser-static)
 set_property(TARGET StringFinderLib PROPERTY CXX_STANDARD 17)
 target_include_directories(StringFinderLib PUBLIC include)
 target_include_directories(StringFinderLib PUBLIC thirdparty/aho_corasick/src/aho_corasick)
+if (NOT WIN32)
+  target_link_libraries(StringFinderLib PRIVATE dl)
+endif()
 
 add_library(cxxopts INTERFACE)
 target_include_directories(cxxopts INTERFACE thirdparty/cxxopts/include)
@@ -38,11 +41,11 @@ target_include_directories(cxxopts INTERFACE thirdparty/cxxopts/include)
 set(StringFinder strfd)
 set(StringFinder_SOURCES "")
 list(APPEND StringFinder_SOURCES
-	"src/main.cpp"
-	"src/utils.cpp"
-	"src/win32_utils.cpp"
-	"src/print_transforms.cpp"
-	"src/trainsvm.cpp"
+  "src/main.cpp"
+  "src/utils.cpp"
+  "src/win32_utils.cpp"
+  "src/print_transforms.cpp"
+  "src/trainsvm.cpp"
   "src/pefile.cpp"
   "src/search_process.cpp"
   )

@@ -15,58 +15,58 @@ typedef int (*lua_CFunction) (lua_State *L);
 typedef int (*lua_KFunction) (lua_State *L, int status, lua_KContext ctx);
 
 #define LUA_FUNCTION_LIST \
-    LFENTRY(lua_State*, luaL_newstate) \
-    LFENTRY(void, lua_close, lua_State* L) \
-    LFENTRY(void, luaL_openlibs, lua_State* L) \
+    LFENTRY(lua_State*,    luaL_newstate) \
+    LFENTRY(void,          lua_close,             lua_State* L) \
+    LFENTRY(void,          luaL_openlibs,         lua_State* L) \
     \
-    LFENTRY(int, luaL_loadstring, lua_State* L, const char* s) \
-    LFENTRY(void, lua_callk, lua_State* L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k) \
-    LFENTRY(int, lua_pcallk, lua_State* L, int nargs, int nresults, int errfunc, lua_KContext ctx, lua_KFunction k) \
+    LFENTRY(int,           luaL_loadstring,       lua_State* L, const char* s) \
+    LFENTRY(void,          lua_callk,             lua_State* L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k) \
+    LFENTRY(int,           lua_pcallk,            lua_State* L, int nargs, int nresults, int errfunc, lua_KContext ctx, lua_KFunction k) \
     \
-    LFENTRY(int, lua_type, lua_State* L, int idx) \
+    LFENTRY(int,           lua_type,              lua_State* L, int idx) \
     \
-    LFENTRY(int, luaL_ref, lua_State* L, int t) \
-    LFENTRY(void, luaL_unref, lua_State* L, int t, int ref) \
+    LFENTRY(int,           luaL_ref,              lua_State* L, int t) \
+    LFENTRY(void,          luaL_unref,            lua_State* L, int t, int ref) \
     \
-    LFENTRY(int, lua_absindex, lua_State* L, int idx) \
-    LFENTRY(int, lua_gettop, lua_State* L) \
-    LFENTRY(void, lua_settop, lua_State* L, int idx) \
-    LFENTRY(void, lua_pushvalue, lua_State* L, int idx) \
-    LFENTRY(void, lua_rotate, lua_State* L, int idx, int n) \
-    LFENTRY(void, lua_copy, lua_State* L, int fromidx, int toidx) \
-    LFENTRY(int, lua_checkstack, lua_State* L, int n) \
+    LFENTRY(int,           lua_absindex,          lua_State* L, int idx) \
+    LFENTRY(int,           lua_gettop,            lua_State* L) \
+    LFENTRY(void,          lua_settop,            lua_State* L, int idx) \
+    LFENTRY(void,          lua_pushvalue,         lua_State* L, int idx) \
+    LFENTRY(void,          lua_rotate,            lua_State* L, int idx, int n) \
+    LFENTRY(void,          lua_copy,              lua_State* L, int fromidx, int toidx) \
+    LFENTRY(int,           lua_checkstack,        lua_State* L, int n) \
     \
-    LFENTRY(int, lua_getglobal, lua_State* L, const char* name) \
-    LFENTRY(int, lua_setglobal, lua_State* L, const char* name) \
+    LFENTRY(int,           lua_getglobal,         lua_State* L, const char* name) \
+    LFENTRY(int,           lua_setglobal,         lua_State* L, const char* name) \
     \
-    LFENTRY(void, lua_createtable, lua_State* L, int narr, int nrec) \
-    LFENTRY(void, lua_settable, lua_State* L, int idx) \
-    LFENTRY(void, lua_gettable, lua_State* L, int idx) \
-    LFENTRY(size_t, lua_rawlen, lua_State* L, int idx) \
-    LFENTRY(int, lua_getfield, lua_State* L, int idx, const char *k) \
-    LFENTRY(int, lua_geti, lua_State* L, int idx, lua_Integer n) \
-    LFENTRY(int, lua_rawget, lua_State* L, int idx) \
-    LFENTRY(int, lua_rawgeti, lua_State* L, int idx, lua_Integer n) \
+    LFENTRY(void,          lua_createtable,       lua_State* L, int narr, int nrec) \
+    LFENTRY(void,          lua_settable,          lua_State* L, int idx) \
+    LFENTRY(void,          lua_gettable,          lua_State* L, int idx) \
+    LFENTRY(size_t,        lua_rawlen,            lua_State* L, int idx) \
+    LFENTRY(int,           lua_getfield,          lua_State* L, int idx, const char *k) \
+    LFENTRY(int,           lua_geti,              lua_State* L, int idx, lua_Integer n) \
+    LFENTRY(int,           lua_rawget,            lua_State* L, int idx) \
+    LFENTRY(int,           lua_rawgeti,           lua_State* L, int idx, lua_Integer n) \
     \
-    LFENTRY(void, lua_pushnil, lua_State* L) \
-    LFENTRY(void, lua_pushnumber, lua_State* L, lua_Number  n) \
-    LFENTRY(void, lua_pushinteger, lua_State* L, lua_Integer n) \
-    LFENTRY(const char*, lua_pushlstring, lua_State* L, const char *s, size_t len) \
-    LFENTRY(const char*, lua_pushstring, lua_State* L, const char *s) \
-    LFENTRY(void, lua_pushboolean, lua_State* L, int b) \
-    LFENTRY(void, lua_pushlightuserdata, lua_State* L, void *p) \
-    LFENTRY(void, lua_pushcclosure, lua_State* L, lua_CFunction fn, int n) \
+    LFENTRY(void,          lua_pushnil,           lua_State* L) \
+    LFENTRY(void,          lua_pushnumber,        lua_State* L, lua_Number  n) \
+    LFENTRY(void,          lua_pushinteger,       lua_State* L, lua_Integer n) \
+    LFENTRY(const char*,   lua_pushlstring,       lua_State* L, const char *s, size_t len) \
+    LFENTRY(const char*,   lua_pushstring,        lua_State* L, const char *s) \
+    LFENTRY(void,          lua_pushboolean,       lua_State* L, int b) \
+    LFENTRY(void,          lua_pushlightuserdata, lua_State* L, void *p) \
+    LFENTRY(void,          lua_pushcclosure,      lua_State* L, lua_CFunction fn, int n) \
     \
-    LFENTRY(int, lua_error, lua_State* L) \
+    LFENTRY(int,           lua_error,             lua_State* L) \
     \
-    LFENTRY(lua_Number, lua_tonumberx, lua_State* L, int idx, int *isnum) \
-    LFENTRY(lua_Integer, lua_tointegerx, lua_State* L, int idx, int *isnum) \
-    LFENTRY(int, lua_toboolean, lua_State* L, int idx) \
-    LFENTRY(const char*, lua_tolstring, lua_State* L, int idx, size_t *len) \
-    LFENTRY(lua_CFunction, lua_tocfunction, lua_State* L, int idx) \
-    LFENTRY(void*, lua_touserdata, lua_State* L, int idx) \
-    LFENTRY(lua_State*, lua_tothread, lua_State* L, int idx) \
-    LFENTRY(const void*, lua_topointer, lua_State* L, int idx) 
+    LFENTRY(lua_Number,    lua_tonumberx,         lua_State* L, int idx, int *isnum) \
+    LFENTRY(lua_Integer,   lua_tointegerx,        lua_State* L, int idx, int *isnum) \
+    LFENTRY(int,           lua_toboolean,         lua_State* L, int idx) \
+    LFENTRY(const char*,   lua_tolstring,         lua_State* L, int idx, size_t *len) \
+    LFENTRY(lua_CFunction, lua_tocfunction,       lua_State* L, int idx) \
+    LFENTRY(void*,         lua_touserdata,        lua_State* L, int idx) \
+    LFENTRY(lua_State*,    lua_tothread,          lua_State* L, int idx) \
+    LFENTRY(const void*,   lua_topointer,         lua_State* L, int idx)
 
 #define LFENTRY(rettype, funcname, ...) typedef rettype (*funcname ## _t)(__VA_ARGS__);
 LUA_FUNCTION_LIST
