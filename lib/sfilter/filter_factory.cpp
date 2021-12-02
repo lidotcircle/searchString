@@ -29,11 +29,18 @@ static void keep_initialization_procedures(int i) {
 
 namespace FilterFactory {
 
-FilterGeneratorWrapper::FilterGeneratorWrapper(create_filter_func_t gen): _creator_func(gen) {}
+class FilterGeneratorWrapper : public FilterGenerator {
+private:
+    create_filter_func_t _creator_func;
 
-std::shared_ptr<StringFilter> FilterGeneratorWrapper::operator()(const std::string& params) const {
-    return this->_creator_func(params);
-}
+public:
+    FilterGeneratorWrapper() = delete;
+    FilterGeneratorWrapper(create_filter_func_t gen): _creator_func(gen) {};
+
+    virtual std::shared_ptr<StringFilter> operator()(const std::string& params) const override {
+        return this->_creator_func(params);
+    }
+};
 
 static map<string,map<string,string>> s_filters;
 static map<string,map<string,pair<string,std::shared_ptr<FilterGenerator>>>> s_filter_funcs;

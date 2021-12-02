@@ -3,7 +3,6 @@
 
 #include "string_filter.h"
 #include "../lua/lua_wrapper.h"
-#include <memory>
 
 class LuaFilter: public StringFilter
 {

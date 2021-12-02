@@ -372,6 +372,14 @@ void LuaWrapper::lua_call(lua_State* L, int nargs, int nresults) const {
     this->_lua_callk(L, nargs, nresults, 0, nullptr);
 }
 
+lua_Integer LuaWrapper::lua_tointeger(lua_State* L, int idx) const {
+    int isnum;
+    int v = this->_lua_tointegerx(L, idx, &isnum);
+    if (!isnum)
+        throw std::runtime_error("lua_tointeger: not a number");
+    return v;
+}
+
 void LuaWrapper::lua_newtable(lua_State* L) const {
     this->lua_createtable(L, 0, 0);
 }

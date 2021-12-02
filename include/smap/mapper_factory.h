@@ -12,12 +12,24 @@ namespace MapperFactory {
 
 typedef std::shared_ptr<StringMapper> (*create_mapper_func_t)(const std::string& params);
 
+class MapperGenerator {
+public:
+    virtual std::shared_ptr<StringMapper> operator()(const std::string& params) const = 0;
+};
+
 
 std::shared_ptr<StringMapper>
 create(const std::string& encoding, const std::string &mapper_expr);
 
 const std::map<std::string,std::map<std::string,std::string>>&
 get_supported_mappers();
+
+int
+register_mapper(const std::string& encoding,
+                const std::string& mapper_type,
+                const std::string& description,
+                std::shared_ptr<MapperGenerator> factory);
+
 
 int
 register_mapper(const std::string& encoding,

@@ -129,6 +129,9 @@ LUA_FUNCTION_LIST
     inline int lua_isfunction(lua_State *L, int index) const { return lua_type(L, index) == LUA_TFUNCTION ; }
     inline int lua_isuserdata(lua_State *L, int index) const { return lua_type(L, index) == LUA_TUSERDATA ; }
     inline int lua_isthread(lua_State *L, int index) const { return lua_type(L, index) == LUA_TTHREAD ; }
+    inline int lua_isinteger(lua_State *L, int index) const { int ret; this->lua_tointegerx(L, index, &ret); return ret; }
+
+    lua_Integer lua_tointeger(lua_State *L, int index) const;
 
     void lua_newtable(lua_State *L) const;
     void lua_pop(lua_State *L, int n) const;

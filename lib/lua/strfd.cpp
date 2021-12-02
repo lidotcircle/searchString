@@ -1,6 +1,7 @@
 #include "lua/strfd.h"
 #include "lua/lua_wrapper.h"
 #include "sfilter/lua_filter.h"
+#include "smap/lua_mapper.h"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -11,6 +12,7 @@ static shared_ptr<lua_State> gluaL;
 
 static vector<pair<string,lua_CFunction>> strfd_lua_funcs = {
     { "register_filter", lua_register_filter },
+    { "register_mapper", lua_register_mapper },
 };
 
 bool setup_lua_strfd(const std::string& luascript) {

@@ -37,8 +37,20 @@ static void keep_initialization_procedures(int i) {
 
 namespace MapperFactory {
 
+class MapperGeneratorFuncWrapper: public MapperGenerator {
+private:
+    create_mapper_func_t func;
+
+public:
+    MapperGeneratorFuncWrapper(create_mapper_func_t func): func(func) {}
+
+    virtual std::shared_ptr<StringMapper> operator()(const std::string& params) const {
+        return this->func(params);
+    }
+};
+
 static map<string,map<string,string>> s_mappers;
-static map<string,map<string,pair<string,create_mapper_func_t>>> s_mapper_funcs;
+static map<string,map<string,pair<string,std::shared_ptr<MapperGenerator>>>> s_mapper_funcs;
 
 std::shared_ptr<StringMapper>
 create(const std::string& encoding, const std::string &mapper_expr) {
@@ -58,7 +70,7 @@ create(const std::string& encoding, const std::string &mapper_expr) {
         throw runtime_error(mapper + " is not supported by " + encoding);
 
     auto& entry = es[mapper];
-    return entry.second(mapper_params);
+    return entry.second->operator()(mapper_params);
 }
 
 static int vn = 0, vm = 1;
@@ -86,10 +98,10 @@ int
 register_mapper(const std::string& encoding,
                 const std::string& mapper_type,
                 const std::string& description,
-                create_mapper_func_t factory)
+                shared_ptr<MapperGenerator> factory)
 {
     if (s_mapper_funcs.find(encoding) == s_mapper_funcs.end())
-        s_mapper_funcs[encoding] = map<string,pair<string,create_mapper_func_t>>();
+        s_mapper_funcs[encoding] = map<string,pair<string,shared_ptr<MapperGenerator>>>();
 
     auto& es = s_mapper_funcs[encoding];
     if (es.find(mapper_type) != es.end())
@@ -98,6 +110,16 @@ register_mapper(const std::string& encoding,
     es[mapper_type] = make_pair(description, factory);
     keep_initialization_procedures(vm);
     return vm++;
+}
+
+int
+register_mapper(const std::string& encoding,
+                const std::string& mapper_type,
+                const std::string& description,
+                create_mapper_func_t factory)
+{
+    return register_mapper(encoding, mapper_type, description,
+                           make_shared<MapperGeneratorFuncWrapper>(factory));
 }
 
 }
