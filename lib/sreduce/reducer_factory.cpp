@@ -35,7 +35,19 @@ static void keep_initialization_procedures(int i) {
 namespace ReducerFactory {
 
 static map<string,map<string,string>> s_reducers;
-static map<string,map<string,pair<string,create_reducer_func_t>>> s_reducer_funcs;
+static map<string,map<string,pair<string,shared_ptr<ReducerGenerator>>>> s_reducer_funcs;
+
+class ReducerGeneratorFuncWrapper: public ReducerGenerator {
+private:
+    create_reducer_func_t m_func;
+
+public:
+    ReducerGeneratorFuncWrapper(create_reducer_func_t func): m_func(func) {}
+
+    virtual unique_ptr<StringReducer> operator()(const string& params) override {
+        return m_func(params);
+    }
+};
 
 std::unique_ptr<StringReducer>
 create(const std::string& encoding, const std::string &reducer_expr) {
@@ -55,7 +67,7 @@ create(const std::string& encoding, const std::string &reducer_expr) {
         throw runtime_error(reducer + " is not supported by " + encoding);
 
     auto& entry = es[reducer];
-    return entry.second(reducer_params);
+    return entry.second->operator()(reducer_params);
 }
 
 static int vn = 0, vm = 1;
@@ -83,10 +95,10 @@ int
 register_reducer(const std::string& encoding,
                 const std::string& reducer_type,
                 const std::string& description,
-                create_reducer_func_t factory)
+                shared_ptr<ReducerGenerator> factory)
 {
     if (s_reducer_funcs.find(encoding) == s_reducer_funcs.end())
-        s_reducer_funcs[encoding] = map<string,pair<string,create_reducer_func_t>>();
+        s_reducer_funcs[encoding] = map<string,pair<string,shared_ptr<ReducerGenerator>>>();
 
     auto& es = s_reducer_funcs[encoding];
     if (es.find(reducer_type) != es.end())
@@ -95,6 +107,16 @@ register_reducer(const std::string& encoding,
     es[reducer_type] = make_pair(description, factory);
     keep_initialization_procedures(vm);
     return vm++;
+}
+
+int
+register_reducer(const std::string& encoding,
+                 const std::string& reducer_type,
+                 const std::string& description,
+                 create_reducer_func_t factory)
+{
+    return register_reducer(encoding, reducer_type, description,
+                            make_shared<ReducerGeneratorFuncWrapper>(factory));
 }
 
 }

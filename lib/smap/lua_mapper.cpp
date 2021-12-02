@@ -1,11 +1,27 @@
 #include "smap/lua_mapper.h"
+#include "smap/string_mapper.h"
 #include "smap/mapper_factory.h"
-#include <iostream>
+#include "utils.hpp"
 using namespace std;
 using namespace MapperFactory;
 
 
-LuaMapper::LuaMapper(lua_State* L, int ref): L(L), func_ref(ref) {
+class LuaMapper : public StringMapper {
+private:
+    lua_State* L;
+    int func_ref;
+    string params;
+
+public:
+    LuaMapper(lua_State* L, int ref, const string& params);
+    ~LuaMapper();
+
+    virtual std::vector<std::pair<size_t,std::string>> map(const std::string&) const override;
+};
+
+
+
+LuaMapper::LuaMapper(lua_State* L, int ref, const string& params): L(L), func_ref(ref), params(params) {
 }
 
 LuaMapper::~LuaMapper() {
@@ -14,9 +30,15 @@ LuaMapper::~LuaMapper() {
 vector<pair<size_t,std::string>> LuaMapper::map(const string& str) const {
     auto L = this->L;
     vector<pair<size_t,std::string>> result;
+    auto t = lua_wrapper.lua_gettop(L);
+    defer([&]() { lua_wrapper.lua_settop(L, t); });
 
     lua_wrapper.lua_rawgeti(L, LuaWrapper::LUA_REGISTRYINDEX, this->func_ref);
     lua_wrapper.lua_pushlstring(L, str.c_str(), str.size());
+    if (this->params.empty())
+        lua_wrapper.lua_pushnil(L);
+    else
+        lua_wrapper.lua_pushlstring(L, this->params.c_str(), this->params.size());
 
     // return value
     // 1: nil
@@ -24,7 +46,7 @@ vector<pair<size_t,std::string>> LuaMapper::map(const string& str) const {
     // 3: integer, string
     // 4: string[]
     // 5: [integer, string][]
-    if (lua_wrapper.lua_pcall(L, 1, 2, 0) != LuaWrapper::LUA_OK) {
+    if (lua_wrapper.lua_pcall(L, 2, 2, 0) != LuaWrapper::LUA_OK) {
         size_t n;
         const char* err = lua_wrapper.lua_tolstring(L, -1, &n);
         throw runtime_error("lua_mapper failed: " + string(err, n));
@@ -78,7 +100,6 @@ vector<pair<size_t,std::string>> LuaMapper::map(const string& str) const {
         }
     }
 
-    lua_wrapper.lua_pop(L, 2);
     return std::move(result);
 }
 
@@ -91,7 +112,7 @@ public:
     LuaMapperGenerator(lua_State* L, int funcref): L(L), funcref(funcref) {}
 
     std::shared_ptr<StringMapper> operator()(const string& params) const override {
-        return std::make_shared<LuaMapper>(this->L, this->funcref);
+        return std::make_shared<LuaMapper>(this->L, this->funcref, params);
     }
 };
 
