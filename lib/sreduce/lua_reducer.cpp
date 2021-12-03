@@ -37,7 +37,10 @@ public:
         if (lua_wrapper.lua_pcall(L, 2, 0, 0) != LuaWrapper::LUA_OK)
             throw runtime_error("init function failed");
     }
-    virtual ~LuaReducer() = default;
+
+    virtual ~LuaReducer() {
+        lua_wrapper.luaL_unref(L, LuaWrapper::LUA_REGISTRYINDEX, obj_ref);
+    }
 
     virtual void reduce(const std::pair<size_t,std::string>& pair) override {
         auto t = lua_wrapper.lua_gettop(L);
@@ -137,11 +140,11 @@ int lua_register_reducer(lua_State *L) {
     string filter_name = lua_wrapper.lua_checkstring_except(L, 2);
     string desc = lua_wrapper.lua_checkstring_except(L, 3);
     if (!lua_wrapper.lua_isfunction(L, 4))
-        throw runtime_error("mapper function must be a function");
+        throw runtime_error("reducer factory must be a function");
 
     int ref = lua_wrapper.luaL_ref(L, LuaWrapper::LUA_REGISTRYINDEX);
     register_reducer(encoding, filter_name, desc,
-                    make_shared<LuaReducerGenerator>(L, ref));
+                     make_shared<LuaReducerGenerator>(L, ref));
     return 0;
     LUA_EXCEPTION_END();
 }
