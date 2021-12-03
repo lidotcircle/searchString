@@ -17,6 +17,11 @@ static vector<pair<string,lua_CFunction>> strfd_lua_funcs = {
     { "register_mapper",  lua_register_mapper },
     { "register_reducer", lua_register_reducer },
     { "register_finder",  lua_register_finder },
+
+    { "filter_list",      lua_filter_list },
+    { "mapper_list",      lua_mapper_list },
+    { "finder_list",      lua_finder_list },
+    { "reducer_list",     lua_reducer_list },
 };
 
 bool setup_lua_strfd(const std::string& luascript) {

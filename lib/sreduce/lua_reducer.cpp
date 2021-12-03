@@ -149,3 +149,30 @@ int lua_register_reducer(lua_State *L) {
     LUA_EXCEPTION_END();
 }
 
+int lua_reducer_list(lua_State* L) {
+    LUA_EXCEPTION_BEGIN();
+
+    if (lua_wrapper.lua_gettop(L) != 1 ||
+        !lua_wrapper.lua_isstring(L, -1))
+    {
+        throw runtime_error("expect string");
+    }
+
+    string encoding = lua_wrapper.lua_tostring(L, -1);
+    auto allreducers = ReducerFactory::get_supported_reducers();
+    auto reducers = allreducers[encoding];
+
+    lua_wrapper.lua_newtable(L);
+    size_t i = 1;
+    for (auto& reducer: reducers) {
+        lua_wrapper.lua_newtable(L);
+        lua_wrapper.lua_pushstring(L, reducer.first.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 1);
+        lua_wrapper.lua_pushstring(L, reducer.second.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 2);
+        lua_wrapper.lua_rawseti(L, -2, i++);
+    }
+
+    return 1;
+    LUA_EXCEPTION_END();
+}

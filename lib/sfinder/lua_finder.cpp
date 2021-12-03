@@ -87,15 +87,15 @@ void LuaFinder::feed_end()
 
 
     lua_wrapper.lua_rawgeti(L, LuaWrapper::LUA_REGISTRYINDEX, obj_ref);
-    lua_wrapper.lua_pushstring(L, "end");
+    lua_wrapper.lua_pushstring(L, "feed_end");
     lua_wrapper.lua_gettable(L, -2);
 
     if (!lua_wrapper.lua_isfunction(L, -1))
-        throw std::runtime_error("end() must be implemented");
+        throw std::runtime_error("feed_end() must be implemented");
 
     lua_wrapper.lua_pushvalue(L, -2);
     if (lua_wrapper.lua_pcall(L, 1, 2, 0) != LuaWrapper::LUA_OK) {
-        throw std::runtime_error("lua finder object end() failed: " +
+        throw std::runtime_error("lua finder object feed_end() failed: " +
                                  string(lua_wrapper.lua_tostring(L, -1)));
     }
 
@@ -189,5 +189,24 @@ int lua_register_finder(lua_State* L) {
     register_finder(encoding, desc,
                     make_shared<LuaFinderGenerator>(L, ref));
     return 0;
+    LUA_EXCEPTION_END();
+}
+
+int lua_finder_list(lua_State* L) {
+    LUA_EXCEPTION_BEGIN();
+    auto finders = FinderFactory::get_supported_finders();
+
+    lua_wrapper.lua_newtable(L);
+    size_t i = 1;
+    for (auto& finder: finders) {
+        lua_wrapper.lua_newtable(L);
+        lua_wrapper.lua_pushstring(L, finder.first.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 1);
+        lua_wrapper.lua_pushstring(L, finder.second.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 2);
+        lua_wrapper.lua_rawseti(L, -2, i++);
+    }
+
+    return 1;
     LUA_EXCEPTION_END();
 }

@@ -80,3 +80,31 @@ int lua_register_filter(lua_State * L) {
     return 0;
     LUA_EXCEPTION_END();
 }
+
+int lua_filter_list(lua_State* L) {
+    LUA_EXCEPTION_BEGIN();
+
+    if (lua_wrapper.lua_gettop(L) != 1 ||
+        !lua_wrapper.lua_isstring(L, -1))
+    {
+        throw runtime_error("expect string");
+    }
+
+    string encoding = lua_wrapper.lua_tostring(L, -1);
+    auto allfilters = FilterFactory::get_supported_filters();
+    auto filters = allfilters[encoding];
+
+    lua_wrapper.lua_newtable(L);
+    size_t i = 1;
+    for (auto& filter: filters) {
+        lua_wrapper.lua_newtable(L);
+        lua_wrapper.lua_pushstring(L, filter.first.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 1);
+        lua_wrapper.lua_pushstring(L, filter.second.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 2);
+        lua_wrapper.lua_rawseti(L, -2, i++);
+    }
+
+    return 1;
+    LUA_EXCEPTION_END();
+}

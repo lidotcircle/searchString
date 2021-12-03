@@ -133,3 +133,31 @@ int lua_register_mapper(lua_State * L) {
     return 0;
     LUA_EXCEPTION_END();
 }
+
+int lua_mapper_list(lua_State* L) {
+    LUA_EXCEPTION_BEGIN();
+
+    if (lua_wrapper.lua_gettop(L) != 1 ||
+        !lua_wrapper.lua_isstring(L, -1))
+    {
+        throw runtime_error("expect string");
+    }
+
+    string encoding = lua_wrapper.lua_tostring(L, -1);
+    auto allmappers = MapperFactory::get_supported_mappers();
+    auto mappers = allmappers[encoding];
+
+    lua_wrapper.lua_newtable(L);
+    size_t i = 1;
+    for (auto& mapper: mappers) {
+        lua_wrapper.lua_newtable(L);
+        lua_wrapper.lua_pushstring(L, mapper.first.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 1);
+        lua_wrapper.lua_pushstring(L, mapper.second.c_str());
+        lua_wrapper.lua_rawseti(L, -2, 2);
+        lua_wrapper.lua_rawseti(L, -2, i++);
+    }
+
+    return 1;
+    LUA_EXCEPTION_END();
+}

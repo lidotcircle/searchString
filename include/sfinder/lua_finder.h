@@ -15,5 +15,6 @@
  *       just indicate the end of the input
  */
 int lua_register_finder(lua_State *L);
+int lua_finder_list(lua_State *L);
 
 #endif // _LUA_FINDER_H_

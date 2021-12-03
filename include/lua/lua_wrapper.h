@@ -48,6 +48,10 @@ typedef int (*lua_KFunction) (lua_State *L, int status, lua_KContext ctx);
     LFENTRY(int,           lua_rawget,            lua_State* L, int idx) \
     LFENTRY(int,           lua_rawgeti,           lua_State* L, int idx, lua_Integer n) \
     \
+    LFENTRY(void,          lua_seti,              lua_State* L, int idx, lua_Integer n) \
+    LFENTRY(void,          lua_rawset,            lua_State* L, int idx) \
+    LFENTRY(void,          lua_rawseti,           lua_State* L, int idx, lua_Integer n) \
+    \
     LFENTRY(void,          lua_pushnil,           lua_State* L) \
     LFENTRY(void,          lua_pushnumber,        lua_State* L, lua_Number  n) \
     LFENTRY(void,          lua_pushinteger,       lua_State* L, lua_Integer n) \

@@ -252,6 +252,25 @@ int LuaWrapper::lua_rawgeti(lua_State* L, int idx, lua_Integer n) const {
     }
 }
 
+void LuaWrapper::lua_seti(lua_State* L, int idx, lua_Integer n) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_seti not found");
+
+    this->_lua_seti(L, idx, n);
+}
+
+void LuaWrapper::lua_rawset(lua_State* L, int idx) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_rawset not found");
+    return this->_lua_rawset(L, idx);
+}
+
+void LuaWrapper::lua_rawseti(lua_State* L, int idx, lua_Integer n) const {
+    if (this->library_handle == nullptr)
+        throw std::runtime_error("lua_rawseti not found");
+    return this->_lua_rawseti(L, idx, n);
+}
+
 void LuaWrapper::lua_pushnil(lua_State* L) const {
     if (this->library_handle == nullptr)
         throw std::runtime_error("lua_pushnil not found");

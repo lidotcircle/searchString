@@ -4,5 +4,6 @@
 #include "../lua/lua_wrapper.h"
 
 int lua_register_filter(lua_State * L);
+int lua_filter_list(lua_State * L);
 
 #endif // _LUA_FILTER_H_
