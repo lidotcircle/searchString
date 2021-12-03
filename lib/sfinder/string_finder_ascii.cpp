@@ -1,5 +1,8 @@
 #include "sfinder/string_finder_ascii.h"
+#include "sfinder/finder_factory.h"
 #include <assert.h>
+#include <string>
+using namespace std;
 
 #define _IS_V_ASCII_CRLF(c)  ((c >= 0x20 && c <  0x7f) \
         || c == 0x09 || c == 0x0A || c == 0x0D)
@@ -39,3 +42,9 @@ std::vector<std::pair<size_t,std::string>>& StringFinderASCII::pre_fetch() {
     return this->outputs;
 }
 
+const int StringFinderASCII::register_handle = FinderFactory::register_finder(
+        "ascii",
+        "printable ascii string",
+        [](const string& params) {
+            return std::unique_ptr<StringFinder>(new StringFinderASCII());
+        });

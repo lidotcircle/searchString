@@ -1,5 +1,7 @@
 #include "sfinder/string_finder_utf16.h"
 #include "sfinder/unicode_converter.h"
+#include "sfinder/finder_factory.h"
+#include <string>
 #include <assert.h>
 using namespace std;
 
@@ -84,3 +86,17 @@ std::vector<std::pair<size_t,std::string>>& StringFinderUTF16::pre_fetch() {
     return this->outputs;
 }
 
+const auto creator = [](const string& params) {
+    bool little = false;
+    if (!params.empty()) {
+        if (params != "little")
+            throw std::runtime_error("invalid parameter for utf16 string extractor");
+        little = true;
+    }
+    return std::unique_ptr<StringFinder>(new StringFinderUTF16(little));
+};
+const int StringFinderUTF16::register_handle = FinderFactory::register_finder(
+        "utf16",
+        "utf16 string extractor",
+        creator
+);

@@ -1,5 +1,8 @@
 #include "sfinder/string_finder_gb2312.h"
+#include "sfinder/finder_factory.h"
+#include <string>
 #include <assert.h>
+using namespace std;
 
 
 /** GB2312 string
@@ -86,3 +89,9 @@ std::vector<std::pair<size_t,std::string>>& StringFinderGB2312::pre_fetch() {
     return this->outputs;
 }
 
+const int StringFinderGB2312::register_handle = FinderFactory::register_finder(
+        "gb2312",
+        "gb2312 string extractor",
+        [](const string& params) {
+            return std::unique_ptr<StringFinder>(new StringFinderGB2312());
+        });

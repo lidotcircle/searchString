@@ -27,6 +27,8 @@ public:
 
     virtual void feed_char(unsigned char c) override;
     virtual void feed_end() override;
+
+    static const int register_handle;
 };
 
 #endif // _STRING_FINDER_UTF16_H_

@@ -25,7 +25,7 @@ TEST(SearchStringAscii, WholeSentence) {
     for (auto &str : sentences)
     {
         auto buf = str.c_str();
-        auto n = make_string_getter<StringFinderASCII>(buf, buf + str.size());
+        auto n = make_string_getter(buf, buf + str.size(), "ascii", "");
         auto gbegin = n->begin(); 
         auto gend = n->end();
 

@@ -1,5 +1,7 @@
 #include "sfinder/string_finder_utf8.h"
 #include "sfinder/unicode_converter.h"
+#include "sfinder/finder_factory.h"
+#include <string>
 #include <assert.h>
 using namespace std;
 
@@ -51,3 +53,9 @@ std::vector<std::pair<size_t,std::string>>& StringFinderUTF8::pre_fetch() {
     return this->outputs;
 }
 
+const int StringFinderUTF8::register_handle = FinderFactory::register_finder(
+        "utf8",
+        "printable utf8 string",
+        [](const string& params) {
+            return std::unique_ptr<StringFinder>(new StringFinderUTF8());
+        });

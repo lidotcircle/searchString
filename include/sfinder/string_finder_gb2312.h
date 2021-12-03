@@ -26,6 +26,8 @@ public:
     virtual void feed_end() override;
 
     static bool is_gb2312_twobyte(unsigned char first, unsigned char second);
+
+    static const int register_handle;
 };
 
 
